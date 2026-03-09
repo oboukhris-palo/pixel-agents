@@ -8,6 +8,10 @@ export interface AgentState {
 	lastActivityTimestamp: number;
 	/** Workspace folder name (only set for multi-root workspaces) */
 	folderName?: string;
+	/** Agent role/name from .github/agents/*.agent.md */
+	agentRole?: string;
+	/** Currently accessed file path (for .github highlighting) */
+	currentFilePath?: string;
 }
 
 export interface PersistedAgent {

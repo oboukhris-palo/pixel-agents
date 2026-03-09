@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { OfficeState } from '../office/engine/officeState.js'
-import type { SubagentCharacter } from '../hooks/useExtensionMessages.js'
+import type { SubagentCharacter, AgentMetadata } from '../hooks/useExtensionMessages.js'
 import { TILE_SIZE, CharacterState } from '../office/types.js'
 
 interface AgentLabelsProps {
@@ -11,6 +11,8 @@ interface AgentLabelsProps {
   zoom: number
   panRef: React.RefObject<{ x: number; y: number }>
   subagentCharacters: SubagentCharacter[]
+  agentMetadata: AgentMetadata[]
+  githubFileAccess: Record<number, { filePath: string; timestamp: number } | null>
 }
 
 export function AgentLabels({
@@ -21,6 +23,8 @@ export function AgentLabels({
   zoom,
   panRef,
   subagentCharacters,
+  agentMetadata,
+  githubFileAccess,
 }: AgentLabelsProps) {
   const [, setTick] = useState(0)
   useEffect(() => {
@@ -70,6 +74,8 @@ export function AgentLabels({
         const isWaiting = status === 'waiting'
         const isActive = ch.isActive
         const isSub = ch.isSubagent
+        const githubAccess = githubFileAccess[id]
+        const isAccessingGithub = githubAccess && (Date.now() - githubAccess.timestamp < 5000)
 
         let dotColor = 'transparent'
         if (isWaiting) {
@@ -78,7 +84,15 @@ export function AgentLabels({
           dotColor = 'var(--vscode-charts-blue, #3794ff)'
         }
 
-        const labelText = subLabelMap.get(id) || `Agent #${id}`
+        // Show agent role name if available, otherwise default label
+        let labelText = subLabelMap.get(id) || `Agent #${id}`
+        if (!isSub && agentMetadata.length > 0 && id > 0) {
+          // Try to match by agent number (first N agents get first N metadata entries)
+          const metadataIndex = id - 1
+          if (metadataIndex < agentMetadata.length) {
+            labelText = agentMetadata[metadataIndex].name
+          }
+        }
 
         return (
           <div
@@ -112,7 +126,8 @@ export function AgentLabels({
                 fontSize: isSub ? '16px' : '18px',
                 fontStyle: isSub ? 'italic' : undefined,
                 color: 'var(--vscode-foreground)',
-                background: 'rgba(30,30,46,0.7)',
+                background: isAccessingGithub ? 'rgba(70, 130, 180, 0.9)' : 'rgba(30,30,46,0.7)',
+                border: isAccessingGithub ? '2px solid #ffd700' : undefined,
                 padding: '1px 4px',
                 borderRadius: 2,
                 whiteSpace: 'nowrap',
@@ -121,7 +136,9 @@ export function AgentLabels({
                 textOverflow: isSub ? 'ellipsis' : undefined,
               }}
             >
+              {isAccessingGithub && '🔧 '}
               {labelText}
+              {isAccessingGithub && ` → ${githubAccess.filePath.split('/.github/')[1]}`}
             </span>
           </div>
         )

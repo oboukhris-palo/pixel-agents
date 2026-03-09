@@ -40,6 +40,13 @@ export interface WorkspaceFolder {
   path: string
 }
 
+export interface AgentMetadata {
+  id: string
+  name: string
+  description: string
+  argumentHint?: string
+}
+
 export interface ExtensionMessageState {
   agents: number[]
   selectedAgent: number | null
@@ -50,6 +57,8 @@ export interface ExtensionMessageState {
   layoutReady: boolean
   loadedAssets?: { catalog: FurnitureAsset[]; sprites: Record<string, string[][]> }
   workspaceFolders: WorkspaceFolder[]
+  agentMetadata: AgentMetadata[]
+  githubFileAccess: Record<number, { filePath: string; timestamp: number } | null>
 }
 
 function saveAgentSeats(os: OfficeState): void {
@@ -75,6 +84,8 @@ export function useExtensionMessages(
   const [layoutReady, setLayoutReady] = useState(false)
   const [loadedAssets, setLoadedAssets] = useState<{ catalog: FurnitureAsset[]; sprites: Record<string, string[][]> } | undefined>()
   const [workspaceFolders, setWorkspaceFolders] = useState<WorkspaceFolder[]>([])
+  const [agentMetadata, setAgentMetadata] = useState<AgentMetadata[]>([])
+  const [githubFileAccess, setGithubFileAccess] = useState<Record<number, { filePath: string; timestamp: number } | null>>({})
 
   // Track whether initial layout has been loaded (ref to avoid re-render)
   const layoutReadyRef = useRef(false)
@@ -168,6 +179,27 @@ export function useExtensionMessages(
         const id = msg.id as number
         const toolId = msg.toolId as string
         const status = msg.status as string
+        const filePath = msg.filePath as string | undefined
+        const isGithubFile = msg.isGithubFile as boolean | undefined
+        
+        // Track .github file access
+        if (isGithubFile && filePath) {
+          setGithubFileAccess((prev) => ({
+            ...prev,
+            [id]: { filePath, timestamp: Date.now() }
+          }))
+          // Clear after 5 seconds
+          setTimeout(() => {
+            setGithubFileAccess((prev) => {
+              const next = { ...prev }
+              if (next[id]?.filePath === filePath) {
+                next[id] = null
+              }
+              return next
+            })
+          }, 5000)
+        }
+        
         setAgentTools((prev) => {
           const list = prev[id] || []
           if (list.some((t) => t.toolId === toolId)) return prev
@@ -342,6 +374,10 @@ export function useExtensionMessages(
       } else if (msg.type === 'settingsLoaded') {
         const soundOn = msg.soundEnabled as boolean
         setSoundEnabled(soundOn)
+      } else if (msg.type === 'agentMetadataLoaded') {
+        const metadata = msg.metadata as AgentMetadata[]
+        console.log(`[Webview] Loaded ${metadata.length} agent definitions from .github/agents/`)
+        setAgentMetadata(metadata)
       } else if (msg.type === 'furnitureAssetsLoaded') {
         try {
           const catalog = msg.catalog as FurnitureAsset[]
@@ -360,5 +396,5 @@ export function useExtensionMessages(
     return () => window.removeEventListener('message', handler)
   }, [getOfficeState])
 
-  return { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, workspaceFolders }
+  return { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, workspaceFolders, agentMetadata, githubFileAccess }
 }

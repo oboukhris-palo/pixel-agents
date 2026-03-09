@@ -39,8 +39,12 @@ export function registerActivityListeners(
 	permissionTimers: Map<number, ReturnType<typeof setTimeout>>,
 	getWebview: () => vscode.Webview | undefined,
 ): void {
-	if (registered) {return;}
+	if (registered) {
+		console.log('[Pixel Agents] Activity listeners already registered (skipping)');
+		return;
+	}
 	registered = true;
+	console.log('[Pixel Agents] ✅ Activity listeners registered successfully');
 
 	// ── File Edit Detection ────────────────────────────────────
 	// Fires whenever any text document changes (user OR Copilot edits).
@@ -55,8 +59,14 @@ export function registerActivityListeners(
 			if (agentId === null) {return;}
 
 			const fileName = path.basename(e.document.uri.fsPath);
+			const filePath = e.document.uri.fsPath;
+			const agent = agents.get(agentId);
+			if (agent) {
+				agent.currentFilePath = filePath;
+			}
+			console.log(`[Pixel Agents] 📝 File edit detected: ${fileName} → Agent ${agentId}`);
 			touchActivity(agentId, agents, waitingTimers, getWebview());
-			batchEditActivity(agentId, fileName, agents, getWebview());
+			batchEditActivity(agentId, fileName, filePath, agents, getWebview());
 		}),
 	);
 
@@ -67,9 +77,11 @@ export function registerActivityListeners(
 			if (agentId === null) {return;}
 			for (const file of e.files) {
 				const fileName = path.basename(file.fsPath);
+				const filePath = file.fsPath;
+				const isGithubFile = filePath.includes('/.github/');
 				const toolId = `write_${Date.now()}`;
 				touchActivity(agentId, agents, waitingTimers, getWebview());
-				emitToolStart(agentId, toolId, `Writing ${fileName}`, 'Write', agents, getWebview());
+				emitToolStart(agentId, toolId, `Writing ${fileName}`, 'Write', agents, getWebview(), filePath, isGithubFile);
 				setTimeout(() => emitToolDone(agentId, toolId, agents, getWebview()), TOOL_DONE_DELAY_MS);
 			}
 		}),
@@ -82,9 +94,11 @@ export function registerActivityListeners(
 			if (agentId === null) {return;}
 			for (const file of e.files) {
 				const fileName = path.basename(file.fsPath);
+				const filePath = file.fsPath;
+				const isGithubFile = filePath.includes('/.github/');
 				const toolId = `delete_${Date.now()}`;
 				touchActivity(agentId, agents, waitingTimers, getWebview());
-				emitToolStart(agentId, toolId, `Deleting ${fileName}`, 'Bash', agents, getWebview());
+				emitToolStart(agentId, toolId, `Deleting ${fileName}`, 'Bash', agents, getWebview(), filePath, isGithubFile);
 				setTimeout(() => emitToolDone(agentId, toolId, agents, getWebview()), TOOL_DONE_DELAY_MS);
 			}
 		}),
@@ -98,9 +112,11 @@ export function registerActivityListeners(
 			if (agentId === null) {return;}
 
 			const fileName = path.basename(doc.uri.fsPath);
+			const filePath = doc.uri.fsPath;
+			const isGithubFile = filePath.includes('/.github/');
 			const toolId = `read_${Date.now()}`;
 			touchActivity(agentId, agents, waitingTimers, getWebview());
-			emitToolStart(agentId, toolId, `Reading ${fileName}`, 'Read', agents, getWebview());
+			emitToolStart(agentId, toolId, `Reading ${fileName}`, 'Read', agents, getWebview(), filePath, isGithubFile);
 			// Reads are visible slightly longer than writes
 			setTimeout(() => emitToolDone(agentId, toolId, agents, getWebview()), TOOL_DONE_DELAY_MS * 3);
 		}),
@@ -226,6 +242,7 @@ function touchActivity(
 function batchEditActivity(
 	agentId: number,
 	fileName: string,
+	filePath: string,
 	agents: Map<number, AgentState>,
 	webview: vscode.Webview | undefined,
 ): void {
@@ -248,7 +265,8 @@ function batchEditActivity(
 	if (!currentEditToolId) {
 		currentEditToolId = `edit_${Date.now()}`;
 		currentEditAgentId = agentId;
-		emitToolStart(agentId, currentEditToolId, `Editing ${fileName}`, 'Edit', agents, webview);
+		const isGithubFile = filePath.includes('/.github/');
+		emitToolStart(agentId, currentEditToolId, `Editing ${fileName}`, 'Edit', agents, webview, filePath, isGithubFile);
 	}
 
 	const toolId = currentEditToolId;
@@ -267,6 +285,8 @@ function emitToolStart(
 	toolName: string,
 	agents: Map<number, AgentState>,
 	webview: vscode.Webview | undefined,
+	filePath?: string,
+	isGithubFile?: boolean,
 ): void {
 	const agent = agents.get(agentId);
 	if (!agent) {return;}
@@ -276,7 +296,14 @@ function emitToolStart(
 	agent.activeToolNames.set(toolId, toolName);
 
 	webview?.postMessage({ type: 'agentStatus', id: agentId, status: 'active' });
-	webview?.postMessage({ type: 'agentToolStart', id: agentId, toolId, status });
+	webview?.postMessage({ 
+		type: 'agentToolStart', 
+		id: agentId, 
+		toolId, 
+		status,
+		filePath,
+		isGithubFile: Boolean(isGithubFile),
+	});
 }
 
 function emitToolDone(

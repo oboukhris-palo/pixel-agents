@@ -8,7 +8,6 @@ scripts/**
 sprites-export/**
 logs/**
 .github/**
-.claude/**
 .env
 .gitignore
 esbuild.js
@@ -17,5 +16,4 @@ esbuild.js
 **/*.map
 **/*.ts
 **/.vscode-test.*
-CLAUDE.md
 **/*.jsonl

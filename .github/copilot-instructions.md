@@ -33,8 +33,8 @@ applyTo: "src/**,webview-ui/src/**"
 vscode.workspace.onDidChangeTextDocument(e => { /* handle activity */ })
 vscode.window.onDidStartTerminalShellExecution(e => { /* handle activity */ })
 
-// ❌ BAD (Claude-specific, polling, unreliable)
-fs.watch(jsonlFile, () => { /* stale data */ })
+// ❌ BAD (unreliable, deprecated approach)
+fs.watch(logFile, () => { /* stale data */ })
 ```
 
 **Reference**: See `src/activityDetector.ts` pattern — this is the template for new agent platforms.
@@ -84,7 +84,7 @@ The TypeScript interface between extension and webview is the CONTRACT:
 - ❌ Removing/renaming fields = breaking change
 - ❌ Changing field types (`id: number` → `id: string`) without migration = breaking change
 
-**If breaking**: Update `CLAUDE.md` section "Extension ↔ Webview" with complete schema.
+**If breaking**: Document message protocol changes in git commit message and update copilot-instructions.md.
 
 ---
 
@@ -275,8 +275,8 @@ PHASE 5: Documentation
 
 - **copilot-instructions.md** — Complete architectural reference (read before major work)
 - **TESTS.md** — Test strategy, patterns, and command reference
-- **MIGRATION-PLAN.md** — Historical reference (Claude → Copilot migration)
-- **CLAUDE.md** — Deprecated (legacy architecture)
+- **MIGRATION-PLAN.md** — Historical reference (architecture evolution)
+- **CLAUDE.md** — Historical reference (deprecated legacy architecture)
 - **README.md** — User-facing features and setup
 - **package.json** — Dependencies, scripts, extension manifest
 

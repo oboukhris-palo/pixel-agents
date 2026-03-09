@@ -16,6 +16,7 @@ import { loadFurnitureAssets, sendAssetsToWebview, loadFloorTiles, sendFloorTile
 import { WORKSPACE_KEY_AGENT_SEATS, GLOBAL_KEY_SOUND_ENABLED } from './constants.js';
 import { writeLayoutToFile, readLayoutFromFile, watchLayoutFile } from './layoutPersistence.js';
 import type { LayoutWatcher } from './layoutPersistence.js';
+import { loadAgentMetadata, type AgentMetadata } from './agentMetadata.js';
 
 export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 	nextAgentId = { current: 1 };
@@ -54,6 +55,18 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 
 		webviewView.webview.onDidReceiveMessage(async (message) => {
 			if (message.type === 'openAgent') {
+				// Register activity listeners when first agent is created
+				if (this.agents.size === 0) {
+					console.log('[Pixel Agents] 🎮 Registering activity listeners...');
+					registerActivityListeners(
+						this.context,
+						this.agents,
+						this.waitingTimers,
+						this.permissionTimers,
+						() => this.webview,
+					);
+				}
+				
 				await launchNewAgent(
 					this.nextAgentId,
 					this.agents,
@@ -92,6 +105,19 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 					this.webview,
 					this.persistAgents,
 				);
+				
+				// Register activity listeners if any agents were restored
+				if (this.agents.size > 0) {
+					console.log('[Pixel Agents] 🎮 Registering activity listeners (restored agents)...');
+					registerActivityListeners(
+						this.context,
+						this.agents,
+						this.waitingTimers,
+						this.permissionTimers,
+						() => this.webview,
+					);
+				}
+				
 				// Send persisted settings to webview
 				const soundEnabled = this.context.globalState.get<boolean>(GLOBAL_KEY_SOUND_ENABLED, true);
 				this.webview?.postMessage({ type: 'settingsLoaded', soundEnabled });
@@ -166,6 +192,19 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 						if (assets && this.webview) {
 							console.log('[Extension] ✅ Assets loaded, sending to webview');
 							sendAssetsToWebview(this.webview, assets);
+						}
+
+						// Load agent metadata from .github/agents/
+						if (workspaceRoot) {
+							const agentMetadata = await loadAgentMetadata(workspaceRoot);
+							if (agentMetadata.size > 0 && this.webview) {
+								console.log('[Extension] ✅ Agent metadata loaded, sending to webview');
+								const metadataArray = Array.from(agentMetadata.values());
+								this.webview.postMessage({ 
+									type: 'agentMetadataLoaded', 
+									metadata: metadataArray 
+								});
+							}
 						}
 					} catch (err) {
 						console.error('[Extension] ❌ Error loading assets:', err);
