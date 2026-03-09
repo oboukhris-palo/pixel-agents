@@ -1,5 +1,13 @@
 # Pixel Agents — Compressed Reference
 
+> **⚠️  DEPRECATION NOTICE**: This document describes the legacy Claude Code terminal/JSONL architecture.  
+> **Current architecture** (GitHub Copilot integration) is documented in [`.github/copilot-instructions.md`](.github/copilot-instructions.md).  
+> **Migration details** are in [`MIGRATION-PLAN.md`](MIGRATION-PLAN.md).
+>
+> This file is preserved for historical reference and may contain outdated information.
+
+---
+
 VS Code extension with embedded React webview: pixel art office where AI agents (Claude Code terminals) are animated characters.
 
 ## Architecture

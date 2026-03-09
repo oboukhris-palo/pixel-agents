@@ -1,0 +1,171 @@
+# Optimized Copilot Agent Template
+id: copilot-base
+name: Copilot Base Agent
+version: 1.0
+description: |
+  Minimal, efficient base configuration for running composable agents.
+  Provides LLM defaults, runtime constraints, and extensible agent overrides.
+
+# Global defaults applied to all agents
+defaults:
+  enabled: true
+  model:
+    provider: openai
+    name: gpt-5-mini
+    max_tokens: 2048
+    temperature: 0.2
+    top_p: 0.9
+  runtime:
+    timeout_seconds: 120
+    max_retries: 2
+    concurrency: 1
+  permissions:
+    scopes:
+      - repo:read
+      - repo:write-comments
+      - checks:write
+  connectors:
+    slack: disabled
+    transcription: disabled
+    drive: disabled
+  observability:
+    logs: info
+    metrics: true
+    traces: false
+
+# Agent definitions with minimal overrides
+agents:
+  # Generic meeting summarizer
+  meeting-agent:
+    name: Meeting Agent
+    enabled: true
+    description: Summarizes transcripts, extracts action items, posts to Slack.
+    model:
+      temperature: 0.0
+      max_tokens: 1200
+    connectors:
+      transcription: enabled
+      slack: enabled
+    permissions:
+      scopes:
+        - repo:read
+        - integrations:slack
+    inputs:
+      - type: transcript
+        format: [srt, vtt, json]
+        speaker_diarization: true
+        max_length_minutes: 180
+    outputs:
+      - type: summary
+        format: markdown
+        max_length_tokens: 600
+        deliver_to:
+          - slack:channel:meetings
+          - github:issue
+    pipeline:
+      - ingest
+      - extract_entities
+      - summarize
+      - create_actions
+      - publish
+
+  # AI ops agent for prompt optimization
+  ai-agent:
+    name: AI Ops Agent
+    enabled: true
+    description: Optimizes prompts, generates test cases, evaluates model outputs.
+    model:
+      temperature: 0.1
+      max_tokens: 1500
+    permissions:
+      scopes:
+        - repo:read
+        - repo:write-comments
+    connectors:
+      slack: optional
+    inputs:
+      - type: prompt_batch
+        format: [yaml, jsonl]
+      - type: test_cases
+        format: json
+    outputs:
+      - type: optimized_prompts
+        format: json
+      - type: evaluation_report
+        format: markdown
+    features:
+      - few_shot_builder
+      - prompt_variations
+      - auto_evaluator
+      - ranking_engine
+    pipeline:
+      - load_examples
+      - generate_variations
+      - evaluate
+      - rank
+      - publish
+
+  # GitHub PR reviewer (default capability example)
+  code-review-agent:
+    name: Code Review Agent
+    enabled: true
+    description: Reviews PRs, suggests improvements, runs quality checks.
+    model:
+      temperature: 0.1
+      max_tokens: 2048
+    permissions:
+      scopes:
+        - repo:read
+        - repo:write-comments
+        - checks:write
+    activation:
+      on:
+        - pull_request:
+            types: [opened, synchronize, reopened]
+    inputs:
+      - type: diff
+        format: unified
+      - type: context
+        include: [related_issues, test_results]
+    outputs:
+      - type: review
+        format: markdown
+        deliver_to:
+          - github:pr-comment
+    features:
+      - code_quality_check
+      - security_scan
+      - test_coverage_analysis
+      - suggestion_engine
+    pipeline:
+      - parse_diff
+      - analyze_changes
+      - run_checks
+      - generate_suggestions
+      - publish
+
+# Runtime constraints and secret handling
+runtime:
+  secret_refs_allowed: true
+  allowed_secret_paths:
+    - secrets/llm_api_key
+    - secrets/slack_token
+    - secrets/github_token
+  rate_limits:
+    operations_per_minute: 30
+    concurrent_runs: 2
+    max_tokens_per_day: 100000
+
+# Observability and logging
+observability:
+  logs:
+    level: info
+    format: json
+    retention_days: 30
+  metrics:
+    track_latency: true
+    track_token_usage: true
+    track_cost: true
+  traces:
+    enabled: false
+    sample_rate: 0.1

@@ -1,0 +1,177 @@
+````yaml
+# User Stories Status Template
+# This creates the SINGLE SOURCE OF TRUTH for implementation tracking
+# Location: /docs/user-stories/user-stories.md
+
+template_name: "User Stories Implementation Status"
+description: "Master status tracking document for all user stories and epics"
+location: "/docs/user-stories/user-stories.md"
+purpose: "SINGLE SOURCE OF TRUTH - track implementation progress"
+
+sections:
+  header:
+    title: "# User Stories Implementation Status"
+    subtitle: "📊 SINGLE SOURCE OF TRUTH for Implementation Progress"
+    note: |
+      This document mirrors the structure of `/docs/prd/user-stories.md` (PRD reference)
+      but adds implementation status tracking for each user story.
+      
+      **Status Definitions**:
+      - **Not Started**: Story not yet begun, no work done
+      - **In Progress**: Currently being implemented (layers 1-4)
+      - **In Review**: Implementation complete, BDD validation in progress
+      - **Implemented**: All layers complete, BDD tests passing, approved
+      
+      **Last Updated**: [DATE]
+      **Project**: [PROJECT_NAME]
+
+  project_summary:
+    title: "## 📈 Project Summary"
+    fields:
+      - "**Total Epics**: [X]"
+      - "**Total Stories**: [Y]" 
+      - "**Completion Rate**: [Z]% ([IMPLEMENTED]/[TOTAL] stories)"
+      - "**Current Sprint**: Sprint [N]"
+      - "**BDD Tests Passing**: [X]/[Y] scenarios ([Z]%)"
+
+  epic_status:
+    title: "## 🎯 Epic Status Overview"
+    format: |
+      | Epic | Total Stories | Not Started | In Progress | In Review | Implemented | Completion % |
+      |------|---------------|-------------|-------------|-----------|-------------|--------------|
+      | [EPIC-ID]: [TITLE] | [X] | [A] | [B] | [C] | [D] | [E]% |
+
+  epics:
+    title: "## 📋 Epics & User Stories"
+    epic_template: |
+      ### Epic [EPIC-ID]: [EPIC-TITLE]
+      
+      **Epic Description**: [DESCRIPTION]
+      **Business Value**: [BUSINESS_VALUE]  
+      **Epic Status**: [NOT_STARTED/IN_PROGRESS/IN_REVIEW/IMPLEMENTED]
+      **Completion**: [X]/[Y] stories implemented ([Z]%)
+      
+      **Dependencies**: [EPIC_DEPENDENCIES]
+      **Estimated Story Points**: [TOTAL_POINTS]
+      **Stories Implemented**: [IMPLEMENTED_POINTS] points
+      
+      #### Stories in this Epic:
+
+  user_story_template: |
+    #### [USER_STORY_ID]: [TITLE]
+    
+    **Status**: [NOT_STARTED/IN_PROGRESS/IN_REVIEW/IMPLEMENTED] 
+    **Story Points**: [X]
+    **Priority**: [HIGH/MEDIUM/LOW]
+    **Sprint**: [SPRINT_NUMBER] (if assigned)
+    
+    **As a** [PERSONA]  
+    **I want** [CAPABILITY]  
+    **So that** [BENEFIT]
+    
+    **Implementation Progress**:
+    - **Layer 1 (Database)**: [NOT_STARTED/IN_PROGRESS/COMPLETED] 
+    - **Layer 2 (Backend)**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+    - **Layer 3 (Config)**: [NOT_STARTED/IN_PROGRESS/COMPLETED]  
+    - **Layer 4 (Frontend)**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+    
+    **BDD Scenarios**: [X]/[Y] passing ([Z]%)
+    **Test Coverage**: [X]% (target >80%)
+    **Code Review**: [NOT_STARTED/IN_PROGRESS/APPROVED/REJECTED]
+    
+    **Acceptance Criteria**:
+    - [ ] [CRITERION_1]
+    - [ ] [CRITERION_2] 
+    - [ ] [CRITERION_3]
+    
+    **Implementation Notes**:
+    - Implementation Plan: `/docs/user-stories/[USER_STORY_ID]/implementation-plan.md`
+    - BDD Scenarios: `/docs/user-stories/[USER_STORY_ID]/bdd-scenarios/`
+    - Last Updated: [DATE]
+    - Updated By: [AGENT/USER]
+    
+    **Blockers** (if any):
+    - [BLOCKER_DESCRIPTION] (Severity: [HIGH/MEDIUM/LOW], Owner: [AGENT/USER])
+    
+    ---
+
+  footer:
+    title: "## 📊 Metrics & Tracking"
+    sections:
+      velocity:
+        title: "### Sprint Velocity"
+        format: |
+          - **Sprint [N]**: [X] points planned, [Y] points delivered ([Z]% velocity)
+          - **Average Velocity**: [X] points/sprint (last 3 sprints)
+          - **Estimated Completion**: Sprint [N] ([DATE])
+
+      quality:
+        title: "### Quality Metrics"  
+        format: |
+          - **Overall BDD Pass Rate**: [X]% ([Y]/[Z] scenarios)
+          - **Average Test Coverage**: [X]% (target >80%)
+          - **Code Review Approval Rate**: [X]% ([Y]/[Z] stories approved)
+          - **Cyclomatic Complexity**: Avg [X] (target <10)
+
+      blockers:
+        title: "### Active Blockers"
+        format: |
+          | Story | Blocker | Severity | Owner | ETA |
+          |-------|---------|----------|-------|-----|
+          | [US-ID] | [DESCRIPTION] | [HIGH/MEDIUM/LOW] | [OWNER] | [DATE] |
+
+      next_sprint:
+        title: "### Next Sprint Planning"
+        format: |
+          **Stories Ready for Next Sprint**:
+          - [US-ID]: [TITLE] ([X] points) - Dependencies: [LIST]
+          - [US-ID]: [TITLE] ([Y] points) - Dependencies: [LIST]
+          
+          **Estimated Sprint Capacity**: [X] points
+          **Recommended Sprint Scope**: [CONSERVATIVE/BALANCED/STRETCH]
+
+usage_notes: |
+  ## How to Use This Document
+  
+  ### For Orchestrator Agent:
+  1. **Read this document first** when assessing project status
+  2. **Identify incomplete stories** (Not Started, In Progress, In Review)  
+  3. **Check epic completion** (% stories Implemented per epic)
+  4. **Determine next story** to tackle based on priorities and dependencies
+  5. **Update statuses** as stories progress through implementation phases
+  
+  ### For Development Agents:
+  1. **Update layer progress** as TDD cycles complete
+  2. **Update BDD test status** after each layer
+  3. **Report blockers** immediately with severity and ownership
+  4. **Mark stories "In Review"** when all layers complete
+  5. **Mark stories "Implemented"** after BDD validation and approval
+  
+  ### For Project Management:
+  1. **Track sprint velocity** and adjust planning
+  2. **Monitor blocker resolution** and escalate if needed
+  3. **Plan next sprints** based on story readiness and team capacity
+  4. **Report project progress** using completion percentages
+
+synchronization_rules: |
+  ## Synchronization with Issue Tracker
+  
+  This document should be synchronized with your issue tracking system:
+  
+  1. **GitHub Issues**: Each user story should have corresponding issue
+  2. **Status Mapping**: 
+     - Not Started → Issue: Open, no assignee
+     - In Progress → Issue: Open, assigned, in development  
+     - In Review → Issue: Open, assigned, ready for review
+     - Implemented → Issue: Closed
+  3. **Update Frequency**: Update this document when issue status changes
+  4. **Automation**: Consider GitHub Actions to sync statuses automatically
+
+maintenance: |
+  ## Document Maintenance
+  
+  - **Update Frequency**: After each story status change, at minimum daily
+  - **Owner**: Dev-Lead agent (primary), Orchestrator (coordination)
+  - **Review Cycle**: Weekly review of metrics and next sprint planning
+  - **Validation**: Cross-check with `/docs/prd/user-stories.md` for consistency
+````

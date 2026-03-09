@@ -1,0 +1,430 @@
+# Conflict Resolution Authority Matrix
+# Defines who has decision-making authority for different types of conflicts
+
+# ====================================================================
+# CONFLICT RESOLUTION AUTHORITY BY DOMAIN
+# ====================================================================
+
+authority_matrix:
+  
+  # Technical Architecture Decisions
+  technical_architecture:
+    primary_authority: architect
+    secondary_authority: dev_lead
+    escalation_authority: technical_stakeholders
+    auto_resolution: false
+    decision_timeline:
+      response_required: "4 hours"
+      resolution_required: "24 hours"
+      escalation_trigger: "48 hours"
+    conflict_examples:
+      - "monolith vs microservices"
+      - "SQL vs NoSQL database choice" 
+      - "container vs serverless deployment"
+      - "technology stack selection"
+    
+  # Business Requirements & Product Decisions  
+  business_requirements:
+    primary_authority: po # product owner
+    secondary_authority: ba # business analyst
+    escalation_authority: business_stakeholders
+    auto_resolution: false
+    decision_timeline:
+      response_required: "2 hours"
+      resolution_required: "12 hours"  
+      escalation_trigger: "24 hours"
+    conflict_examples:
+      - "feature scope disagreement"
+      - "user story interpretation differences"
+      - "acceptance criteria conflicts"
+      - "business rule implementation"
+    
+  # Implementation Approach & Technical Details
+  implementation_approach:
+    primary_authority: dev_lead
+    secondary_authority: architect
+    escalation_authority: technical_lead
+    auto_resolution: true # for minor technical decisions
+    decision_timeline:
+      response_required: "1 hour"
+      resolution_required: "4 hours"
+      escalation_trigger: "8 hours"
+    conflict_examples:
+      - "coding patterns and practices"
+      - "test strategy implementation"
+      - "error handling approaches"
+      - "performance optimization techniques"
+    
+  # Quality Standards & Code Review
+  quality_standards:
+    primary_authority: dev_lead
+    secondary_authority: orchestrator # using validation-rules.yml
+    escalation_authority: quality_team
+    auto_resolution: true
+    decision_timeline:
+      response_required: "30 minutes"
+      resolution_required: "2 hours"
+      escalation_trigger: "4 hours"
+    conflict_examples:
+      - "test coverage thresholds"
+      - "code complexity limits"
+      - "documentation requirements"
+      - "code style standards"
+    
+  # Project Scope & Timeline
+  project_scope:
+    primary_authority: pm # project manager
+    secondary_authority: po # product owner
+    escalation_authority: project_sponsor
+    auto_resolution: false
+    decision_timeline:
+      response_required: "4 hours"
+      resolution_required: "48 hours"
+      escalation_trigger: "72 hours"
+    conflict_examples:
+      - "MVP scope definition"
+      - "timeline estimation differences"
+      - "resource allocation decisions"
+      - "deliverable prioritization"
+    
+  # User Experience & Design
+  user_experience:
+    primary_authority: ux
+    secondary_authority: po
+    escalation_authority: design_stakeholders
+    auto_resolution: true # for minor UI decisions
+    decision_timeline:
+      response_required: "2 hours"
+      resolution_required: "8 hours"
+      escalation_trigger: "16 hours"
+    conflict_examples:
+      - "UI component design choices"
+      - "user flow disagreements"
+      - "accessibility implementation"
+      - "design system applications"
+
+# ====================================================================
+# AUTOMATIC RESOLUTION RULES (Minor Conflicts)
+# ====================================================================
+
+auto_resolution_rules:
+  
+  # Technology Version Conflicts
+  technology_version_selection:
+    rule_name: "use_latest_stable_version"
+    description: "When agents disagree on library/framework versions, use latest stable"
+    authority_source: "industry best practices + security considerations"
+    examples:
+      - conflict: "React 17 vs React 18"
+        resolution: "React 18 (latest stable)"
+      - conflict: "Node.js 16 vs Node.js 18"  
+        resolution: "Node.js 18 (latest LTS)"
+      - conflict: "Python 3.9 vs Python 3.11"
+        resolution: "Python 3.11 (latest stable)"
+    
+  # Code Style and Formatting
+  code_style_conflicts:
+    rule_name: "follow_project_standards"
+    description: "Use existing project configuration files for style decisions"
+    authority_source: "project .eslintrc, .prettierrc, pycodestyle, etc."
+    examples:
+      - conflict: "2-space vs 4-space indentation"
+        resolution: "check .eslintrc.json indent setting"
+      - conflict: "semicolons vs no semicolons (JS)"
+        resolution: "follow existing codebase pattern"
+      - conflict: "single vs double quotes"  
+        resolution: "use project prettier/eslint configuration"
+    
+  # Testing Framework Consistency  
+  testing_framework_selection:
+    rule_name: "maintain_project_consistency"
+    description: "Use testing frameworks already established in project"
+    authority_source: "existing test files + package.json dependencies"
+    examples:
+      - conflict: "Jest vs Mocha for new tests"
+        resolution: "use existing framework (check package.json)"
+      - conflict: "Cypress vs Playwright for E2E"
+        resolution: "continue with established E2E framework"
+      - conflict: "pytest vs unittest (Python)"
+        resolution: "match existing test file patterns"
+    
+  # Database Schema Decisions (Minor)
+  minor_database_conflicts:
+    rule_name: "follow_architect_database_design"
+    description: "For minor schema conflicts, defer to architect's database design"
+    authority_source: "architect has primary database authority"
+    examples:
+      - conflict: "varchar(255) vs text field type"
+        resolution: "follow architect's data type recommendations"
+      - conflict: "index naming conventions"
+        resolution: "use architect's established naming pattern"
+      - conflict: "foreign key constraint naming"
+        resolution: "match architect's constraint naming scheme"
+    
+  # API Design Consistency
+  api_design_conflicts:
+    rule_name: "follow_openapi_specification"
+    description: "Use existing API design patterns from OpenAPI spec"
+    authority_source: "established API specification in tech-spec.md"
+    examples:
+      - conflict: "REST endpoint naming (/users vs /user)"
+        resolution: "follow established API naming pattern"
+      - conflict: "HTTP status code usage"
+        resolution: "use status codes defined in API spec"
+      - conflict: "request/response format"
+        resolution: "match existing endpoint patterns"
+    
+  # Documentation Format
+  documentation_format_conflicts:
+    rule_name: "use_project_documentation_standards"
+    description: "Follow established documentation templates and formats"
+    authority_source: ".github/templates/ + existing documentation"
+    examples:
+      - conflict: "markdown vs reStructuredText"
+        resolution: "continue with existing doc format (.md)"
+      - conflict: "JSDoc vs inline comments"
+        resolution: "follow existing code comment patterns" 
+      - conflict: "API doc format (Swagger vs manual)"
+        resolution: "use format established in tech-spec.md"
+
+# ====================================================================
+# ESCALATION RULES (Major Conflicts Requiring Human Decision)  
+# ====================================================================
+
+escalation_criteria:
+  
+  # Business Impact Decisions
+  business_impact_conflicts:
+    escalation_required: true
+    decision_makers: ["po", "business_stakeholders", "project_sponsor"]
+    examples:
+      - "feature scope changes affecting timeline"
+      - "business model or monetization approach"
+      - "target audience or market pivot"
+      - "compliance or regulatory requirements"
+    decision_factors:
+      - "business value and ROI impact"
+      - "market timing considerations"
+      - "competitive advantage implications"
+      - "customer impact and satisfaction"
+    
+  # Technical Architecture (Major)
+  major_architecture_conflicts:
+    escalation_required: true  
+    decision_makers: ["architect", "technical_stakeholders", "dev_lead"]
+    examples:
+      - "monolith vs microservices architecture"
+      - "cloud provider selection (AWS vs Azure vs GCP)"
+      - "database architecture (SQL vs NoSQL vs hybrid)"
+      - "deployment strategy (containers vs serverless vs VMs)"
+    decision_factors:
+      - "scalability and performance requirements"
+      - "team expertise and learning curve"
+      - "operational complexity and maintenance"
+      - "cost implications and budget constraints"
+    
+  # Timeline and Resource Conflicts
+  timeline_resource_conflicts:
+    escalation_required: true
+    decision_makers: ["pm", "project_sponsor", "resource_managers"]
+    examples:
+      - "scope reduction to meet deadline"
+      - "additional resource allocation requests"
+      - "timeline extension vs feature reduction"
+      - "quality vs speed trade-off decisions"
+    decision_factors:
+      - "business deadline importance"
+      - "resource availability and cost"
+      - "quality impact assessment"
+      - "stakeholder expectations management"
+    
+  # Security and Compliance
+  security_compliance_conflicts:
+    escalation_required: true
+    decision_makers: ["architect", "security_team", "compliance_officer"]
+    examples:
+      - "security vs usability trade-offs"
+      - "data privacy regulation compliance"
+      - "authentication and authorization approach"
+      - "third-party integration security risks"
+    decision_factors:
+      - "regulatory compliance requirements"
+      - "security risk assessment"
+      - "user experience impact"
+      - "implementation complexity and cost"
+
+# ====================================================================
+# CONFLICT DETECTION PATTERNS
+# ====================================================================
+
+conflict_detection_patterns:
+  
+  # Content Analysis Patterns
+  content_contradictions:
+    
+    # Architecture Pattern Conflicts
+    architecture_disagreements:
+      detection_method: "keyword_analysis + document_comparison"
+      keywords_microservices: ["microservices", "service mesh", "distributed", "containers"]
+      keywords_monolith: ["monolith", "single deployment", "unified", "centralized"]
+      conflict_threshold: "both patterns mentioned in different docs by different agents"
+      
+    # Technology Stack Conflicts  
+    technology_conflicts:
+      detection_method: "technology_mention_analysis"
+      programming_languages: ["javascript", "python", "java", "c#", "go", "rust"]
+      frameworks: ["react", "angular", "vue", "django", "flask", "spring", "express"]
+      databases: ["mysql", "postgresql", "mongodb", "redis", "cassandra"]
+      conflict_threshold: "multiple incompatible choices mentioned"
+      
+    # Timeline Estimation Conflicts
+    timeline_disagreements:
+      detection_method: "numerical_analysis + timeline_extraction"
+      patterns: ["weeks", "months", "days", "sprints", "quarters"]
+      variance_threshold: ">20% difference in timeline estimates"
+      scope_indicators: ["MVP", "full feature set", "phase 1", "complete system"]
+      
+  # Reference Validation Patterns  
+  reference_consistency:
+    
+    # Requirement Traceability Conflicts
+    requirement_conflicts:
+      detection_method: "reference_cross_validation"
+      requirement_patterns: ["REQ-[0-9]+", "FR-[0-9]+", "NFR-[0-9]+"]
+      conflict_indicators: ["same requirement referenced with different interpretations"]
+      validation_rules: ["requirement exists", "interpretation consistent"]
+      
+    # User Story Reference Conflicts
+    story_conflicts:
+      detection_method: "story_reference_analysis"
+      story_patterns: ["US-[0-9]+", "Epic E[0-9]+", "Story [0-9]+"]
+      conflict_indicators: ["same story with different acceptance criteria", "conflicting story priorities"]
+      validation_rules: ["story IDs unique", "acceptance criteria consistent"]
+
+# ====================================================================
+# WORKFLOW HANG DETECTION & RECOVERY
+# ====================================================================
+
+hang_detection:
+  
+  # Timeout-Based Hang Detection
+  timeout_monitoring:
+    
+    agent_handoff_timeout:
+      description: "Agent A hands off to Agent B but B never responds"
+      timeout_duration: "30 minutes"
+      detection_method: "timestamp_comparison"
+      severity: "high"
+      recovery_actions:
+        - "notify_target_agent"
+        - "escalate_to_orchestrator"  
+        - "reassign_to_backup_agent"
+        
+    decision_gate_timeout:
+      description: "User decision required but no response within timeframe"
+      timeout_durations:
+        critical_decisions: "4 hours"
+        major_decisions: "24 hours"  
+        minor_decisions: "48 hours"
+      detection_method: "decision_request_timestamp"
+      severity: "medium_to_high"
+      recovery_actions:
+        - "send_reminder_notification"
+        - "provide_recommended_default"
+        - "escalate_to_sponsor"
+        
+    quality_validation_hang:
+      description: "Quality validation stuck in improvement loop"
+      hang_indicators:
+        - "retry_attempts >= 3"
+        - "time_in_validation > 6 hours"  
+        - "no_quality_improvement_trend"
+      detection_method: "retry_count + time_analysis"
+      severity: "medium"
+      recovery_actions:
+        - "escalate_to_human_review"
+        - "quality_gate_bypass_with_approval"
+        - "scope_reduction_consideration"
+        
+  # Pattern-Based Hang Detection
+  pattern_analysis:
+    
+    circular_handoff_detection:
+      description: "Agent A → Agent B → Agent A loop detected"  
+      detection_method: "handoff_chain_analysis"
+      loop_threshold: "2 iterations of same handoff pattern"
+      severity: "high"
+      recovery_actions:
+        - "break_handoff_loop"
+        - "escalate_to_orchestrator"
+        - "request_clarification"
+        - "workflow_redesign"
+        
+    infinite_retry_detection:
+      description: "Same failure recurring without progress"
+      detection_method: "failure_pattern_analysis"
+      retry_threshold: "5 identical failures"
+      time_threshold: "12 hours without progress"
+      severity: "high"  
+      recovery_actions:
+        - "escalate_to_human_expert"
+        - "workflow_path_alternative" 
+        - "scope_adjustment"
+
+# ====================================================================
+# NOTIFICATION AND ESCALATION TEMPLATES
+# ====================================================================
+
+notification_templates:
+  
+  # Conflict Detection Notifications
+  conflict_detected:
+    subject: "🚨 Conflict Detected: {conflict_type} - {project_name}"
+    body: |
+      Conflict Type: {conflict_type}
+      Severity: {severity}
+      Agents Involved: {agent_list}
+      
+      Conflicting Outputs:
+      {conflict_details}
+      
+      Resolution Required By: {decision_deadline}
+      Decision Makers: {decision_makers}
+      
+      Action Required: {required_action}
+      
+    recipients: "{authority_from_matrix}"
+    
+  # Workflow Hang Notifications  
+  workflow_hang_detected:
+    subject: "⏰ Workflow Hang: {hang_type} - {project_name}"
+    body: |
+      Hang Type: {hang_type}
+      Duration: {hang_duration}
+      Affected Workflow: {workflow_stage}
+      
+      Last Activity: {last_activity}
+      Expected Response From: {expected_agent}
+      
+      Recovery Actions Initiated:
+      {recovery_actions}
+      
+      Timeline Impact: {impact_assessment}
+      
+    recipients: ["orchestrator", "workflow_owner", "affected_agents"]
+    
+  # Resolution Completed
+  conflict_resolved:
+    subject: "✅ Conflict Resolved: {conflict_type} - {project_name}"  
+    body: |
+      Conflict: {conflict_type}
+      Resolution Method: {resolution_method}
+      Decision: {final_decision}
+      
+      Updated Files:
+      {updated_files}
+      
+      Workflow Status: {workflow_status}
+      Next Steps: {next_steps}
+      
+    recipients: ["all_affected_agents", "decision_makers"]

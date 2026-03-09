@@ -1,0 +1,480 @@
+# Product Requirements Document (PRD) Template
+
+## Overview
+# This PRD integrates all product development lifecycle documents following a strict workflow:
+# Information Processing Pipeline: Requirements → Analysis → Design → Development → Testing → Deployment → Monitoring
+# Each document drives the next stage while maintaining traceability and coherence.
+
+project:
+  name: "<Project Name>"
+  version: "<Version>"
+  date_created: "<YYYY-MM-DD>"
+  last_updated: "<YYYY-MM-DD>"
+  author: "<Author Name>"
+  stakeholders:
+    - name: "<Stakeholder Name>"
+      role: "<Role>"
+      contact: "<Email>"
+
+---
+# STAGE 1: REQUIREMENTS → BUSINESS CONTEXT ANALYSIS
+---
+
+## 1. Requirements Document (requirements.md)
+# Source of truth for what the product must do
+
+requirements:
+  business_objectives:
+    - "<Primary business objective 1>"
+    - "<Primary business objective 2>"
+  
+  functional_requirements:
+    - id: "FR-001"
+      title: "<Requirement title>"
+      description: "<What the system must do>"
+      priority: "<High/Medium/Low>"
+      acceptance_criteria:
+        - "<Criterion 1>"
+        - "<Criterion 2>"
+  
+  non_functional_requirements:
+    - "<Performance requirement>"
+    - "<Security requirement>"
+    - "<Scalability requirement>"
+    - "<Compliance requirement>"
+  
+  constraints:
+    - "<Technical/Business/Legal constraint>"
+  
+  success_metrics:
+    - "<Key metric 1>"
+    - "<Key metric 2>"
+
+---
+# STAGE 2: ANALYSIS → AI-DRIVEN KNOWLEDGE GATHERING
+---
+
+## 2. Personas Document (personas.md)
+# Describes who uses the product and their characteristics
+# Driven by: Requirements
+# Drives: Journey Maps, User Stories
+
+personas:
+  persona_1:
+    name: "<Persona Name>"
+    role: "<User Role>"
+    demographics:
+      age: "<Age range>"
+      experience: "<Technical experience level>"
+    goals:
+      - "<Primary goal>"
+      - "<Secondary goal>"
+    pain_points:
+      - "<Pain point 1>"
+      - "<Pain point 2>"
+    behaviors:
+      - "<Typical behavior>"
+    needs:
+      - "<User need>"
+    frustrations:
+      - "<Frustration>"
+
+## 3. Business Case Document (business-case.md)
+# Justifies the product investment and defines business value
+# Driven by: Requirements
+# Drives: Budgeting, Resource Allocation
+
+business_case:
+  executive_summary: "<High-level business justification>"
+  
+  problem_statement: "<What problem are we solving>"
+  
+  market_opportunity:
+    size: "<Market size estimate>"
+    growth_rate: "<Growth potential>"
+    competitive_landscape: "<Competitive analysis>"
+  
+  proposed_solution: "<How we solve it>"
+  
+  value_proposition: "<Unique value offered>"
+  
+  financial_projections:
+    roi: "<Expected ROI>"
+    payback_period: "<Payback timeline>"
+    cost_estimates: "<Estimated costs>"
+  
+  risk_assessment:
+    - risk: "<Risk description>"
+      mitigation: "<Mitigation strategy>"
+  
+  timeline: "<Project timeline and milestones>"
+
+---
+# STAGE 3: DESIGN → UX/UI DOCUMENTS AND ARCHITECTURE
+---
+
+## 4. Journey Maps Document (journey-maps.md)
+# Visualizes user interactions across touchpoints
+# Driven by: Personas
+# Drives: Blueprints, User Stories
+
+journey_maps:
+  journey_1:
+    persona: "<Associated persona>"
+    scenario: "<User scenario>"
+    stages:
+      - stage: "<Stage name>"
+        touchpoints: "<How user interacts>"
+        emotions: "<Emotional state>"
+        pain_points: "<Issues at this stage>"
+        opportunities: "<Improvement opportunities>"
+
+## 5. User Stories Document (user-stories.md)
+# Detailed user requirements in business-focused format
+# Driven by: Personas, Journey Maps
+# Drives: Blueprints, Development
+
+user_stories:
+  story_1:
+    id: "<Story ID>"
+    title: "<Story title>"
+    epic: "<Related epic>"
+    as_a: "<User role>"
+    i_want: "<Goal>"
+    so_that: "<Business value>"
+    acceptance_criteria:
+      - "<Criterion 1>"
+      - "<Criterion 2>"
+    dependencies:
+      - "<Dependency>"
+    priority: "<High/Medium/Low>"
+
+## 6. Blueprints Document (blueprints.md)
+# Structural layout and component organization
+# Driven by: Journey Maps, User Stories
+# Drives: Flow Diagrams, Design Systems
+
+blueprints:
+  page_1:
+    name: "<Page/Screen name>"
+    user_story_id: "<Associated user story>"
+    layout:
+      header: "<Header structure>"
+      main_content: "<Content areas>"
+      sidebar: "<Sidebar structure>"
+      footer: "<Footer structure>"
+    components:
+      - name: "<Component name>"
+        description: "<Component purpose>"
+        content: "<What goes here>"
+
+## 7. Architecture Design Document (architecture-design.md)
+# System architecture and technical structure
+# Driven by: Requirements, Blueprints
+# Drives: Flow Diagrams, Technical Specifications
+
+architecture:
+  overview: "<High-level architecture diagram>"
+  
+  technology_stack:
+    frontend: "<Frontend technologies>"
+    backend: "<Backend technologies>"
+    database: "<Database technologies>"
+    infrastructure: "<Infrastructure/Cloud>"
+  
+  components:
+    - name: "<Component name>"
+      description: "<Role in system>"
+      technology: "<Technology used>"
+      responsibilities:
+        - "<Responsibility 1>"
+  
+  data_model:
+    entities:
+      - name: "<Entity name>"
+        fields:
+          - name: "<Field name>"
+            type: "<Data type>"
+  
+  integration_points:
+    - system: "<External system>"
+      interface: "<API/Protocol>"
+      data: "<Data exchanged>"
+
+## 8. Flow Diagrams Document (flow-diagrams.md)
+# Process flows and user interaction sequences
+# Driven by: Journey Maps, Blueprints, Architecture
+# Drives: Development, Testing
+
+flow_diagrams:
+  flow_1:
+    name: "<Flow name>"
+    trigger: "<What starts this flow>"
+    steps:
+      - step: "<Step description>"
+        actor: "<Who performs it>"
+        action: "<What happens>"
+    end_state: "<Final state>"
+
+---
+# STAGE 4: DEVELOPMENT → IMPLEMENTATION PLANNING
+---
+
+## 9. Technical Specification Document (tech-spec.md)
+# Detailed technical requirements and implementation details
+# Driven by: Architecture, Flow Diagrams
+# Drives: Code Generation, Development
+
+technical_specification:
+  api_endpoints:
+    - method: "<HTTP method>"
+      path: "<Endpoint path>"
+      description: "<What it does>"
+      request: "<Request format>"
+      response: "<Response format>"
+  
+  database_schema:
+    - table: "<Table name>"
+      fields:
+        - name: "<Field name>"
+          type: "<Data type>"
+          constraints: "<Constraints>"
+  
+  implementation_details:
+    - component: "<Component to build>"
+      requirements: "<Technical requirements>"
+      considerations: "<Design considerations>"
+
+## 10. Design Systems Document (design-systems.md)
+# Reusable design patterns, components, and visual guidelines
+# Driven by: Blueprints
+# Drives: Code Generation, Development
+
+design_systems:
+  color_palette:
+    - name: "<Color name>"
+      hex: "<Hex value>"
+      usage: "<Where it's used>"
+  
+  typography:
+    - name: "<Font name>"
+      sizes: "<Available sizes>"
+      usage: "<Where it's used>"
+  
+  components:
+    - name: "<Component name>"
+      description: "<Component purpose>"
+      variants: "<Available variants>"
+      accessibility: "<Accessibility features>"
+  
+  spacing_grid: "<Spacing system (e.g., 8px base)>"
+  
+  responsive_breakpoints:
+    - breakpoint: "<Breakpoint name>"
+      width: "<Width in pixels>"
+
+## 11. Code Generation Document (code-generation.md)
+# Specifications for automated code generation and scaffolding
+# Driven by: Technical Spec, Design Systems
+# Drives: Development
+
+code_generation:
+  frontend:
+    framework: "<Framework (e.g., Angular)>"
+    templates:
+      - name: "<Template name>"
+        generates: "<Generated code>"
+        properties:
+          - "<Property that can be customized>"
+  
+  backend:
+    framework: "<Framework (e.g., Spring Boot)>"
+    templates:
+      - name: "<Template name>"
+        generates: "<Generated code>"
+        properties:
+          - "<Property that can be customized>"
+  
+  database:
+    migrations:
+      - name: "<Migration name>"
+        generates: "<SQL/DDL>"
+  
+  api:
+    spec_format: "<OpenAPI/Swagger>"
+    auto_generation: "<Which files are auto-generated>"
+
+---
+# STAGE 5: TESTING → QUALITY ASSURANCE
+---
+
+## 12. Test Strategies Document (test-strategies.md)
+# Comprehensive testing approach and test planning
+# Driven by: User Stories, Technical Spec
+# Drives: Testing Execution, Quality Metrics
+
+test_strategies:
+  unit_testing:
+    scope: "<What gets unit tested>"
+    framework: "<Testing framework>"
+    coverage_target: "<Target coverage percentage>"
+  
+  integration_testing:
+    scope: "<What gets integration tested>"
+    approach: "<Testing approach>"
+  
+  e2e_testing:
+    scope: "<User workflows to test>"
+    framework: "<E2E testing framework>"
+    test_cases:
+      - "<Test case description>"
+  
+  bdd_testing:
+    framework: "<Gherkin/Cucumber>"
+    feature_files:
+      - story_id: "<User story ID>"
+        scenarios:
+          - "<Scenario description>"
+  
+  performance_testing:
+    benchmarks:
+      - metric: "<Metric (e.g., response time)>"
+        target: "<Target value>"
+  
+  security_testing:
+    checklist:
+      - "<Security test>"
+  
+  acceptance_testing:
+    stakeholders: "<Who approves>"
+    criteria:
+      - "<Acceptance criterion>"
+
+---
+# STAGE 6: DEPLOYMENT & MONITORING
+---
+
+## 13. Iteration Planning Document (iteration-planning.md)
+# Phased release and continuous improvement planning
+# Driven by: All previous documents
+# Drives: Release Management, Continuous Improvement
+
+iteration_planning:
+  release_phases:
+    phase_1:
+      name: "<Phase name>"
+      timeline: "<Start-End dates>"
+      features:
+        - "<Feature 1>"
+        - "<Feature 2>"
+      deliverables:
+        - "<Deliverable>"
+      dependencies:
+        - "<Dependency>"
+      success_criteria:
+        - "<Criterion>"
+  
+  monitoring_plan:
+    metrics:
+      - name: "<Metric name>"
+        target: "<Target value>"
+        frequency: "<Measurement frequency>"
+    alerts:
+      - condition: "<Alert condition>"
+        action: "<Response action>"
+  
+  feedback_loop:
+    sources:
+      - "<User feedback source>"
+      - "<Performance metrics>"
+    frequency: "<Review frequency>"
+    process: "<How feedback drives iteration>"
+  
+  continuous_improvement:
+    areas:
+      - "<Area for improvement>"
+    process: "<Process for improvement>"
+
+---
+# DOCUMENT RELATIONSHIPS AND DEPENDENCIES
+---
+
+document_flow:
+  stage_1_requirements:
+    documents: ["requirements.md"]
+    output: "Project scope and objectives"
+    next_stage: "stage_2_analysis"
+  
+  stage_2_analysis:
+    documents: ["personas.md", "business-case.md"]
+    input_from: "stage_1_requirements"
+    output: "User understanding and business justification"
+    next_stage: "stage_3_design"
+  
+  stage_3_design:
+    documents: ["journey-maps.md", "user-stories.md", "blueprints.md", "architecture-design.md", "flow-diagrams.md"]
+    input_from: "stage_2_analysis"
+    output: "Design artifacts and system architecture"
+    next_stage: "stage_4_development"
+  
+  stage_4_development:
+    documents: ["tech-spec.md", "design-systems.md", "code-generation.md"]
+    input_from: "stage_3_design"
+    output: "Technical specifications and development guidelines"
+    next_stage: "stage_5_testing"
+  
+  stage_5_testing:
+    documents: ["test-strategies.md"]
+    input_from: ["stage_3_design", "stage_4_development"]
+    output: "Testing plans and quality metrics"
+    next_stage: "stage_6_deployment"
+  
+  stage_6_deployment:
+    documents: ["iteration-planning.md"]
+    input_from: ["stage_4_development", "stage_5_testing"]
+    output: "Release plans and monitoring strategy"
+    next_stage: "continuous_improvement"
+
+---
+# TRACEABILITY MATRIX
+---
+
+traceability:
+  requirements_to_stories:
+    - requirement_id: "<REQ-ID>"
+      user_stories:
+        - "<Story ID>"
+  
+  stories_to_test_cases:
+    - story_id: "<Story ID>"
+      test_cases:
+        - "<Test case ID>"
+  
+  design_to_architecture:
+    - blueprint_id: "<Blueprint ID>"
+      architecture_components:
+        - "<Component name>"
+  
+  architecture_to_code:
+    - component_id: "<Component ID>"
+      code_artifacts:
+        - "<File path>"
+
+---
+# SUCCESS CRITERIA AND SIGN-OFF
+---
+
+success_criteria:
+  - "<All requirements satisfied>"
+  - "<User stories accepted by stakeholders>"
+  - "<Architecture approved by technical lead>"
+  - "<Design system complete and documented>"
+  - "<All test strategies defined>"
+  - "<Deployment plan finalized>"
+  - "<Stakeholder sign-off obtained>"
+
+sign_off:
+  product_owner: "<Name/Date>"
+  technical_lead: "<Name/Date>"
+  design_lead: "<Name/Date>"
+  qa_lead: "<Name/Date>"

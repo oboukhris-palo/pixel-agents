@@ -5,12 +5,16 @@ import { VIEW_ID, COMMAND_SHOW_PANEL, COMMAND_EXPORT_DEFAULT_LAYOUT } from './co
 let providerInstance: PixelAgentsViewProvider | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
+	console.log('[Pixel Agents] ✅ Extension activating...');
+	
 	const provider = new PixelAgentsViewProvider(context);
 	providerInstance = provider;
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(VIEW_ID, provider)
 	);
+	
+	console.log('[Pixel Agents] ✅ Extension activated successfully');
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand(COMMAND_SHOW_PANEL, () => {

@@ -1,0 +1,148 @@
+{
+  "variants": {
+    "orchestrator": {
+      "default": "standard",
+      "variants": [
+        {
+          "id": "standard",
+          "version": "1.0.0",
+          "description": "Standard orchestrator prompt with gate-based decision model",
+          "file": "orchestrator/standard.md",
+          "active": true,
+          "test_group": "control",
+          "created_at": "2026-01-09T00:00:00Z",
+          "metrics": {
+            "handoff_quality_score": null,
+            "decision_clarity_score": null,
+            "agent_satisfaction": null,
+            "success_rate": null
+          }
+        },
+        {
+          "id": "verbose",
+          "version": "1.0.0",
+          "description": "Verbose variant with detailed reasoning steps",
+          "file": "orchestrator/verbose.md",
+          "active": false,
+          "test_group": "variant-a",
+          "created_at": "2026-01-10T00:00:00Z",
+          "metrics": {
+            "handoff_quality_score": null,
+            "decision_clarity_score": null,
+            "agent_satisfaction": null,
+            "success_rate": null
+          }
+        }
+      ]
+    },
+    "dev-lead": {
+      "default": "standard",
+      "variants": [
+        {
+          "id": "standard",
+          "version": "1.0.0",
+          "description": "Standard dev-lead prompt with implementation planning focus",
+          "file": "dev-lead/standard.md",
+          "active": true,
+          "test_group": "control",
+          "created_at": "2026-01-09T00:00:00Z",
+          "metrics": {
+            "plan_completeness": null,
+            "tdd_alignment": null,
+            "clarity_score": null,
+            "success_rate": null
+          }
+        },
+        {
+          "id": "concise",
+          "version": "1.0.0",
+          "description": "Concise variant focusing on minimal viable plan",
+          "file": "dev-lead/concise.md",
+          "active": false,
+          "test_group": "variant-b",
+          "created_at": "2026-01-10T00:00:00Z",
+          "metrics": {
+            "plan_completeness": null,
+            "tdd_alignment": null,
+            "clarity_score": null,
+            "success_rate": null
+          }
+        }
+      ]
+    },
+    "dev-tdd-red": {
+      "default": "standard",
+      "variants": [
+        {
+          "id": "standard",
+          "version": "1.0.0",
+          "description": "Standard RED phase prompt with test-first focus",
+          "file": "dev-tdd-red/standard.md",
+          "active": true,
+          "test_group": "control",
+          "created_at": "2026-01-09T00:00:00Z",
+          "metrics": {
+            "test_quality_score": null,
+            "bdd_alignment": null,
+            "clarity_score": null,
+            "success_rate": null
+          }
+        }
+      ]
+    },
+    "dev-tdd-green": {
+      "default": "standard",
+      "variants": [
+        {
+          "id": "standard",
+          "version": "1.0.0",
+          "description": "Standard GREEN phase prompt with minimal implementation focus",
+          "file": "dev-tdd-green/standard.md",
+          "active": true,
+          "test_group": "control",
+          "created_at": "2026-01-09T00:00:00Z",
+          "metrics": {
+            "implementation_efficiency": null,
+            "test_pass_rate": null,
+            "code_quality": null,
+            "success_rate": null
+          }
+        }
+      ]
+    },
+    "dev-tdd-refactor": {
+      "default": "standard",
+      "variants": [
+        {
+          "id": "standard",
+          "version": "1.0.0",
+          "description": "Standard REFACTOR phase prompt with quality focus",
+          "file": "dev-tdd-refactor/standard.md",
+          "active": true,
+          "test_group": "control",
+          "created_at": "2026-01-09T00:00:00Z",
+          "metrics": {
+            "code_quality_improvement": null,
+            "test_pass_rate": null,
+            "technical_debt_reduction": null,
+            "success_rate": null
+          }
+        }
+      ]
+    }
+  },
+  "ab_testing": {
+    "enabled": true,
+    "split_percentage": 50,
+    "min_samples_for_decision": 10,
+    "evaluation_period_days": 7,
+    "metrics_collection_enabled": true
+  },
+  "promotion_rules": {
+    "auto_promote_on_success_rate": 0.95,
+    "auto_disable_on_error_rate": 0.15,
+    "manual_review_required": true
+  },
+  "last_updated": "2026-01-12T00:00:00Z",
+  "version": "1.0.0"
+}

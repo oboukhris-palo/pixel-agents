@@ -1,0 +1,39 @@
+{
+  "name": "ai-logger",
+  "version": "1.0.0",
+  "description": "AI Activity Logger & Prompt Optimizer - Automated analysis and optimization system",
+  "main": "index.ts",
+  "scripts": {
+    "weekly-analysis": "ts-node scripts/weekly-analysis.ts",
+    "analyze": "npm run weekly-analysis",
+    "build": "tsc",
+    "test": "node test-integration.js",
+    "test-integration": "node test-integration.js",
+    "export-traces": "ts-node scripts/export-traces.ts",
+    "create-handoff": "ts-node scripts/create-handoff.ts",
+    "trace-json": "npm run export-traces -- --format=json",
+    "trace-csv": "npm run export-traces -- --format=csv",
+    "trace-report": "npm run export-traces -- --format=markdown"
+  },
+  "keywords": [
+    "ai",
+    "logging",
+    "prompt-optimization",
+    "pattern-detection",
+    "automation"
+  ],
+  "author": "AI-Driven PDLC Orchestration System",
+  "license": "MIT",
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/js-yaml": "^4.0.9",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

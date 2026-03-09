@@ -1,0 +1,381 @@
+---
+# Meeting Minutes Template / Compte Rendu de Réunion
+# Template for IT Project Meetings
+# Version: 1.0
+
+metadata:
+  template_name: "IT Project Meeting Minutes"
+  template_version: "1.0"
+  created_date: "2026-01-12"
+  purpose: "Standardized template for documenting IT project meetings"
+
+# ==============================================================================
+# MEETING INFORMATION / INFORMATIONS DE LA RÉUNION
+# ==============================================================================
+
+meeting_info:
+  title: ""                                    # Meeting title / Titre de la réunion
+  project_name: ""                             # Project name / Nom du projet
+  meeting_type:                                # Type of meeting / Type de réunion
+    - "kickoff"                                # Kick-off meeting
+    - "status_update"                          # Status/Progress meeting
+    - "technical_review"                       # Technical review
+    - "sprint_planning"                        # Sprint planning
+    - "retrospective"                          # Retrospective
+    - "steering_committee"                     # Steering committee
+    - "other"                                  # Other
+  
+  date: "YYYY-MM-DD"                          # Meeting date / Date de la réunion
+  time:
+    start: "HH:MM"                            # Start time / Heure de début
+    end: "HH:MM"                              # End time / Heure de fin
+    timezone: "CET/CEST"                      # Timezone / Fuseau horaire
+  
+  location:
+    type: ""                                  # in-person / remote / hybrid
+    venue: ""                                 # Physical location or meeting link
+  
+  organizer:
+    name: ""
+    role: ""
+    email: ""
+
+# ==============================================================================
+# PARTICIPANTS / PARTICIPANTS
+# ==============================================================================
+
+participants:
+  present:
+    - name: ""
+      role: ""                                # e.g., Product Owner, Scrum Master, Developer, Architect
+      organization: ""
+      email: ""
+    
+  absent:
+    - name: ""
+      role: ""
+      reason: ""                              # Optional: Reason for absence
+  
+  guests:                                     # External participants / Invités externes
+    - name: ""
+      organization: ""
+      purpose: ""                             # Why they were invited
+
+# ==============================================================================
+# AGENDA / ORDRE DU JOUR
+# ==============================================================================
+
+agenda:
+  - item_id: 1
+    topic: ""                                 # Agenda topic / Sujet
+    duration: ""                              # Estimated duration / Durée estimée (e.g., 15min)
+    presenter: ""                             # Person leading this topic
+    objective: ""                             # What should be achieved
+    status: ""                                # covered / deferred / cancelled
+
+# ==============================================================================
+# DISCUSSIONS / DISCUSSIONS
+# ==============================================================================
+
+discussions:
+  - topic: ""                                 # Discussion topic / Sujet de discussion
+    agenda_item_id: 1                         # Link to agenda item / Lien avec l'ordre du jour
+    summary: |
+      # Detailed summary of the discussion
+      # Résumé détaillé de la discussion
+    
+    key_points:                               # Main points discussed / Points clés discutés
+      - ""
+    
+    concerns_raised:                          # Issues or concerns / Préoccupations soulevées
+      - concern: ""
+        raised_by: ""
+        response: ""
+    
+    technical_details:                        # Technical information / Détails techniques
+      architecture: ""
+      technologies: []
+      constraints: []
+      dependencies: []
+
+# ==============================================================================
+# DECISIONS MADE / DÉCISIONS PRISES
+# ==============================================================================
+
+decisions:
+  - decision_id: "DEC-001"
+    topic: ""                                 # What was decided / Décision prise
+    description: |
+      # Detailed description of the decision
+      # Description détaillée de la décision
+    
+    rationale: ""                             # Why this decision / Justification
+    decided_by: ""                            # Decision maker / Décideur
+    decision_date: "YYYY-MM-DD"
+    impact:                                   # Impact of decision / Impact de la décision
+      scope: ""                               # high / medium / low
+      areas: []                               # Affected areas / Domaines affectés
+    
+    alternatives_considered: []               # Other options discussed / Alternatives considérées
+    
+    approval_required: false                  # Does this need formal approval? / Approbation nécessaire?
+    approved_by: ""                           # If approved / Si approuvé
+    
+    tags: []                                  # e.g., architecture, technical, business, security
+
+# ==============================================================================
+# ACTION ITEMS / ACTIONS À RÉALISER
+# ==============================================================================
+
+action_items:
+  - action_id: "ACT-001"
+    description: ""                           # What needs to be done / Action à réaliser
+    assigned_to:
+      name: ""
+      email: ""
+    
+    due_date: "YYYY-MM-DD"                   # Deadline / Date d'échéance
+    priority: ""                              # critical / high / medium / low
+    status: ""                                # not_started / in_progress / completed / blocked
+    
+    dependencies: []                          # Other actions this depends on / Dépendances
+    blockers: []                              # What's blocking this / Obstacles
+    
+    related_decision_id: ""                   # Link to decision if applicable
+    related_issue_id: ""                      # Link to GitHub issue/Jira ticket
+    
+    estimated_effort: ""                      # Time estimate / Estimation (e.g., 2h, 1d)
+    
+    follow_up_notes: ""                       # Progress notes / Notes de suivi
+
+# ==============================================================================
+# RISKS & ISSUES / RISQUES ET PROBLÈMES
+# ==============================================================================
+
+risks_and_issues:
+  risks:
+    - risk_id: "RSK-001"
+      description: ""                         # Risk description / Description du risque
+      category: ""                            # technical / business / resource / schedule
+      probability: ""                         # high / medium / low
+      impact: ""                              # critical / high / medium / low
+      mitigation_strategy: ""                 # How to mitigate / Stratégie d'atténuation
+      owner: ""                               # Who owns this risk / Responsable
+      status: ""                              # open / monitoring / mitigated / closed
+  
+  issues:
+    - issue_id: "ISS-001"
+      description: ""                         # Issue description / Description du problème
+      category: ""                            # technical / business / resource / process
+      severity: ""                            # critical / high / medium / low
+      reported_by: ""
+      reported_date: "YYYY-MM-DD"
+      resolution_plan: ""                     # How to resolve / Plan de résolution
+      owner: ""                               # Who will resolve / Responsable
+      status: ""                              # open / in_progress / resolved / closed
+      resolution_date: "YYYY-MM-DD"
+
+# ==============================================================================
+# PROJECT STATUS / ÉTAT DU PROJET
+# ==============================================================================
+
+project_status:
+  overall_health: ""                          # on_track / at_risk / delayed / blocked
+  
+  progress:
+    current_phase: ""                         # e.g., planning, development, testing, deployment
+    completion_percentage: 0                  # 0-100
+    milestones:
+      - name: ""
+        target_date: "YYYY-MM-DD"
+        status: ""                            # completed / on_track / at_risk / delayed
+  
+  metrics:
+    sprint_number: ""                         # If using Agile / Si méthode Agile
+    story_points_completed: 0
+    story_points_planned: 0
+    velocity: 0
+    
+    bugs_open: 0
+    bugs_resolved: 0
+    
+    code_coverage: ""                         # e.g., 85%
+  
+  schedule:
+    on_schedule: true                         # true / false
+    variance: ""                              # e.g., "+2 days", "-1 week"
+    next_milestone: ""
+    next_milestone_date: "YYYY-MM-DD"
+  
+  budget:
+    on_budget: true                           # true / false
+    variance: ""                              # e.g., "+5%", "-10K EUR"
+
+# ==============================================================================
+# TECHNICAL UPDATES / MISES À JOUR TECHNIQUES
+# ==============================================================================
+
+technical_updates:
+  - category: ""                              # architecture / infrastructure / security / performance
+    title: ""
+    description: ""
+    impact: ""
+    follow_up_required: false
+    related_action_id: ""
+
+# ==============================================================================
+# DEPENDENCIES & BLOCKERS / DÉPENDANCES ET OBSTACLES
+# ==============================================================================
+
+dependencies:
+  external:
+    - dependency: ""                          # External dependency / Dépendance externe
+      team_or_vendor: ""
+      required_by: "YYYY-MM-DD"
+      status: ""                              # pending / in_progress / delivered / delayed
+      impact_if_delayed: ""
+      contact_person: ""
+  
+  internal:
+    - dependency: ""                          # Internal dependency / Dépendance interne
+      team: ""
+      required_by: "YYYY-MM-DD"
+      status: ""
+      impact_if_delayed: ""
+
+blockers:
+  - blocker_id: "BLK-001"
+    description: ""                           # What's blocking progress / Obstacle
+    blocking_what: ""                         # What is affected / Ce qui est affecté
+    since_date: "YYYY-MM-DD"
+    owner: ""                                 # Who is working to unblock
+    resolution_plan: ""
+    escalated: false
+    escalated_to: ""
+
+# ==============================================================================
+# NEXT MEETING / PROCHAINE RÉUNION
+# ==============================================================================
+
+next_meeting:
+  scheduled: true                             # true / false
+  date: "YYYY-MM-DD"
+  time: "HH:MM"
+  location: ""
+  agenda_preview:
+    - ""                                      # Topics for next meeting / Sujets pour la prochaine réunion
+  
+  preparation_required:
+    - task: ""
+      assigned_to: ""
+      due_before_meeting: true
+
+# ==============================================================================
+# APPENDICES / ANNEXES
+# ==============================================================================
+
+appendices:
+  documents:
+    - title: ""
+      type: ""                                # presentation / document / diagram / specification
+      location: ""                            # URL or file path
+      description: ""
+  
+  links:
+    - title: ""
+      url: ""
+      description: ""
+  
+  screenshots:
+    - title: ""
+      filename: ""
+      description: ""
+  
+  notes:
+    - |
+      Additional notes / Notes supplémentaires
+
+# ==============================================================================
+# METADATA & TRACKING / MÉTADONNÉES ET SUIVI
+# ==============================================================================
+
+document_control:
+  minutes_taker:
+    name: ""
+    email: ""
+  
+  review_status: ""                           # draft / under_review / approved / published
+  
+  reviewed_by:
+    - name: ""
+      date: "YYYY-MM-DD"
+      comments: ""
+  
+  approved_by:
+    name: ""
+    role: ""
+    date: "YYYY-MM-DD"
+  
+  distribution_list:                          # Who receives these minutes / Liste de distribution
+    - name: ""
+      email: ""
+      organization: ""
+  
+  version_history:
+    - version: "1.0"
+      date: "YYYY-MM-DD"
+      author: ""
+      changes: "Initial draft"
+  
+  tags: []                                    # For categorization / Pour la catégorisation
+  
+  related_documents:                          # Links to related meeting minutes / Liens vers d'autres CR
+    - title: ""
+      date: "YYYY-MM-DD"
+      link: ""
+  
+  confidentiality: ""                         # public / internal / confidential / restricted
+
+# ==============================================================================
+# NOTES & COMMENTS / NOTES ET COMMENTAIRES
+# ==============================================================================
+
+additional_notes: |
+  # Any additional notes, observations, or comments
+  # Notes supplémentaires, observations ou commentaires
+  
+parking_lot:                                  # Topics deferred for later / Sujets reportés
+  - topic: ""
+    reason: ""
+    follow_up_date: "YYYY-MM-DD"
+
+feedback:                                     # Feedback on the meeting itself
+  meeting_effectiveness: ""                   # excellent / good / fair / poor
+  comments: ""
+  improvements_suggested: []
+
+---
+
+# USAGE INSTRUCTIONS / INSTRUCTIONS D'UTILISATION
+
+# 1. Create a new file for each meeting using this template
+#    Créer un nouveau fichier pour chaque réunion en utilisant ce modèle
+#
+# 2. Naming convention: YYYY-MM-DD-meeting-type-project-name.yml
+#    Convention de nommage: YYYY-MM-DD-type-reunion-nom-projet.yml
+#    Example: 2026-01-15-sprint-planning-edenred-kickoff.yml
+#
+# 3. Fill in all relevant sections during or immediately after the meeting
+#    Remplir toutes les sections pertinentes pendant ou juste après la réunion
+#
+# 4. Remove unused sections to keep the document concise
+#    Supprimer les sections non utilisées pour garder le document concis
+#
+# 5. Distribute to all participants and stakeholders within 24 hours
+#    Distribuer à tous les participants dans les 24 heures
+#
+# 6. Store in the appropriate project documentation folder
+#    Stocker dans le dossier de documentation approprié du projet
+#
+# 7. Link action items to your project management tool (Jira, GitHub Issues, etc.)
+#    Lier les actions à votre outil de gestion de projet (Jira, GitHub Issues, etc.)

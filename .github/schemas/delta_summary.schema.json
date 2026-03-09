@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/delta_summary.schema.json",
+  "title": "Agent Delta Summary",
+  "type": "object",
+  "required": ["agent", "story_ref", "changes", "next_files"],
+  "properties": {
+    "agent": {"type": "string"},
+    "story_ref": {"type": "string", "pattern": "^US-[0-9]{3,}$"},
+    "changes": {"type": "array", "items": {"type": "string"}},
+    "open_questions": {"type": "array", "items": {"type": "string"}},
+    "next_files": {"type": "array", "items": {"type": "string"}}
+  }
+}

@@ -1,0 +1,235 @@
+# AI Activity Logger & Prompt Optimizer Configuration
+# Version: 1.0.0
+
+logging:
+  enabled: true
+  log_directory: "../logs/raw"
+  log_format: "jsonl"  # jsonl, json, or markdown
+  
+  # What to capture
+  capture:
+    user_prompts: true
+    agent_responses: true
+    tool_invocations: true
+    decision_points: true
+    token_usage: true
+    errors: true
+    duration: true
+    context_files: true
+  
+  # Privacy settings
+  privacy:
+    sanitize_sensitive_data: true
+    exclude_patterns:
+      - "API_KEY"
+      - "PASSWORD"
+      - "SECRET"
+      - "TOKEN"
+    project_specific_only: true
+
+analysis:
+  enabled: true
+  
+  # Pattern detection thresholds
+  pattern_detection:
+    min_occurrences: 3  # Minimum repetitions to identify a pattern
+    similarity_threshold: 0.75  # Semantic similarity for grouping prompts
+    lookback_days: 7
+  
+  # AI analysis configuration
+  llm_config:
+    provider: "anthropic"  # anthropic, openai, or local
+    model: "claude-sonnet-4.5"
+    temperature: 0.2
+    max_tokens: 4000
+  
+  # Cost analysis
+  cost_tracking:
+    enabled: true
+    pricing:
+      claude_sonnet_4_5:
+        input_per_1m_tokens: 3.00
+        output_per_1m_tokens: 15.00
+      gpt_4_turbo:
+        input_per_1m_tokens: 10.00
+        output_per_1m_tokens: 30.00
+
+optimization:
+  enabled: true
+  
+  # Prompt optimization settings
+  prompt_optimizer:
+    generate_variants: 3  # Number of optimized variants to generate
+    focus_areas:
+      - clarity
+      - token_efficiency
+      - specificity
+      - structure
+  
+  # Template generation
+  template_generation:
+    auto_generate: true
+    min_pattern_confidence: 0.8
+    output_directory: "../templates/prompts/auto-generated"
+
+reporting:
+  enabled: true
+  schedule: "weekly"  # daily, weekly, or manual
+  
+  # Report configuration
+  report_format: "markdown"
+  report_directory: "../logs/reports"
+  
+  # Report sections
+  include_sections:
+    usage_summary: true
+    detected_patterns: true
+    prompt_optimizations: true
+    cost_analysis: true
+    automation_suggestions: true
+    token_trends: true
+  
+  # Notification settings (optional)
+  notifications:
+    enabled: false
+    slack_webhook: ""
+    email: ""
+
+automation:
+  # Workflow automation suggestions
+  suggest_automations: true
+  min_repetition_count: 5
+  
+  # Auto-generate workflow templates
+  generate_workflow_templates: true
+  workflow_directory: "../workflows"
+
+# Agent-specific configurations
+agents:
+  track_all: true
+  
+  # Per-agent overrides (optional)
+  overrides:
+    orchestrator:
+      high_priority: true
+      detailed_logging: true
+      track_handoffs: true
+      track_decision_gates: true
+    
+    pm:
+      track_sprint_planning: true
+      track_story_selection: true
+      track_scope_decisions: true
+      track_github_integration: true
+    
+    ba:
+      track_story_enrichment: true
+      track_validation_results: true
+      track_bug_discovery: true
+      track_acceptance_criteria: true
+    
+    dev-lead:
+      track_implementation_planning: true
+      track_layer_decomposition: true
+      track_architecture_decisions: true
+      track_status_synchronization: true
+    
+    dev-tdd:
+      track_test_results: true
+      track_refactoring_patterns: true
+      track_tdd_cycles: true
+      track_layer_progression: true
+      track_bdd_coverage: true
+    
+    dev-tdd-orchestrator:
+      track_layer_orchestration: true
+      track_red_green_refactor: true
+      track_implementation_progress: true
+    
+    dev-tdd-red:
+      track_test_creation: true
+      track_failing_tests: true
+      track_test_strategy: true
+    
+    dev-tdd-green:
+      track_implementation: true
+      track_test_passing: true
+      track_minimal_code: true
+    
+    dev-tdd-refactor:
+      track_code_quality: true
+      track_solid_principles: true
+      track_refactoring_patterns: true
+    
+    ai-engineering:
+      track_prompt_versions: true
+      compare_optimization_results: true
+      track_context_strategies: true
+      track_model_selection: true
+
+# Feature flags
+features:
+  experimental_ml_patterns: false
+  real_time_suggestions: false
+  cross_project_learning: false
+  
+# Implementation workflow specific settings
+implementation_workflows:
+  enabled: true
+  
+  # Phase tracking
+  phases:
+    sprint_planning:
+      track_story_selection: true
+      track_scope_decisions: true
+      track_capacity_planning: true
+    
+    story_enrichment:
+      track_acceptance_criteria: true
+      track_bdd_scenarios: true
+      track_ui_integration: true
+    
+    implementation_planning:
+      track_layer_decomposition: true
+      track_architecture_decisions: true
+      track_file_planning: true
+    
+    tdd_execution:
+      track_red_phases: true
+      track_green_phases: true
+      track_refactor_phases: true
+      track_layer_progression: true
+      track_bdd_coverage: true
+    
+    validation:
+      track_e2e_testing: true
+      track_bug_discovery: true
+      track_acceptance_testing: true
+  
+  # Handoff pattern tracking
+  handoffs:
+    track_agent_transitions: true
+    track_document_updates: true
+    track_status_synchronization: true
+    track_github_integration: true
+  
+  # Epic and story tracking
+  story_lifecycle:
+    track_status_transitions: true
+    track_epic_progression: true
+    track_sprint_velocity: true
+    track_blocker_patterns: true
+  
+  # Quality metrics
+  quality_tracking:
+    track_test_coverage: true
+    track_code_quality: true
+    track_bdd_pass_rates: true
+    track_refactoring_frequency: true
+  
+  # Document synchronization
+  document_tracking:
+    track_checkpoint_updates: true
+    track_handoff_documents: true
+    track_implementation_plans: true
+    track_tdd_execution_logs: true

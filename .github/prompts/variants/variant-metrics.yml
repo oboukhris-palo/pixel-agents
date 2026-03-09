@@ -1,0 +1,146 @@
+# Variant Performance Metrics
+# Tracks which prompt versions produce best results
+# Updated: January 12, 2026
+
+metrics:
+  # ORCHESTRATOR VARIANTS
+  v1-baseline-orchestrator:
+    handoff_success_rate: 0.88
+    avg_handoff_iterations: 1.3
+    agent_clarity_score: 8.2
+    context_loss_incidents: 0
+    decision_gate_clarity: 7.8
+    deployed_since: "2025-12-01"
+    sample_size: 24
+    
+  v2-clarity-focus-orchestrator:
+    handoff_success_rate: 0.91
+    avg_handoff_iterations: 1.1
+    agent_clarity_score: 8.8
+    context_loss_incidents: 0
+    decision_gate_clarity: 9.1
+    tested_date: "2026-01-13"
+    sample_size: 0
+    status: "experimental"
+    
+  # DEV-LEAD VARIANTS
+  v1-baseline-dev-lead:
+    handoff_success_rate: 0.85
+    plan_completeness_score: 0.82
+    tdd_cycle_efficiency: 0.79
+    architectural_compliance: 0.91
+    deployed_since: "2025-12-01"
+    sample_size: 18
+    
+  v2-structured-output-dev-lead:
+    handoff_success_rate: 0.88
+    plan_completeness_score: 0.94
+    tdd_cycle_efficiency: 0.85
+    architectural_compliance: 0.93
+    tested_date: "2026-01-20"
+    sample_size: 0
+    status: "experimental"
+    
+  # DEV-TDD-RED VARIANTS
+  v1-baseline-dev-tdd-red:
+    handoff_success_rate: 0.82
+    test_clarity_score: 7.9
+    assertion_coverage: 0.88
+    false_positives: 0.05
+    deployed_since: "2025-12-01"
+    sample_size: 16
+    
+  # DEV-TDD-GREEN VARIANTS
+  v1-baseline-dev-tdd-green:
+    handoff_success_rate: 0.90
+    code_quality_score: 8.1
+    test_pass_rate: 0.95
+    refactor_readiness: 0.87
+    deployed_since: "2025-12-01"
+    sample_size: 20
+    
+  # DEV-TDD-REFACTOR VARIANTS
+  v1-baseline-dev-tdd-refactor:
+    handoff_success_rate: 0.87
+    complexity_reduction: 0.12
+    maintainability_score: 8.4
+    test_coverage_improvement: 0.08
+    deployed_since: "2025-12-01"
+    sample_size: 15
+    
+  # PM VARIANTS
+  v1-baseline-pm:
+    handoff_success_rate: 0.86
+    charter_completeness: 0.89
+    timeline_accuracy: 0.81
+    risk_identification: 0.85
+    deployed_since: "2025-12-01"
+    sample_size: 8
+    
+  # PO VARIANTS
+  v1-baseline-po:
+    handoff_success_rate: 0.87
+    requirements_clarity: 8.3
+    story_quality_score: 8.1
+    acceptance_criteria_completeness: 0.91
+    deployed_since: "2025-12-01"
+    sample_size: 12
+    
+  # BA VARIANTS
+  v1-baseline-ba:
+    handoff_success_rate: 0.84
+    persona_depth: 8.0
+    bdd_scenario_quality: 8.2
+    business_case_completeness: 0.86
+    deployed_since: "2025-12-01"
+    sample_size: 10
+    
+  # UX VARIANTS
+  v1-baseline-ux:
+    handoff_success_rate: 0.86
+    design_system_completeness: 0.88
+    wireframe_clarity: 8.3
+    accessibility_coverage: 0.82
+    deployed_since: "2025-12-01"
+    sample_size: 7
+    
+  # ARCHITECT VARIANTS
+  v1-baseline-architect:
+    handoff_success_rate: 0.89
+    architecture_doc_completeness: 0.87
+    tech_spec_clarity: 8.5
+    scalability_assessment: 0.90
+    deployed_since: "2025-12-01"
+    sample_size: 9
+    
+  # AI-ENGINEERING VARIANTS
+  v1-baseline-ai-engineering:
+    handoff_success_rate: 0.88
+    prompt_optimization_score: 8.4
+    model_selection_quality: 8.6
+    evaluation_framework_completeness: 0.85
+    deployed_since: "2025-12-01"
+    sample_size: 5
+
+# Aggregate Statistics
+aggregate:
+  total_handoffs_tracked: 144
+  baseline_success_rate: 0.865
+  baseline_quality_score: 8.2
+  total_experiments: 2
+  active_experiments: 0
+  completed_experiments: 0
+
+# Recommendation Engine
+recommendations:
+  - variant: "v2-clarity-focus-orchestrator"
+    agent: "orchestrator"
+    improvement_prediction: "+3.4% handoff success"
+    confidence: 0.85
+    recommendation: "PROMOTE after exp-001 completes"
+    
+  - variant: "v2-structured-output-dev-lead"
+    agent: "dev-lead"
+    improvement_prediction: "+3.5% handoff success"
+    confidence: 0.82
+    recommendation: "MONITOR - shows strong plan completeness improvement"

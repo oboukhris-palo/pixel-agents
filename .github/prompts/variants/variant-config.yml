@@ -1,0 +1,100 @@
+# Variant Configuration
+# Specifies which prompt version each agent uses
+# Updated: January 12, 2026
+
+variants:
+  orchestrator:
+    active: v1-baseline
+    tested_date: "2026-01-09"
+    last_updated: "2026-01-09"
+    promotion_status: "stable"
+    
+  dev-lead:
+    active: v1-baseline
+    tested_date: "2026-01-09"
+    last_updated: "2026-01-09"
+    promotion_status: "stable"
+    
+  dev-tdd-red:
+    active: v1-baseline
+    tested_date: "2026-01-09"
+    last_updated: "2026-01-09"
+    promotion_status: "stable"
+    
+  dev-tdd-green:
+    active: v1-baseline
+    tested_date: "2026-01-09"
+    last_updated: "2026-01-09"
+    promotion_status: "stable"
+    
+  dev-tdd-refactor:
+    active: v1-baseline
+    tested_date: "2026-01-09"
+    last_updated: "2026-01-09"
+    promotion_status: "stable"
+    
+  pm:
+    active: v1-baseline
+    tested_date: "2026-01-09"
+    last_updated: "2026-01-09"
+    promotion_status: "stable"
+    
+  po:
+    active: v1-baseline
+    tested_date: "2026-01-09"
+    last_updated: "2026-01-09"
+    promotion_status: "stable"
+    
+  ba:
+    active: v1-baseline
+    tested_date: "2026-01-09"
+    last_updated: "2026-01-09"
+    promotion_status: "stable"
+    
+  ux:
+    active: v1-baseline
+    tested_date: "2026-01-09"
+    last_updated: "2026-01-09"
+    promotion_status: "stable"
+    
+  architect:
+    active: v1-baseline
+    tested_date: "2026-01-09"
+    last_updated: "2026-01-09"
+    promotion_status: "stable"
+    
+  ai-engineering:
+    active: v1-baseline
+    tested_date: "2026-01-09"
+    last_updated: "2026-01-09"
+    promotion_status: "stable"
+
+# A/B Testing Experiments
+experiments:
+  exp-001:
+    name: "Orchestrator clarity improvement"
+    description: "Testing v2-clarity-focus variant with improved decision gate explanations"
+    agent: "orchestrator"
+    variant: "v2-clarity-focus"
+    start_date: "2026-01-13"
+    end_date: "2026-01-20"
+    target_metric: "handoff_success_rate"
+    target_improvement: "10%"
+    status: "not-started"
+    
+  exp-002:
+    name: "Dev-Lead structured output"
+    description: "Testing v2-structured-output variant with JSON-formatted implementation plans"
+    agent: "dev-lead"
+    variant: "v2-structured-output"
+    start_date: "2026-01-20"
+    end_date: "2026-01-27"
+    target_metric: "plan_completeness_score"
+    target_improvement: "15%"
+    status: "not-started"
+
+# Rollback Configuration
+rollback:
+  max_rollback_depth: 3  # Keep last 3 versions for rollback
+  auto_rollback_on_failure: true
+  failure_threshold: 0.15  # If success rate drops >15%, auto-rollback

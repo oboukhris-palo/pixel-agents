@@ -1,0 +1,290 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Handoff Artifact Schema",
+  "description": "Schema for validating handoff artifacts between agents",
+  "type": "object",
+  "required": ["handoff"],
+  "additionalProperties": false,
+  "properties": {
+    "handoff": {
+      "type": "object",
+      "required": [
+        "metadata",
+        "context_summary",
+        "delta_summary",
+        "decision_log",
+        "quality_metrics",
+        "next_agent_context"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "metadata": {
+          "type": "object",
+          "required": [
+            "from_agent",
+            "to_agent",
+            "story_ref",
+            "timestamp"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "from_agent": {
+              "type": "string",
+              "description": "Name of agent sending handoff",
+              "enum": [
+                "orchestrator",
+                "pm",
+                "po",
+                "ba",
+                "ux",
+                "architect",
+                "dev-lead",
+                "dev-tdd-red",
+                "dev-tdd-green",
+                "dev-tdd-refactor",
+                "ai-engineering"
+              ]
+            },
+            "to_agent": {
+              "type": "string",
+              "description": "Name of agent receiving handoff",
+              "enum": [
+                "orchestrator",
+                "pm",
+                "po",
+                "ba",
+                "ux",
+                "architect",
+                "dev-lead",
+                "dev-tdd-red",
+                "dev-tdd-green",
+                "dev-tdd-refactor",
+                "ai-engineering"
+              ]
+            },
+            "story_ref": {
+              "type": "string",
+              "description": "User story reference (US-XXX)",
+              "pattern": "^(PDLC-[0-9]+|US-[0-9]{3,}|EPIC-[0-9]+)$"
+            },
+            "phase": {
+              "type": "string",
+              "description": "Current phase (PDLC or Implementation)",
+              "pattern": "^(PDLC Stage [1-8]|Implementation Phase [1-6]|Layer [1-4])$"
+            },
+            "timestamp": {
+              "type": "string",
+              "description": "ISO 8601 timestamp",
+              "format": "date-time"
+            },
+            "correlation_id": {
+              "type": "string",
+              "description": "Optional: Unique ID to correlate related handoffs"
+            }
+          }
+        },
+        "context_summary": {
+          "type": "object",
+          "required": [
+            "what_was_accomplished",
+            "key_decisions",
+            "context_size_kb"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "what_was_accomplished": {
+              "type": "string",
+              "description": "Brief summary of work completed",
+              "minLength": 10,
+              "maxLength": 500
+            },
+            "key_decisions": {
+              "type": "array",
+              "description": "List of key decisions made",
+              "items": {
+                "type": "string",
+                "minLength": 5,
+                "maxLength": 200
+              }
+            },
+            "open_questions": {
+              "type": "array",
+              "description": "Questions for next agent to address",
+              "items": {
+                "type": "string"
+              }
+            },
+            "context_size_kb": {
+              "type": "number",
+              "description": "Total context size in kilobytes",
+              "minimum": 0,
+              "maximum": 10240
+            }
+          }
+        },
+        "delta_summary": {
+          "type": "object",
+          "description": "Changes made in this phase",
+          "additionalProperties": false,
+          "properties": {
+            "files_created": {
+              "type": "array",
+              "description": "Files created in this phase",
+              "items": {
+                "type": "string"
+              }
+            },
+            "files_modified": {
+              "type": "array",
+              "description": "Files modified in this phase",
+              "items": {
+                "type": "string"
+              }
+            },
+            "sections_added": {
+              "type": "array",
+              "description": "Document sections added",
+              "items": {
+                "type": "string"
+              }
+            },
+            "changes_summary": {
+              "type": "string",
+              "description": "One paragraph summary of changes",
+              "minLength": 20,
+              "maxLength": 1000
+            }
+          }
+        },
+        "decision_log": {
+          "type": "object",
+          "description": "Decisions made and their rationale",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "question",
+              "chosen",
+              "rationale"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "question": {
+                "type": "string",
+                "description": "The decision question"
+              },
+              "options_considered": {
+                "type": "array",
+                "description": "Alternative options evaluated",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "chosen": {
+                "type": "string",
+                "description": "Option that was chosen"
+              },
+              "rationale": {
+                "type": "string",
+                "description": "Why this option was chosen",
+                "minLength": 20,
+                "maxLength": 500
+              },
+              "tradeoffs": {
+                "type": "string",
+                "description": "What was gained/lost by this decision"
+              },
+              "revisit_condition": {
+                "type": "string",
+                "description": "When to revisit this decision"
+              }
+            }
+          }
+        },
+        "quality_metrics": {
+          "type": "object",
+          "required": [
+            "completeness_score",
+            "validation_errors"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "completeness_score": {
+              "type": "number",
+              "description": "Percentage of requirements completed (0-100)",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "clarity_score": {
+              "type": "number",
+              "description": "Clarity of documentation (0-100)",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "requirements_coverage": {
+              "type": "number",
+              "description": "Percentage of requirements covered (0-100)",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "test_coverage": {
+              "type": "number",
+              "description": "Code test coverage percentage (if applicable)",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "validation_errors": {
+              "type": "array",
+              "description": "Any validation or quality issues found",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "next_agent_context": {
+          "type": "object",
+          "required": [
+            "must_know"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "must_know": {
+              "type": "array",
+              "description": "Critical context for next agent",
+              "items": {
+                "type": "string",
+                "minLength": 10
+              }
+            },
+            "nice_to_know": {
+              "type": "array",
+              "description": "Additional helpful context",
+              "items": {
+                "type": "string"
+              }
+            },
+            "files_to_review": {
+              "type": "array",
+              "description": "Key files next agent should review",
+              "items": {
+                "type": "string"
+              }
+            },
+            "questions_for_next_agent": {
+              "type": "array",
+              "description": "Specific questions to clarify with next agent",
+              "items": {
+                "type": "string"
+              }
+            },
+            "estimated_next_effort_hours": {
+              "type": "number",
+              "description": "Estimated hours for next phase",
+              "minimum": 0.5
+            }
+          }
+        }
+      }
+    }
+  }
+}

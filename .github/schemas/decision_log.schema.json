@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/decision_log.schema.json",
+  "title": "Agent Decision Log",
+  "type": "object",
+  "required": ["agent", "story_ref", "decisions"],
+  "properties": {
+    "agent": {"type": "string"},
+    "story_ref": {"type": "string", "pattern": "^US-[0-9]{3,}$"},
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["assumptions", "options", "choice", "tradeoffs"],
+        "properties": {
+          "assumptions": {"type": "array", "items": {"type": "string"}},
+          "options": {"type": "array", "items": {"type": "string"}},
+          "choice": {"type": "string"},
+          "tradeoffs": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    }
+  }
+}
