@@ -77,6 +77,35 @@ export interface WorkflowState {
   lastUpdate?: number
 }
 
+/**
+ * LAYER 3: Task Progression Bar - Frontend Types
+ * Mirror of backend types from src/types.ts for task progression feature
+ */
+
+export type TaskStatus = 'not-started' | 'in-progress' | 'completed' | 'implemented' | 'delivered'
+
+export interface TaskInfo {
+  storyId: string
+  title: string
+  status: TaskStatus
+  epic: string
+  layer?: string
+  cycle?: string
+}
+
+export interface TaskProgressionState {
+  previous: TaskInfo | null
+  current: TaskInfo
+  next: TaskInfo | null
+}
+
+export interface TaskProgressionMessage {
+  type: 'taskProgression'
+  previous: TaskInfo | null
+  current: TaskInfo
+  next: TaskInfo | null
+}
+
 export interface ExtensionMessageState {
   agents: number[]
   selectedAgent: number | null
@@ -90,6 +119,7 @@ export interface ExtensionMessageState {
   agentMetadata: AgentMetadata[]
   githubFileAccess: Record<number, { filePath: string; timestamp: number } | null>
   workflowState: WorkflowState | null
+  taskProgression: TaskProgressionState | null
 }
 
 function saveAgentSeats(os: OfficeState): void {
@@ -118,6 +148,7 @@ export function useExtensionMessages(
   const [agentMetadata, setAgentMetadata] = useState<AgentMetadata[]>([])
   const [githubFileAccess, setGithubFileAccess] = useState<Record<number, { filePath: string; timestamp: number } | null>>({})
   const [workflowState, setWorkflowState] = useState<WorkflowState | null>(null)
+  const [taskProgression, setTaskProgression] = useState<TaskProgressionState | null>(null)
 
   // Track whether initial layout has been loaded (ref to avoid re-render)
   const layoutReadyRef = useRef(false)
@@ -451,6 +482,14 @@ export function useExtensionMessages(
         const state = msg.state as WorkflowState
         console.log(`[Webview] Workflow state updated:`, state)
         setWorkflowState(state)
+      } else if (msg.type === 'taskProgression') {
+        const progressionMsg = msg as TaskProgressionMessage
+        console.log(`[Webview] Task progression updated:`, progressionMsg)
+        setTaskProgression({
+          previous: progressionMsg.previous,
+          current: progressionMsg.current,
+          next: progressionMsg.next,
+        })
       } else if (msg.type === 'agentHandoff') {
         const fromId = msg.fromId as number
         const toId = msg.toId as number
@@ -463,5 +502,5 @@ export function useExtensionMessages(
     return () => window.removeEventListener('message', handler)
   }, [getOfficeState])
 
-  return { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, workspaceFolders, agentMetadata, githubFileAccess, workflowState }
+  return { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, workspaceFolders, agentMetadata, githubFileAccess, workflowState, taskProgression }
 }

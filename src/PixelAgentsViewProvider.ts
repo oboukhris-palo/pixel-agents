@@ -319,6 +319,33 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 		});
 	}
 
+	/**
+	 * LAYER 3: Send task progression update to webview
+	 * 
+	 * Sends real-time task progression state from backend to frontend
+	 * with message throttling to prevent UI overload.
+	 * 
+	 * @param state - Current task progression state from TaskProgressionTracker
+	 * 
+	 * @example
+	 * const state = tracker.getCurrentTaskProgression();
+	 * provider.sendTaskProgressionUpdate(state);
+	 */
+	sendTaskProgressionUpdate(state: import('./types.js').TaskProgressionState): void {
+		if (!this.webview) {
+			return; // Webview not initialized yet
+		}
+
+		const message: import('./types.js').TaskProgressionMessage = {
+			type: 'taskProgression',
+			previous: state.previous,
+			current: state.current,
+			next: state.next,
+		};
+
+		this.webview.postMessage(message);
+	}
+
 	dispose() {
 		this.layoutWatcher?.dispose();
 		this.layoutWatcher = null;

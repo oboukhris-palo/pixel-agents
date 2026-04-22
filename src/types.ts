@@ -67,6 +67,37 @@ export interface TaskProgressionState {
 }
 
 /**
+ * LAYER 3: Message Protocol - Task Progression Message
+ * 
+ * Message sent from backend (TaskProgressionTracker) to frontend webview
+ * for real-time task progression updates.
+ * 
+ * @example
+ * const message: TaskProgressionMessage = {
+ *   type: 'taskProgression',
+ *   previous: { storyId: 'US-001-001', title: 'Task Bar', status: 'completed', epic: 'EPIC-001' },
+ *   current: { storyId: 'US-001-002', title: 'Context Window', status: 'in-progress', epic: 'EPIC-001', layer: 'Layer 2', cycle: 'GREEN-01' },
+ *   next: { storyId: 'US-001-003', title: 'Completeness Meter', status: 'not-started', epic: 'EPIC-001' }
+ * };
+ * 
+ * // Backend sends:
+ * provider.sendTaskProgressionUpdate(state);
+ * 
+ * // Frontend receives:
+ * vscode.postMessage(message);
+ */
+export interface TaskProgressionMessage {
+	/** Message type discriminator for webview message routing */
+	type: 'taskProgression';
+	/** Previously completed task (null if no history) */
+	previous: TaskInfo | null;
+	/** Currently active task (always present, never null) */
+	current: TaskInfo;
+	/** Next task in queue (null if no upcoming task) */
+	next: TaskInfo | null;
+}
+
+/**
  * Type guard to validate TaskInfo structure at runtime
  * Ensures required fields are present and have correct types
  * @param value Unknown value to validate
