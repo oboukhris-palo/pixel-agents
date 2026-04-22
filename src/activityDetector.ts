@@ -38,6 +38,7 @@ export function registerActivityListeners(
 	waitingTimers: Map<number, ReturnType<typeof setTimeout>>,
 	permissionTimers: Map<number, ReturnType<typeof setTimeout>>,
 	getWebview: () => vscode.Webview | undefined,
+	agentMetadata?: Map<string, { id: string; name: string; description: string }>,
 ): void {
 	if (registered) {
 		console.log('[Pixel Agents] Activity listeners already registered (skipping)');
@@ -82,7 +83,7 @@ export function registerActivityListeners(
 				const toolId = `write_${Date.now()}`;
 				touchActivity(agentId, agents, waitingTimers, getWebview());
 				emitToolStart(agentId, toolId, `Writing ${fileName}`, 'Write', agents, getWebview(), filePath, isGithubFile);
-				setTimeout(() => emitToolDone(agentId, toolId, agents, getWebview()), TOOL_DONE_DELAY_MS);
+				setTimeout(() => emitToolDone(agentId, toolId, agents, getWebview(), agentMetadata), TOOL_DONE_DELAY_MS);
 			}
 		}),
 	);
@@ -99,7 +100,7 @@ export function registerActivityListeners(
 				const toolId = `delete_${Date.now()}`;
 				touchActivity(agentId, agents, waitingTimers, getWebview());
 				emitToolStart(agentId, toolId, `Deleting ${fileName}`, 'Bash', agents, getWebview(), filePath, isGithubFile);
-				setTimeout(() => emitToolDone(agentId, toolId, agents, getWebview()), TOOL_DONE_DELAY_MS);
+				setTimeout(() => emitToolDone(agentId, toolId, agents, getWebview(), agentMetadata), TOOL_DONE_DELAY_MS);
 			}
 		}),
 	);
@@ -118,7 +119,7 @@ export function registerActivityListeners(
 			touchActivity(agentId, agents, waitingTimers, getWebview());
 			emitToolStart(agentId, toolId, `Reading ${fileName}`, 'Read', agents, getWebview(), filePath, isGithubFile);
 			// Reads are visible slightly longer than writes
-			setTimeout(() => emitToolDone(agentId, toolId, agents, getWebview()), TOOL_DONE_DELAY_MS * 3);
+			setTimeout(() => emitToolDone(agentId, toolId, agents, getWebview(), agentMetadata), TOOL_DONE_DELAY_MS * 3);
 		}),
 	);
 
@@ -155,7 +156,7 @@ export function registerActivityListeners(
 				activeTerminalTools.delete(pid);
 				const { agentId, toolId } = entry;
 				touchActivity(agentId, agents, waitingTimers, getWebview());
-				emitToolDone(agentId, toolId, agents, getWebview());
+				emitToolDone(agentId, toolId, agents, getWebview(), agentMetadata);
 			});
 		}),
 	);
@@ -252,7 +253,7 @@ function batchEditActivity(
 			clearTimeout(editBatchTimer);
 			editBatchTimer = null;
 		}
-		emitToolDone(currentEditAgentId, currentEditToolId, agents, webview);
+		emitToolDone(currentEditAgentId, currentEditToolId, agents, webview, undefined); // No metadata in batch context
 		currentEditToolId = null;
 		currentEditAgentId = null;
 	}
@@ -271,7 +272,7 @@ function batchEditActivity(
 
 	const toolId = currentEditToolId;
 	editBatchTimer = setTimeout(() => {
-		emitToolDone(agentId, toolId, agents, webview);
+		emitToolDone(agentId, toolId, agents, webview, undefined); // No metadata in batch context
 		currentEditToolId = null;
 		currentEditAgentId = null;
 		editBatchTimer = null;
@@ -311,6 +312,7 @@ function emitToolDone(
 	toolId: string,
 	agents: Map<number, AgentState>,
 	webview: vscode.Webview | undefined,
+	agentMetadata?: Map<string, { id: string; name: string; description: string }>,
 ): void {
 	const agent = agents.get(agentId);
 	if (!agent) {return;}
@@ -322,5 +324,18 @@ function emitToolDone(
 	// Small delay prevents React from batching away brief active states
 	setTimeout(() => {
 		webview?.postMessage({ type: 'agentToolDone', id: agentId, toolId });
+		
+		// Trigger handoff animation if agent role has a configured target
+		if (agentMetadata && agent.agentRole) {
+			const { AGENT_HANDOFF_MAP } = require('./constants');
+			const targetRole = AGENT_HANDOFF_MAP[agent.agentRole];
+			if (targetRole) {
+				webview?.postMessage({
+					type: 'initiateHandoff',
+					from: agent.agentRole,
+					to: targetRole,
+				});
+			}
+		}
 	}, TOOL_DONE_DELAY_MS);
 }

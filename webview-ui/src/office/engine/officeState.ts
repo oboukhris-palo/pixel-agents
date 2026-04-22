@@ -15,6 +15,7 @@ import {
 } from '../../constants.js'
 import type { Character, Seat, FurnitureInstance, TileType as TileTypeVal, OfficeLayout, PlacedFurniture } from '../types.js'
 import { createCharacter, updateCharacter } from './characters.js'
+import { PLACEHOLDER_AGENTS, getNextPlaceholderId } from './placeholderAgents.js'
 import { matrixEffectSeeds } from './matrixEffect.js'
 import { isWalkable, getWalkableTiles, findPath } from '../layout/tileMap.js'
 import {
@@ -265,6 +266,51 @@ export class OfficeState {
     ch.bubbleType = null
   }
 
+  /**
+   * Spawn placeholder characters for all core agents
+   * Placeholders are idle agents that show on layout before they're actively running
+   * They use negative IDs to avoid collision with runtime agents
+   */
+  spawnPlaceholderAgents(): void {
+    for (const agentDef of PLACEHOLDER_AGENTS) {
+      // Find seat for this agent
+      const chairUid = agentDef.deskUid.replace('-desk', '-chair')
+      const seat = this.seats.get(chairUid)
+      if (!seat || seat.assigned) {
+        console.warn(`[Placeholder] Seat not available for ${agentDef.role}:`, chairUid)
+        continue
+      }
+
+      const placeholderId = getNextPlaceholderId()
+      seat.assigned = true
+      const ch = createCharacter(placeholderId, agentDef.palette, chairUid, seat, agentDef.hueShift)
+      
+      // Mark as placeholder and set to idle
+      ch.isPlaceholder = true
+      ch.agentRole = agentDef.role
+      ch.isActive = false
+      ch.state = CharacterState.IDLE
+      ch.frame = 0
+      
+      // No spawn effect for placeholders (they're already there)
+      this.characters.set(placeholderId, ch)
+      console.log(`[Placeholder] Spawned ${agentDef.label} at ${chairUid}`)
+    }
+  }
+
+  /**
+   * Remove placeholder character for a specific role (when real agent takes over)
+   */
+  removePlaceholderForRole(agentRole: string): void {
+    for (const [id, ch] of this.characters.entries()) {
+      if (ch.isPlaceholder && ch.agentRole === agentRole) {
+        this.removeAgent(id)
+        console.log(`[Placeholder] Removed placeholder for ${agentRole}`)
+        break
+      }
+    }
+  }
+
   /** Find seat uid at a given tile position, or null */
   getSeatAtTile(col: number, row: number): string | null {
     for (const [uid, seat] of this.seats) {
@@ -354,6 +400,52 @@ export class OfficeState {
     ch.state = CharacterState.WALK
     ch.frame = 0
     ch.frameTimer = 0
+    return true
+  }
+
+  /** Initiate handoff animation from one agent to another (visual indicator only) */
+  initiateHandoff(fromAgentId: number, toAgentId: number): boolean {
+    const fromCh = this.characters.get(fromAgentId)
+    const toCh = this.characters.get(toAgentId)
+    
+    if (!fromCh || !toCh) {
+      console.warn(`[Handoff] Cannot initiate — agents not found: from=${fromAgentId}, to=${toAgentId}`)
+      return false
+    }
+    
+    // Set handoff visual indicators
+    fromCh.isHandingOff = true
+    fromCh.handoffTargetId = toAgentId
+    fromCh.handoffTargetRole = toCh.agentRole || `Agent ${toAgentId}`
+    fromCh.handoffProgress = 0
+    fromCh.handoffStartTime = Date.now()
+    
+    toCh.isHandingOff = true
+    toCh.handoffTargetId = fromAgentId
+    toCh.handoffTargetRole = fromCh.agentRole || `Agent ${fromAgentId}`
+    toCh.handoffProgress = 0
+    toCh.handoffStartTime = Date.now()
+    
+    // Auto-clear after 3 seconds
+    const HANDOFF_DURATION_MS = 3000
+    setTimeout(() => {
+      if (fromCh.isHandingOff && fromCh.handoffStartTime === fromCh.handoffStartTime) {
+        fromCh.isHandingOff = false
+        fromCh.handoffTargetId = null
+        fromCh.handoffTargetRole = undefined
+        fromCh.handoffProgress = 0
+        fromCh.handoffStartTime = undefined
+      }
+      if (toCh.isHandingOff && toCh.handoffStartTime === toCh.handoffStartTime) {
+        toCh.isHandingOff = false
+        toCh.handoffTargetId = null
+        toCh.handoffTargetRole = undefined
+        toCh.handoffProgress = 0
+        toCh.handoffStartTime = undefined
+      }
+    }, HANDOFF_DURATION_MS)
+    
+    console.log(`[Handoff] Visual indicator: ${fromCh.agentRole || fromAgentId} → ${toCh.agentRole || toAgentId}`)
     return true
   }
 

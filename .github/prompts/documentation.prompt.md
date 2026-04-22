@@ -1,30 +1,139 @@
-# Documentation Generation Prompt
+## Objective
+Generate comprehensive technical or functional documentation following established templates and quality standards for specific audiences and scopes.
 
-## Parameters
+## Context
+You are creating documentation for a software project that must serve specific audiences (developers, architects, end-users, business stakeholders) and cover defined scopes (application, feature, user story, installation, or development guidance).
 
-| Parameter | Example |
-|-----------|---------|
-| {DOCUMENT_NAME} | Title |
-| {DOC_TYPE} | technical/functional |
-| {SCOPE} | application/feature/user-story |
-| {AUDIENCE} | developer/architect/end-user |
-| {PROJECT_CONTEXT} | Brief description |
-| {REQUIREMENTS_REFERENCE} | Path to requirements |
+## Requirements
 
-## Template
+### Documentation Parameters
+Specify for each documentation request:
+- **Document Name**: Clear title reflecting content and purpose
+- **Document Type**: technical (architecture/APIs/deployment) or functional (workflows/requirements)
+- **Scope**: application/feature/user-story/installation-guide/developer-guide
+- **Audience**: developer/architect/end-user/devops/business-stakeholder
+- **Project Context**: Brief description of project and documentation purpose
+- **Requirements Reference**: Path to source requirements or specifications
 
+### Content Standards by Type
+**Technical Documentation**:
+- Architecture diagrams (Mermaid/PlantUML)
+- API specifications and endpoints
+- Database schemas and data flow
+- Deployment procedures and configuration
+- Performance considerations and constraints
+- Security requirements and implementations
+
+**Functional Documentation**:
+- Business workflows and processes
+- User stories and acceptance criteria
+- Feature requirements and specifications
+- BDD scenarios and test cases
+- User experience guidelines
+- Business rule definitions
+
+## Deliverables
+
+### 1. Structured Documentation
+Create documentation following hierarchy:
+
+```markdown
+# [Document Name]
+
+## Overview
+[Purpose and scope of the document]
+
+## Requirements
+[Functional or technical requirements]
+
+## Design
+[Architecture, UI/UX design, or process design]
+
+## Implementation
+[Technical implementation details or process steps]
+
+## Testing
+[Testing approach, scenarios, and validation]
+
+## Examples
+[Practical examples and use cases]
+
+## References
+[Links to related documents and external resources]
 ```
-Generate documentation:
 
-Parameters:
+### 2. Audience-Specific Content
+**For End-Users**:
+- Simple, non-technical language
+- Step-by-step instructions with screenshots
+- Common questions and troubleshooting
+- Practical examples relevant to user tasks
 
-Guidelines:
+**For Developers**:
+- Technical implementation details
+- Code examples and API documentation
+- Framework and library references
+- Configuration and setup procedures
+- Performance and security considerations
 
-1. **Type**: technical=architecture/APIs/deployment, functional=workflows/requirements
-2. **Structure**: Overview → Requirements → Design → Implementation → Testing
-3. **Quality**: Clear, complete, examples, diagrams (Mermaid/PlantUML), testable requirements
-4. **Format**: Markdown, hierarchical headings, code blocks, tables
-```
+**For Architects**:
+- High-level design patterns and decisions
+- Scalability and reliability considerations
+- Technology selection rationale
+- Integration patterns and constraints
+- Future extensibility planning
+
+**For DevOps**:
+- Deployment procedures and automation
+- Infrastructure requirements and scaling
+- Monitoring and alerting setup
+- Disaster recovery and backup procedures
+- Operational runbooks and troubleshooting
+
+**For Business Stakeholders**:
+- Business value and ROI explanation
+- Project timeline and resource requirements
+- Success metrics and measurement criteria
+- Business process impact and changes
+- Compliance and regulatory considerations
+
+### 3. Quality Elements
+- **Completeness**: All required sections included with sufficient detail
+- **Clarity**: Clear, concise language appropriate for target audience
+- **Examples**: Practical code examples, diagrams, and use cases
+- **Testability**: Requirements written as testable specifications
+- **Maintainability**: Structure allows easy updates and extensions
+
+## Quality Standards
+
+- ✅ Document structure follows established template patterns
+- ✅ Content appropriate for specified audience and scope
+- ✅ All requirements are clear, complete, and testable
+- ✅ Examples and diagrams enhance understanding
+- ✅ Cross-references to related documents included
+- ✅ Markdown formatting consistent and professional
+- ✅ Code blocks include appropriate language tags
+- ✅ File paths and references are accurate
+
+## File Management
+
+### Organization Structure
+- **Technical docs**: `/docs/technical/` or `/docs/architecture/`
+- **Functional docs**: `/docs/functional/` or `/docs/requirements/`
+- **User guides**: `/docs/user-guides/` or `/docs/end-user/`
+- **Developer guides**: `/docs/development/` or `/docs/dev-guides/`
+
+### Naming Conventions
+- Use descriptive, hierarchical file names
+- Include document type and scope in filename
+- Follow project naming standards (kebab-case recommended)
+- Add version numbers for evolving documents
+
+### Cross-Referencing
+- Link to related documents and dependencies
+- Reference source requirements and specifications
+- Include links to external resources and APIs
+- Maintain bidirectional navigation between related docs
 
 2. SCOPE DEFINITION
    - If "application": Document the entire system at a high level
@@ -264,8 +373,8 @@ Document Type: technical
 Documentation Scope: feature
 Primary Audience: developer
 Project Context: Spring Boot microservice handling user authentication with JWT tokens. Part of larger e-commerce platform.
-Requirements Reference: /docs/prd/user-stories.md#authentication
-Existing Documentation: /docs/prd/architecture-design.md, /docs/prd/tech-spec.md
+Requirements Reference: /docs/01-requirements/user-stories.md#authentication
+Existing Documentation: /docs/02-architecture/architecture-design.md, /docs/02-architecture/tech-spec.md
 ```
 
 ### Example 2: Feature Documentation
@@ -276,8 +385,8 @@ Document Type: functional
 Documentation Scope: feature
 Primary Audience: developer
 Project Context: E-commerce platform requiring shopping cart management with add/remove items, quantity updates, checkout.
-Requirements Reference: /docs/prd/user-stories.md#shopping-cart
-Existing Documentation: /docs/prd/design-systems.md, /docs/prd/architecture-design.md
+Requirements Reference: /docs/01-requirements/user-stories.md#shopping-cart
+Existing Documentation: /docs/02-architecture/design-systems.md, /docs/02-architecture/architecture-design.md
 ```
 
 ### Example 3: User Story
@@ -288,8 +397,8 @@ Document Type: functional
 Documentation Scope: user-story
 Primary Audience: developer
 Project Context: Web application requiring secure user authentication before account activation.
-Requirements Reference: /docs/prd/user-stories.md#login-flow
-Existing Documentation: /docs/prd/design-systems.md, /docs/prd/tech-spec.md
+Requirements Reference: /docs/01-requirements/user-stories.md#login-flow
+Existing Documentation: /docs/02-architecture/design-systems.md, /docs/02-architecture/tech-spec.md
 ```
 
 ---
@@ -319,8 +428,12 @@ When documentation output needs improvement:
 ## Integration Points
 
 This prompt is used in:
-- [documents.workflows.md](../workflows/documents.workflows.md) - PDLC stages requiring documentation
-- [implementation.workflows.md](../workflows/implementation.workflows.md) - Development execution documentation
+- [00-assessment.workflows.md](../workflows/00-assessment.workflows.md) - Phase 0 assessment (includes routing framework)
+- [01-requirements.workflows.md](../workflows/01-requirements.workflows.md) - Phases 1-2 requirements
+- [02-architecture.workflows.md](../workflows/02-architecture.workflows.md) - Phases 3-4 architecture
+- [03-testing.workflows.md](../workflows/03-testing.workflows.md) - Phase 5 testing
+- [04-planning.workflows.md](../workflows/04-planning.workflows.md) - Phases 6-7 planning
+- [05-implementation.workflows.md](../workflows/05-implementation.workflows.md) - Phase 8 implementation
 - All project stages requiring specification documents
 
 ---

@@ -17,6 +17,8 @@ import { WORKSPACE_KEY_AGENT_SEATS, GLOBAL_KEY_SOUND_ENABLED } from './constants
 import { writeLayoutToFile, readLayoutFromFile, watchLayoutFile } from './layoutPersistence.js';
 import type { LayoutWatcher } from './layoutPersistence.js';
 import { loadAgentMetadata, type AgentMetadata } from './agentMetadata.js';
+import { WorkflowDetector } from './workflowDetector.js';
+import type { WorkflowState } from './types.js';
 
 export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 	nextAgentId = { current: 1 };
@@ -32,6 +34,13 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 
 	// Cross-window layout sync
 	layoutWatcher: LayoutWatcher | null = null;
+
+	// Workflow detector
+	workflowDetector: WorkflowDetector | null = null;
+	workflowWatcherDisposable: vscode.Disposable | null = null;
+
+	// Agent metadata from .github/agents/
+	agentMetadata = new Map<string, AgentMetadata>();
 
 	constructor(private readonly context: vscode.ExtensionContext) {}
 
@@ -53,7 +62,7 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 		webviewView.webview.options = { enableScripts: true };
 		webviewView.webview.html = getWebviewContent(webviewView.webview, this.extensionUri);
 
-		webviewView.webview.onDidReceiveMessage(async (message) => {
+			webviewView.webview.onDidReceiveMessage(async (message) => {
 			if (message.type === 'openAgent') {
 				// Register activity listeners when first agent is created
 				if (this.agents.size === 0) {
@@ -64,6 +73,7 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 						this.waitingTimers,
 						this.permissionTimers,
 						() => this.webview,
+						this.agentMetadata,
 					);
 				}
 				
@@ -115,6 +125,7 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 						this.waitingTimers,
 						this.permissionTimers,
 						() => this.webview,
+						this.agentMetadata,
 					);
 				}
 				
@@ -197,6 +208,7 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 						// Load agent metadata from .github/agents/
 						if (workspaceRoot) {
 							const agentMetadata = await loadAgentMetadata(workspaceRoot);
+							this.agentMetadata = agentMetadata; // Store for handoff logic
 							if (agentMetadata.size > 0 && this.webview) {
 								console.log('[Extension] ✅ Agent metadata loaded, sending to webview');
 								const metadataArray = Array.from(agentMetadata.values());
@@ -205,6 +217,31 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 									metadata: metadataArray 
 								});
 							}
+
+							// Initialize workflow detector
+							console.log('[Extension] 🔍 Initializing workflow detector...');
+							this.workflowDetector = new WorkflowDetector(workspaceRoot);
+							
+							// Send initial state
+							const initialState = this.workflowDetector.detectWorkflowState();
+							if (this.webview) {
+								this.webview.postMessage({
+									type: 'workflowUpdated',
+									state: initialState
+								});
+							}
+							
+							// Watch for changes
+							this.workflowWatcherDisposable = this.workflowDetector.startWatching((state: WorkflowState) => {
+								console.log('[Extension] 📊 Workflow state updated:', state);
+								if (this.webview) {
+									this.webview.postMessage({
+										type: 'workflowUpdated',
+										state
+									});
+								}
+							});
+							this.context.subscriptions.push(this.workflowWatcherDisposable);
 						}
 					} catch (err) {
 						console.error('[Extension] ❌ Error loading assets:', err);

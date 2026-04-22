@@ -78,6 +78,12 @@ export function createCharacter(
     matrixEffect: null,
     matrixEffectTimer: 0,
     matrixEffectSeeds: [],
+    handoffTargetId: null,
+    handoffState: null,
+    handoffProgress: 0,
+    isHandingOff: false,
+    handoffTargetRole: undefined,
+    handoffStartTime: undefined,
   }
 }
 
@@ -274,6 +280,69 @@ export function updateCharacter(
       }
       break
     }
+
+    case CharacterState.HANDOFF: {
+      // Handoff animation — special idle pose while showing transfer animation
+      ch.frame = 0
+      ch.handoffProgress += dt * 0.5 // 2 second transfer animation
+      
+      if (ch.handoffProgress >= 1.0) {
+        // Transfer complete — walk back to own seat
+        if (ch.seatId) {
+          const seat = seats.get(ch.seatId)
+          if (seat) {
+            const path = findPath(ch.tileCol, ch.tileRow, seat.seatCol, seat.seatRow, tileMap, blockedTiles)
+            if (path.length > 0) {
+              ch.path = path
+              ch.moveProgress = 0
+              ch.state = CharacterState.WALK
+              ch.handoffState = 'walking-back'
+              ch.frame = 0
+              ch.frameTimer = 0
+            } else {
+              // Already at seat
+              ch.state = CharacterState.IDLE
+              ch.handoffTargetId = null
+              ch.handoffState = null
+              ch.handoffProgress = 0
+            }
+          }
+        } else {
+          // No seat — return to idle
+          ch.state = CharacterState.IDLE
+          ch.handoffTargetId = null
+          ch.handoffState = null
+          ch.handoffProgress = 0
+        }
+      }
+      break
+    }
+  }
+
+  // Handle handoff state transitions for WALK state
+  if (ch.state === CharacterState.WALK && ch.handoffState) {
+    if (ch.handoffState === 'walking-to' && ch.path.length === 0) {
+      // Arrived at target — start transfer animation
+      ch.state = CharacterState.HANDOFF
+      ch.handoffState = 'transferring'
+      ch.handoffProgress = 0
+      ch.frame = 0
+    } else if (ch.handoffState === 'walking-back' && ch.path.length === 0) {
+      // Back at own seat — complete handoff
+      ch.state = CharacterState.IDLE
+      ch.handoffTargetId = null
+      ch.handoffState = null
+      ch.handoffProgress = 0
+      ch.frame = 0
+      // Sit down at seat
+      if (ch.seatId) {
+        const seat = seats.get(ch.seatId)
+        if (seat && ch.tileCol === seat.seatCol && ch.tileRow === seat.seatRow) {
+          ch.state = CharacterState.TYPE
+          ch.dir = seat.facingDir
+        }
+      }
+    }
   }
 }
 
@@ -287,6 +356,9 @@ export function getCharacterSprite(ch: Character, sprites: CharacterSprites): Sp
       return sprites.typing[ch.dir][ch.frame % 2]
     case CharacterState.WALK:
       return sprites.walk[ch.dir][ch.frame % 4]
+    case CharacterState.HANDOFF:
+      // Idle pose during handoff transfer
+      return sprites.walk[ch.dir][1]
     case CharacterState.IDLE:
       return sprites.walk[ch.dir][1]
     default:

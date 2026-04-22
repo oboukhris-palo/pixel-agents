@@ -1,0 +1,407 @@
+# Workflow Compliance Configuration
+
+## Project-Level Enforcement Settings
+project_info:
+  name: "PROJECT_TEMPLATE"
+  type: "META_FRAMEWORK"  # PROJECT | META_FRAMEWORK
+  enforcement_level: "BALANCED"  # STRICT | BALANCED | GUIDANCE_ONLY
+  auto_activate: true
+  template_version: "1.0"
+
+## Enforcement Rules
+
+### Hard Rules (Cannot Override)
+hard_rules:
+  single_active_workflow: true
+  agent_authentication_required: true
+  template_compliance: true
+  git_commit_format: true
+  checkbox_progress_tracking: true
+
+### Soft Rules (Can Override with Justification)
+soft_rules:
+  workflow_sequencing: 
+    enabled: true
+    sequence: ["assessment", "documents", "implementation"]
+    skip_assessment_allowed: false  # Can be overridden
+    skip_documents_allowed: false   # Can be overridden
+  
+  phase_dependencies:
+    enabled: true
+    strict_validation: false  # Can be overridden for experienced teams
+  
+  quality_gates:
+    bdd_coverage_minimum: 80
+    test_coverage_minimum: 80
+    code_review_required: true
+    override_with_approval: true
+
+## Workflow Dependencies
+
+### Assessment → Documents
+assessment_to_documents:
+  required_artifacts:
+    - "docs/assessment/PREREQUISITES-REQUEST.yml"
+    - "docs/assessment/AI-READINESS-REPORT.md" 
+    - "docs/assessment/routing-strategy.yml"
+  completion_marker: "docs/assessment/.assessment-complete"
+  bypass_conditions:
+    - emergency_deployment: true
+    - prototype_project: true
+    - brownfield_existing_docs: true
+
+### Documents → Implementation  
+documents_to_implementation:
+  required_artifacts:
+    - "docs/01-requirements/requirements.md"
+    - "docs/01-requirements/user-stories.md"
+    - "docs/02-architecture/architecture-design.md"
+    - "docs/02-architecture/tech-spec.md"
+  completion_marker: "docs/.documents-complete"
+  quality_checks:
+    - user_stories_have_acceptance_criteria: true
+    - bdd_scenarios_present: true
+    - architecture_decisions_documented: true
+
+### Implementation Phases
+implementation_phases:
+  tdd_cycle_validation:
+    single_story_active: true
+    sequential_phases: true  # RED → GREEN → REFACTOR
+    parallel_cycles_blocked: true
+  
+  progress_tracking:
+    implementation_plan_checkboxes: true  # Track via [x] in implementation-plan.md
+    git_commit_messages: "TDD-<US-REF>-<PHASE>-<CYCLE>-YYYYMMDD"
+    plan_approval_required: true  # plan-approval.yaml must be 'approved'
+    bdd_scenarios_in_features: true  # features/ folder contains BDD tests
+
+## Override Permissions
+
+### Role-Based Override Authority
+override_permissions:
+  architect:
+    low_risk: true
+    medium_risk: true
+    high_risk: true
+    workflows: ["assessment", "documents", "implementation"]
+  
+  dev_lead:
+    low_risk: true
+    medium_risk: true
+    high_risk: false
+    workflows: ["implementation"]
+    restrictions: ["cannot_skip_assessment"]
+  
+  senior_developer:
+    low_risk: true
+    medium_risk: false
+    high_risk: false
+    workflows: ["implementation"]
+  
+  product_owner:
+    low_risk: true
+    medium_risk: true
+    high_risk: false
+    workflows: ["documents"]
+
+### Automatic Override Conditions
+auto_override_conditions:
+  emergency_deployment:
+    criteria: "Critical production issue"
+    max_duration: "24_hours"
+    requires_post_review: true
+    enhanced_monitoring: true
+  
+  experienced_team:
+    criteria: ">90% workflow compliance history"
+    relaxed_rules: ["phase_dependencies", "plan_approval_timing"]
+    maintains_quality_gates: true
+  
+  prototype_project:
+    criteria: "Project tagged as prototype/experimental"
+    relaxed_rules: ["workflow_sequencing", "documentation_completeness"]
+    requires_documentation_debt_tracking: true
+
+## Risk Assessment Matrix
+
+### Risk Levels
+risk_levels:
+  LOW:
+    indicators:
+      - "Minor documentation skip"
+      - "Experienced team"
+      - "Small scope change"
+      - "Non-production environment"
+    approval: "AUTO_APPROVED"
+    monitoring: "STANDARD"
+  
+  MEDIUM:
+    indicators:
+      - "Phase dependency skip"
+      - "Quality gate bypass"
+      - "New team members involved"
+      - "External dependencies"
+    approval: "REQUIRES_SENIOR_APPROVAL"
+    monitoring: "ENHANCED"
+  
+  HIGH:
+    indicators:
+      - "Complete workflow skip"
+      - "Production deployment"
+      - "Security implications"
+      - "Client-facing changes"
+    approval: "REQUIRES_ARCHITECT_APPROVAL"
+    monitoring: "INTENSIVE"
+
+## Validation Triggers
+
+### Project State Detection
+detection_triggers:
+  new_project:
+    indicators:
+      - ".github/copilot-instructions.md exists"
+      - "docs/ directory empty or minimal"
+      - "No .workflow-status.yml file"
+    action: "INITIALIZE_ENFORCEMENT"
+  
+  workflow_start:
+    indicators:
+      - "Agent mention in commit/prompt (@agent-name)"
+      - "Workflow keywords (assess, implement, document)"
+      - "Template file creation"
+    action: "ACTIVATE_VALIDATION"
+  
+  phase_transition:
+    indicators:
+      - "Completion marker file created"
+      - "Implementation plan checkboxes completed"
+      - "Quality gate checkpoint reached"
+    action: "VALIDATE_PREREQUISITES"
+
+### Real-time Monitoring
+monitoring_hooks:
+  file_creation:
+    - "Validate against templates"
+    - "Check workflow sequence"
+    - "Update project state"
+  
+  git_commits:
+    - "Parse conventional commit format (TDD-<US-REF>-<PHASE>-<CYCLE>-YYYYMMDD)"
+    - "Validate workflow phase"
+    - "Update audit trail"
+  
+  implementation_plan_updates:
+    - "Verify checkbox marked [x] after commit"
+    - "Check agent commit correlation"
+    - "Validate BDD scenario coverage"
+
+## Quality Gates
+
+### Assessment Workflow
+assessment_quality_gates:
+  phase_0_complete:
+    requirements:
+      - client_inputs_analyzed: "docs/inputs/inventory.yml"
+      - prerequisites_identified: "docs/assessment/PREREQUISITES-REQUEST.yml"
+      - ai_readiness_assessed: "docs/assessment/AI-READINESS-REPORT.md"
+      - routing_strategy_defined: "docs/assessment/routing-strategy.yml"
+    bypass_conditions: ["emergency_deployment", "existing_assessment"]
+
+### Documents Workflow  
+documents_quality_gates:
+  prd_completeness:
+    minimum_documents_required: 8  # Core PRD documents
+    user_stories_validation:
+      - has_acceptance_criteria: true
+      - has_bdd_scenarios: true
+      - estimated_effort: true
+    architecture_validation:
+      - technology_stack_defined: true
+      - integration_points_documented: true
+      - security_requirements_addressed: true
+
+### Implementation Workflow
+implementation_quality_gates:
+  story_readiness:
+    - implementation_plan_exists: true
+    - bdd_scenarios_defined: true
+    - dependencies_resolved: true
+    - github_issues_linked: true
+  
+  cycle_completion:
+    - tests_passing: true
+    - code_reviewed: true
+    - documentation_updated: true
+    - implementation_plan_complete: true
+    - plan_approval_status: "approved"
+    - bdd_scenarios_present: true
+
+## Error Handling & Messaging
+
+### Violation Severity Levels
+violation_handling:
+  INFO:
+    action: "LOG_ONLY"
+    user_notification: false
+    examples: ["Template suggestion available"]
+  
+  WARNING:
+    action: "NOTIFY_USER"  
+    blocking: false
+    examples: ["Minor workflow deviation detected"]
+  
+  ERROR:
+    action: "BLOCK_PROGRESS"
+    override_available: true
+    examples: ["Missing required artifacts", "Invalid agent sequence"]
+  
+  CRITICAL:
+    action: "HALT_WORKFLOW"
+    override_requires_approval: true
+    examples: ["Security violation", "Data loss risk"]
+
+### User Guidance Messages
+guidance_templates:
+  workflow_start:
+    message: "Project workflow enforcement active. Choose your path:"
+    options:
+      - "🔍 Start Assessment (@orchestrator Assess project)"
+      - "📋 View Requirements (Check existing docs/01-requirements/ through docs/04-planning/)"
+      - "🚀 Emergency Override (Requires justification)"
+  
+  missing_prerequisites:
+    message: "Missing required artifacts for {workflow} → {phase}"
+    template_suggestion: "Use {template_name}.md"
+    estimated_time: "{X} minutes to complete"
+    override_option: "Available with {approval_level} approval"
+  
+  quality_gate_failure:
+    message: "Quality standards not met: {specific_failures}"
+    remediation_steps: 
+      - "Complete missing {artifacts}"
+      - "Achieve {metric} threshold" 
+      - "Get {approval_type} approval"
+    override_option: "Available with enhanced monitoring"
+
+## Integration Settings
+
+### Orchestrator Integration
+orchestrator_hooks:
+  pre_workflow_validation: true
+  real_time_monitoring: true
+  quality_gate_enforcement: true
+  override_handling: true
+
+### Agent Integration
+agent_validation:
+  progress_tracking_validation: true
+  artifact_completeness_check: true
+  sequence_validation: true
+  quality_metrics_tracking: true
+
+### Template Integration
+template_enforcement:
+  auto_suggest_templates: true
+  validate_template_usage: true
+  track_template_compliance: true
+  provide_template_shortcuts: true
+
+## Monitoring & Reporting
+
+### Audit Trail Configuration
+audit_settings:
+  enabled: true
+  retention_period: "6_months"
+  track_events:
+    - "workflow_start"
+    - "phase_transitions"  
+    - "override_requests"
+    - "quality_gate_results"
+    - "completion_events"
+  
+  export_formats: ["yml", "json", "csv"]
+  report_frequency: "weekly"
+
+### Compliance Metrics
+metrics_collection:
+  workflow_adherence_rate: true
+  override_frequency: true
+  quality_gate_pass_rate: true
+  time_to_completion: true
+  defect_correlation: true
+
+### Dashboard Configuration
+dashboard_settings:
+  real_time_status: true
+  compliance_trends: true
+  violation_patterns: true
+  team_performance: true
+  override_analysis: true
+
+## Customization Options
+
+### Per-Project Overrides
+project_customization:
+  enforcement_level_override: true
+  rule_customization: true
+  role_permission_adjustment: true
+  quality_threshold_adjustment: true
+
+### Team-Specific Settings  
+team_configuration:
+  experienced_team_relaxation: true
+  custom_approval_workflows: true
+  specialized_quality_gates: true
+  enhanced_override_permissions: true
+
+### Environment-Specific Rules
+environment_rules:
+  development:
+    enforcement_level: "GUIDANCE_ONLY"
+    override_permissions: "RELAXED"
+  
+  staging:
+    enforcement_level: "BALANCED"
+    quality_gates: "STANDARD"
+  
+  production:
+    enforcement_level: "STRICT"
+    override_requires: "ARCHITECT_APPROVAL"
+
+---
+
+# Configuration Usage
+
+## Project Initialization
+```yaml
+# Copy this file to new project as: .github/workflow-enforcement.yml
+# Customize settings based on:
+# - Team experience level
+# - Project criticality  
+# - Compliance requirements
+# - Timeline constraints
+```
+
+## Runtime Behavior
+```yaml
+# Orchestrator checks this config before any workflow action
+# Validation hooks reference these rules
+# Override system uses these permissions
+# Quality gates apply these thresholds
+```
+
+## Updates & Versioning
+```yaml
+# Config version tracked in audit trail
+# Changes require approval based on impact
+# Rollback capability for rejected changes
+# Template updates propagate automatically
+```
+
+---
+
+**Configuration Version**: 1.0  
+**Compatible With**: Workflow Enforcer v1.0+  
+**Last Updated**: 2026-03-17  
+**Review Frequency**: Monthly or after major template changes

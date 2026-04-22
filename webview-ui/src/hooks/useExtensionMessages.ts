@@ -47,6 +47,36 @@ export interface AgentMetadata {
   argumentHint?: string
 }
 
+export interface WorkflowState {
+  workflow: 'PDLC' | 'Implementation' | 'CI/CD' | 'None'
+  pdlcStage?: number
+  pdlcTotal?: number
+  pdlcProgress?: number
+  prdDocuments?: {
+    'requirements': boolean
+    'personas': boolean
+    'architecture-design': boolean
+    'user-stories': boolean
+    'tech-spec': boolean
+    'test-strategies': boolean
+    'deployment-plan': boolean
+    'release-notes': boolean
+  }
+  maturityScore?: number
+  missingDocuments?: string[]
+  readyForImplementation?: boolean
+  implementationPhase?: 'Planning' | 'TDD-RED' | 'TDD-GREEN' | 'TDD-REFACTOR' | 'Validation'
+  activeUserStory?: string
+  activeTddLayer?: string
+  activeDocuments?: string[]
+  projectCompletion?: number
+  totalStories?: number
+  completedStories?: number
+  currentSprint?: string
+  epicProgress?: Array<{ name: string; completion: number }>
+  lastUpdate?: number
+}
+
 export interface ExtensionMessageState {
   agents: number[]
   selectedAgent: number | null
@@ -59,6 +89,7 @@ export interface ExtensionMessageState {
   workspaceFolders: WorkspaceFolder[]
   agentMetadata: AgentMetadata[]
   githubFileAccess: Record<number, { filePath: string; timestamp: number } | null>
+  workflowState: WorkflowState | null
 }
 
 function saveAgentSeats(os: OfficeState): void {
@@ -86,6 +117,7 @@ export function useExtensionMessages(
   const [workspaceFolders, setWorkspaceFolders] = useState<WorkspaceFolder[]>([])
   const [agentMetadata, setAgentMetadata] = useState<AgentMetadata[]>([])
   const [githubFileAccess, setGithubFileAccess] = useState<Record<number, { filePath: string; timestamp: number } | null>>({})
+  const [workflowState, setWorkflowState] = useState<WorkflowState | null>(null)
 
   // Track whether initial layout has been loaded (ref to avoid re-render)
   const layoutReadyRef = useRef(false)
@@ -229,6 +261,32 @@ export function useExtensionMessages(
             [id]: list.map((t) => (t.toolId === toolId ? { ...t, done: true } : t)),
           }
         })
+      } else if (msg.type === 'initiateHandoff') {
+        // Trigger handoff animation between agents
+        const fromRole = msg.from as string
+        const toRole = msg.to as string
+        console.log(`[Pixel Agents] Handoff: ${fromRole} → ${toRole}`)
+        
+        // Find agent IDs by role (check both active and placeholder agents)
+        const characters = Array.from(os.characters.entries())
+        const fromAgent = characters.find(([_, ch]) => ch.agentRole === fromRole)
+        const toAgent = characters.find(([_, ch]) => ch.agentRole === toRole)
+        
+        if (fromAgent && toAgent) {
+          const [fromId] = fromAgent
+          const [toId] = toAgent
+          console.log(`[Pixel Agents] Handoff IDs: ${fromId} → ${toId}`)
+          os.initiateHandoff(fromId, toId)
+          
+          // Play handoff sound effect
+          import('../notificationSound.js').then(({ playDoneSound }) => {
+            playDoneSound().catch(() => {
+              // Audio may not be available, ignore
+            })
+          })
+        } else {
+          console.warn(`[Pixel Agents] Handoff failed — agents not found: from=${fromRole} (${fromAgent ? 'found' : 'missing'}), to=${toRole} (${toAgent ? 'found' : 'missing'})`)
+        }
       } else if (msg.type === 'agentToolsClear') {
         const id = msg.id as number
         setAgentTools((prev) => {
@@ -389,6 +447,15 @@ export function useExtensionMessages(
         } catch (err) {
           console.error(`❌ Webview: Error processing furnitureAssetsLoaded:`, err)
         }
+      } else if (msg.type === 'workflowUpdated') {
+        const state = msg.state as WorkflowState
+        console.log(`[Webview] Workflow state updated:`, state)
+        setWorkflowState(state)
+      } else if (msg.type === 'agentHandoff') {
+        const fromId = msg.fromId as number
+        const toId = msg.toId as number
+        console.log(`[Webview] Agent handoff requested: ${fromId} → ${toId}`)
+        os.initiateHandoff(fromId, toId)
       }
     }
     window.addEventListener('message', handler)
@@ -396,5 +463,5 @@ export function useExtensionMessages(
     return () => window.removeEventListener('message', handler)
   }, [getOfficeState])
 
-  return { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, workspaceFolders, agentMetadata, githubFileAccess }
+  return { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, workspaceFolders, agentMetadata, githubFileAccess, workflowState }
 }

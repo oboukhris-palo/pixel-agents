@@ -76,8 +76,12 @@ describe('Activity Detection (File Edits & Terminal Commands)', () => {
     const changeTextSpy = jest.spyOn(vscode.workspace, 'onDidChangeTextDocument');
     const createSpy = jest.spyOn(vscode.workspace, 'onDidCreateFiles');
 
+    // Create agent metadata for tests
+    const agentMetadata = new Map<string, { id: string; name: string; description: string }>();
+    agentMetadata.set('dev-lead', { id: 'dev-lead', name: 'Tech Lead', description: 'Development lead' });
+
     // Call registerActivityListeners
-    registerActivityListeners(context, agents, waitingTimers, permissionTimers, () => mockWebview as any);
+    registerActivityListeners(context, agents, waitingTimers, permissionTimers, () => mockWebview as any, agentMetadata);
 
     // Verify listeners were registered (each listener adds a subscription)
     expect(context.subscriptions.length).toBeGreaterThan(0);

@@ -54,6 +54,10 @@ authority_matrix:
       - "test strategy implementation"
       - "error handling approaches"
       - "performance optimization techniques"
+      - "story folder creation and structure"
+      - "implementation plan layer breakdown"
+      - "TDD cycle sequencing (RED→GREEN→REFACTOR)"
+      - "handoff file format and content"
     
   # Quality Standards & Code Review
   quality_standards:
@@ -71,6 +75,24 @@ authority_matrix:
       - "documentation requirements"
       - "code style standards"
     
+  # TDD Cycle Management & Audit Logging
+  tdd_cycle_management:
+    primary_authority: dev_tdd # TDD orchestrator
+    secondary_authority: dev_lead
+    escalation_authority: technical_lead
+    auto_resolution: true # for TDD phase sequencing
+    decision_timeline:
+      response_required: "15 minutes"
+      resolution_required: "1 hour"
+      escalation_trigger: "4 hours"
+    conflict_examples:
+      - "TDD cycle sequencing conflicts"
+      - "append-only audit log format"
+      - "handoff file structure and content"
+      - "cycle numbering and identification"
+      - "test failure vs success criteria"
+      - "refactor scope and timing"
+    
   # Project Scope & Timeline
   project_scope:
     primary_authority: pm # project manager
@@ -86,6 +108,10 @@ authority_matrix:
       - "timeline estimation differences"
       - "resource allocation decisions"
       - "deliverable prioritization"
+      - "epic status management and transitions"
+      - "GitHub/Jira sync timing and triggers"
+      - "sprint planning and story assignment"
+      - "story completion criteria validation"
     
   # User Experience & Design
   user_experience:
@@ -186,6 +212,43 @@ auto_resolution_rules:
         resolution: "follow existing code comment patterns" 
       - conflict: "API doc format (Swagger vs manual)"
         resolution: "use format established in tech-spec.md"
+        
+  # Implementation Plan & Checkbox Tracking
+  implementation_plan_conflicts:
+    rule_name: "use_checkboxes_for_progress_tracking"
+    description: "Track TDD progress via checkboxes in implementation-plan.md, not separate files"
+    authority_source: "05-implementation.workflows.md + user-story-folder-tmpl.md"
+    examples:
+      - conflict: "separate audit log vs checkbox tracking"
+        resolution: "use checkboxes in implementation-plan.md + git commit history"
+      - conflict: "handoff files vs direct plan updates"
+        resolution: "no handoffs - agents read/update implementation-plan.md directly"
+        
+  # Story Folder Creation Conflicts
+  story_folder_structure_conflicts:
+    rule_name: "automated_folder_creation_by_dev_lead"
+    description: "Dev-lead creates story folders automatically during Phase 3"
+    authority_source: "dev-lead.agent.md automation rules"
+    examples:
+      - conflict: "manual vs automated folder creation"
+        resolution: "automated by dev-lead during implementation planning"
+      - conflict: "missing story folder structure"
+        resolution: "dev-lead creates full structure from user-story-folder-tmpl.md"
+      - conflict: "story definition timing"
+        resolution: "story definition created during dev-lead Phase 3 (not PM)"
+        
+  # Epic Status Management Conflicts
+  epic_status_conflicts:
+    rule_name: "pm_manages_epic_status"
+    description: "PM agent has exclusive authority over epic status transitions"
+    authority_source: "pm.agent.md responsibilities + GitHub/Jira sync workflow"
+    examples:
+      - conflict: "who updates epic status after story completion"
+        resolution: "PM updates epic status during GitHub/Jira sync"
+      - conflict: "epic vs story status sync timing"
+        resolution: "PM syncs after story marked DONE by QA"
+      - conflict: "manual vs automated epic status updates"
+        resolution: "automated by PM via GitHub/Jira sync workflow"
 
 # ====================================================================
 # ESCALATION RULES (Major Conflicts Requiring Human Decision)  
@@ -275,7 +338,17 @@ conflict_detection_patterns:
       programming_languages: ["javascript", "python", "java", "c#", "go", "rust"]
       frameworks: ["react", "angular", "vue", "django", "flask", "spring", "express"]
       databases: ["mysql", "postgresql", "mongodb", "redis", "cassandra"]
-      conflict_threshold: "multiple incompatible choices mentioned"
+          # Story Folder Structure Conflicts  
+    folder_structure_conflicts:
+      detection_method: "directory_structure_validation"
+      required_structure:
+        - "description.md" # story definition: requirements, acceptance criteria, DoD
+        - "implementation-plan.md" # layer-by-layer guide with checkboxes
+        - "plan-approval.yaml" # human validation gate
+        - "features/" # BDD feature files from BA agent
+      conflict_indicators: ["missing required files", "incorrect folder structure", "dev-lead automation not triggered"]
+      validation_rules: ["all template files present", "folder created by dev-lead", "structure matches template"]
+      escalation_trigger: "missing story folder after 1 hour of dev-lead assignment"
       
     # Timeline Estimation Conflicts
     timeline_disagreements:
@@ -298,6 +371,30 @@ conflict_detection_patterns:
     story_conflicts:
       detection_method: "story_reference_analysis"
       story_patterns: ["US-[0-9]+", "Epic E[0-9]+", "Story [0-9]+"]
+      conflict_indicators: ["same story referenced with different status", "missing story folder structure"]
+      validation_rules: ["story folder exists", "status transitions valid", "implementation plan has checkboxes"]
+      
+    # Implementation Plan Checkbox Tracking
+    implementation_progress_conflicts:
+      detection_method: "checkbox_analysis"
+      required_patterns:
+        - "docs/05-implementation/epics/<EPIC-REF>/user-stories/<US-REF>/description.md" # requirements
+        - "docs/05-implementation/epics/<EPIC-REF>/user-stories/<US-REF>/implementation-plan.md" # checkboxes
+        - "docs/05-implementation/epics/<EPIC-REF>/user-stories/<US-REF>/plan-approval.yaml" # validation gate
+        - "docs/05-implementation/epics/<EPIC-REF>/user-stories/<US-REF>/features/" # BDD scenarios
+      conflict_indicators: ["checkbox state inconsistent with commits", "plan approval missing", "BDD scenarios incomplete"]
+      validation_rules: ["checkboxes correlate with git commits", "plan approved before TDD starts", "all required files present"]
+      
+    # Epic Status Consistency Conflicts
+    epic_status_conflicts:
+      detection_method: "status_cross_reference_validation"
+      status_sources:
+        - "docs/05-implementation/user-stories.md" # master tracking
+        - "docs/05-implementation/current-sprint.md" # active sprint
+        - "GitHub issues" # external sync
+        - "Jira tickets" # external sync
+      conflict_indicators: ["status mismatch between sources", "epic status not updated after story completion"]
+      validation_rules: ["PM has updated epic status", "GitHub/Jira sync completed", "master tracking updated"]
       conflict_indicators: ["same story with different acceptance criteria", "conflicting story priorities"]
       validation_rules: ["story IDs unique", "acceptance criteria consistent"]
 

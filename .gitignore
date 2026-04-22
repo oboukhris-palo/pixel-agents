@@ -17,3 +17,5 @@ yarn-error.log*
 *.tgz
 .yarn-integrity
 package-lock.json
+
+.gene2-core/

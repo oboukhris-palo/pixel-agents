@@ -1,403 +1,184 @@
-# Coding Standards & Best Practices
-
-**Standards**: Clean Code | SOLID | YAGNI | Patterns | Testing | Security | Refactoring
-
----
-
-## Clean Code
-
-### Naming
-**Rules**: Classes=nouns, Functions=verbs, Variables=specific, Constants=UPPER, Booleans=is/has/can
-❌ Bad: a, x1, tmp, data | ✅ Good: totalPrice, calculateRevenue, isActive
-
-## SOLID
-SRP | OCP | LSP | ISP | DIP
-
-## YAGNI
-Build only required features. No future-proofing, no premature optimization.
-
-## Patterns
-**Creational**: Singleton, Factory, Builder  
-**Structural**: Adapter, Decorator, Facade  
-**Behavioral**: Strategy, Observer, Command  
-**Anti-pattern**: Using patterns when simple code suffices
-
-## Testing
-**Pyramid**: 70% unit, 20% integration, 10% E2E  
-**TDD**: RED → GREEN → REFACTOR  
-**Characteristics**: Isolated, repeatable, fast, readable
-
-## Documentation
-Code=WHAT, Comments=WHY. README, API docs, ADRs.
-
-## Errors
-Fail fast, fail explicitly, handle specifically, log before re-throw
-
-## Security
-Validate input, encrypt data, authenticate/authorize, log securely (no secrets)
-
-## Performance
-Measure first, optimize Big O, cache, paginate, index
-
-## Refactoring
-**When**: Hard to understand, duplication, too large  
-**Techniques**: Extract method/class, rename, simplify, remove duplication
-
-## Code Review Checklist
-- [ ] Implements requirements
-- [ ] SOLID principles
-- [ ] No duplication
-- [ ] Clear naming
-- [ ] Tests cover happy/edge/error paths
-- [ ] Input validated
-- [ ] No hardcoded secrets
-- [ ] No obvious performance issues
-- [ ] Code is self-documenting
-
-**Goal**: Write code you'd maintain in 5 years.
-````
-
-**Example - Easy to Read**:
-```
-function calculateActiveAccountBonus(accounts) {
-  const activeAccountsWithBalance = accounts.filter(account => 
-    account.status === 'active' && account.balance > 100
-  );
-  
-  if (activeAccountsWithBalance.length === 0) {
-    return 0;
-  }
-  
-  const firstEligibleAccount = activeAccountsWithBalance[0];
-  const bonusRate = 0.9;
-  
-  return firstEligibleAccount.balance * bonusRate;
-}
-```
-
-### 4. Complexity Management
-
-**Keep Code Simple**:
-- **Avoid Deep Nesting**: Max 2-3 levels
-- **Limit Conditionals**: Use guard clauses to reduce nesting
-- **Extract Complex Logic**: Create helper functions for clarity
-- **Break Large Functions**: Decompose into smaller, focused functions
-- **Use Composition**: Combine simple behaviors into complex ones
-
----
-
-## SOLID
-**SRP**: One class, one reason to change
-**OCP**: Open for extension, closed for modification (interfaces/plugins)
-**LSP**: Subtypes substitutable for base types
-**ISP**: Small focused interfaces, not fat ones
-**DIP**: Depend on abstractions, not concretions (DI)
-
-## YAGNI
-
-### 1. You Aren't Gonna Need It (YAGNI)
-
-**Principle**: Don't implement features you don't currently need.
-
-**Rules**:
-- **Add Only Required Features**: Build what's specified, nothing more
-- **Future-Proof Code ≠ Speculative Code**: Architecture can be extended later
-- **Avoid Premature Optimization**: Optimize when there's a real problem
-- **Simplicity First**: Start simple, refactor when needed
-- **Proof Over Assumption**: Wait for evidence before adding complexity
-
-**Bad Thinking**:
-```
-"We might need multi-language support someday, so let's build it now"
-"Performance might be an issue later, let's add caching everywhere"
-"We could scale to millions, so let's use the most complex architecture"
-```
-
-**Good Thinking**:
-```
-"Build what's needed today"
-"Optimize when profiling shows a bottleneck"
-"Scale the architecture when you actually have the load"
-"Refactor to support expansion when requirements demand it"
-```
-
-### 2. Simplicity Guidelines
-
-**Seek Simplicity**:
-- Delete unnecessary code
-- Prefer standard solutions over custom ones
-- One obvious way vs multiple approaches
-- Reduce conceptual complexity before reducing lines
-- Code that's easy to delete is better than code that's hard to modify
-
-**Complexity vs Simplicity**:
-
-| Necessary Complexity | Unnecessary Complexity |
-|---------------------|----------------------|
-| Addresses real requirements | Anticipates future needs |
-| Solves identified problems | Solves imagined problems |
-| Enables critical features | Enables unused features |
-| Required for safety/security | Over-engineered for "what-if" |
-
----
-
-## Patterns
-**Creational**: Singleton (one instance), Factory (complex creation), Builder (many params)
-**Structural**: Adapter (incompatible interfaces), Decorator (add behavior), Facade (simplify complex)
-**Behavioral**: Strategy (switchable algorithms), Observer (notify changes), Command (queue operations)
-**Anti-pattern**: Using patterns when simple code suffices. Don't force patterns.
-
-**Anti-Pattern Checklist**:
-- ❌ Using patterns when simple code would suffice
-- ❌ Forcing patterns to fit problems they don't solve
-- ❌ Overengineering for potential future needs
-- ❌ Using patterns just because they're popular
-- ❌ Creating patterns when direct code is clearer
-
-**Rule**: Patterns solve real problems. If you don't have the problem, don't add the pattern.
-
----
-
-## Organization
-**Modular**: High cohesion, low coupling, clear boundaries
-**Layered**: Presentation → Business Logic → Data Access → Infrastructure
-**By Feature**: Group related code (users/, products/) not by type (controllers/, services/)
-
-## Testing
-
-### 1. Test Levels (Testing Pyramid)
-
-```
-              Acceptance Tests (10%)
-           Integration Tests (20%)
-        Unit Tests (70%)
-```
-
-**Unit Tests**:
-- Test single function/method in isolation
-- Fast execution (milliseconds)
-- No external dependencies
-- 70% of test suite
-
-**Integration Tests**:
-- Test interaction between components
-- Include real databases, APIs
-- Moderate execution time (seconds)
-- 20% of test suite
-
-**Acceptance/E2E Tests**:
-- Test complete user workflows
-- Slow execution (minutes)
-- Minimal count - only critical paths
-- 10% of test suite
-
-### 2. Test Characteristics
-
-**Good Tests**:
-- **Isolated**: Run independently, no dependencies on other tests
-- **Repeatable**: Same result every run
-- **Readable**: Clear what's being tested
-- **Fast**: Execute quickly
-- **Comprehensive**: Cover happy path, edge cases, errors
-
-**Bad Tests**:
-```
-❌ Depend on execution order
-❌ Fail intermittently (flaky)
-❌ Require manual setup
-❌ Take minutes to run
-❌ Only test happy path
-```
-
-### 3. Test-First Development
-
-**TDD Cycle** (RED → GREEN → REFACTOR):
-1. **RED**: Write failing test
-2. **GREEN**: Write minimal code to pass test
-3. **REFACTOR**: Improve code while keeping tests green
-
-**Benefits**:
-- Better design (thinking about usage first)
-- Comprehensive test coverage
-- Confidence in refactoring
-- Clear specifications in code
-
----
-
-## Documentation
-**Rule**: Code explains WHAT. Comments explain WHY.
-❌ Bad: `i = i + 1 // increment i`
-✅ Good: Explain surprising behavior, workarounds, gotchas, public API
-**Docs**: README (build/run), API docs, architecture docs, ADRs (decisions)
-
-## Errors
-
-### 1. Error Handling Principles
-
-**Rules**:
-- **Fail Fast**: Detect errors as early as possible
-- **Fail Explicitly**: Clear error messages, not silent failures
-- **Handle Specifically**: Catch specific exceptions, not generic ones
-- **Don't Ignore**: Always handle errors appropriately
-- **Don't Swallow**: Log before re-throwing or handling
-
-**Bad Error Handling**:
-```
-try {
-  riskyOperation()
-} catch (Exception e) {
-  // Say nothing, do nothing
-}
-```
-
-**Good Error Handling**:
-```
-try {
-  riskyOperation()
-} catch (ValidationException e) {
-  log.warn("User input validation failed", e)
-  return errorResponse("Invalid input: " + e.getMessage())
-} catch (DatabaseException e) {
-  log.error("Database operation failed", e)
-  return errorResponse("System error, try again later")
-} catch (Exception e) {
-  log.error("Unexpected error", e)
-  throw new ApplicationException("Unexpected error", e)
-}
-```
-
-### 2. Error Communication
-
-**Clear Error Messages**:
-- What went wrong
-- Where it went wrong
-- How to fix it
-- Who to contact if unsure
-
-**Bad Message**: "Error"  
-**Good Message**: "User account locked. Contact support@company.com to unlock"
-
----
-
-## Performance
-**Rules**: Measure first, optimize what matters, readability > micro-optimization
-**Focus**: Algorithm efficiency (Big O), data structures, DB queries, caching, lazy loading
-**Scale**: Stateless services, caching, pagination, indexes, connection pooling
-
-## Security
-
-### 1. Security Principles
-
-**Rules**:
-- **Principle of Least Privilege**: Users/services get minimum access needed
-- **Defense in Depth**: Multiple security layers
-- **Never Trust Input**: Always validate and sanitize
-- **Fail Securely**: Security failures default to deny
-- **Secure by Default**: Safe configuration out of the box
-
-### 2. Common Security Practices
-
-**Input Validation**:
-- Validate data type, format, length, range
-- Sanitize before storing/displaying
-- Use allowlists, not blocklists
-
-**Authentication & Authorization**:
-- Authenticate (verify who you are)
-- Authorize (verify what you can do)
-- Use proven frameworks, don't build custom
-
-**Data Protection**:
+# Coding Standards & Best Practices Instructions
+
+## Overview
+
+This document provides systematic instructions for implementing coding standards and best practices using the AI-first delivery methodology. These instructions follow established software engineering principles and transform development practices into comprehensive, production-ready code that enhances maintainability, security, and performance while reducing technical debt.
+
+## Process Overview
+
+**Coding Standards Implementation** transforms development practices into structured, high-quality software implementations that deliver maintainable, secure, and well-tested code following industry best practices including Clean Code, SOLID principles, YAGNI methodology, design patterns, comprehensive testing strategies, security protocols, and systematic refactoring processes.
+
+## Implementation Process
+
+### 1. Clean Code Foundation
+**Objective**: Establish readable, maintainable code as the foundation for all development work
+
+**Activities**:
+- Apply semantic naming conventions (Classes=nouns, Functions=verbs, Variables=specific)
+- Implement consistent formatting and style guidelines across codebase
+- Maintain maximum 2-3 levels of nesting to reduce complexity
+- Extract complex logic into focused helper functions and methods
+
+**Quality Standards**:
+- All identifiers are self-documenting and context-appropriate
+- Code complexity remains manageable (cyclomatic complexity <10)
+- Functions and methods maintain single responsibility
+- Code is readable without requiring extensive comments
+
+### 2. SOLID Principles Implementation
+**Objective**: Apply fundamental design principles for maintainable object-oriented architecture
+
+**Activities**:
+- Single Responsibility Principle: Each class/module has one reason to change
+- Open/Closed Principle: Design for extension without modification through interfaces
+- Liskov Substitution Principle: Ensure subtypes are substitutable for base types
+- Interface Segregation Principle: Create focused interfaces rather than monolithic ones
+
+**Quality Standards**:
+- Each component has clearly defined, single responsibility
+- Extension points are available without modifying existing code
+- Interface contracts are respected by all implementations
+- Dependencies flow toward abstractions, not concrete implementations
+
+### 3. Testing Strategy Execution
+**Objective**: Implement comprehensive testing following the testing pyramid (70% unit, 20% integration, 10% E2E)
+
+**Activities**:
+- Implement Test-Driven Development (TDD) cycle: RED → GREEN → REFACTOR
+- Create isolated, repeatable, fast, and readable test cases
+- Cover happy path, edge cases, and error scenarios comprehensively
+- Design integration tests for component interaction verification
+
+**Quality Standards**:
+- Test coverage maintains >80% for critical business logic
+- Tests execute quickly (unit tests in milliseconds)
+- All tests are independent and can run in any order
+- Test failure messages provide clear diagnostic information
+
+### 4. Security Implementation
+**Objective**: Apply security best practices throughout development lifecycle
+
+**Activities**:
+- Validate and sanitize all user input using allowlists
+- Implement proper authentication and authorization mechanisms
+- Apply principle of least privilege for user and service access
 - Encrypt sensitive data in transit and at rest
-- Hash passwords with strong algorithms
-- Secure API keys and secrets
-- Minimal data retention
 
-**Logging & Monitoring**:
-- Log security events
-- Monitor for suspicious activity
-- Never log sensitive data (passwords, tokens)
-- Regular security audits
+**Quality Standards**:
+- No hardcoded secrets or credentials in codebase
+- Input validation prevents injection attacks
+- Error messages don't leak sensitive information
+- Security logging captures events without exposing secrets
+
+### 5. Performance Optimization
+**Objective**: Ensure code performance meets requirements without premature optimization
+
+**Activities**:
+- Measure performance baseline before optimization attempts
+- Focus on algorithm efficiency and appropriate data structures
+- Implement caching strategies where appropriate
+- Design for scalability with stateless services and proper indexing
+
+**Quality Standards**:
+- Performance bottlenecks are identified through profiling
+- Big O complexity is appropriate for expected data volumes
+- Caching strategies don't introduce consistency issues
+- Resource usage (memory, CPU) remains within acceptable bounds
+
+## File Location Standards
+
+**Output Location**: Store coding standards implementations across project structure following language-specific conventions
+
+**Source Materials**:
+- **Code Files**: `src/`, `lib/`, `app/` following project architecture
+- **Test Files**: `tests/`, `__tests__/`, `*.test.*`, `*.spec.*` co-located with source
+- **Documentation**: `README.md`, `docs/api/`, Architecture Decision Records (ADRs)
+- **Configuration**: `.eslintrc`, `.prettierrc`, `tsconfig.json`, language-specific linting configs
+
+## Quality Assurance Process
+
+### Pre-Implementation Validation
+- ✅ Development environment configured with linting and formatting tools
+- ✅ Code review checklist established and accessible to team
+- ✅ Testing framework and coverage tools properly configured
+- ✅ Security scanning tools integrated into development workflow
+
+### Post-Implementation Review
+- ✅ All code passes automated linting and formatting checks
+- ✅ Test coverage meets minimum thresholds (>80% for critical paths)
+- ✅ Security scanning shows no high/critical vulnerabilities
+- ✅ Performance benchmarks validate acceptable response times
+- ✅ Code review checklist completed for all changes
+
+### Confidence Validation Requirements
+- **Functionality Verification**: All requirements implemented and acceptance criteria met
+- **Design Quality Assessment**: SOLID principles applied, no unnecessary complexity
+- **Test Coverage Analysis**: Comprehensive coverage of happy path, edge cases, and error scenarios
+- **Security Validation**: Input validation, authentication, and authorization properly implemented
+
+## Integration with Overall Assessment
+
+Coding Standards serve as foundational inputs for:
+- **Code Review Processes**: Automated and manual review standards ensure consistency
+- **Quality Gates**: Continuous integration pipelines enforce standards before deployment
+- **Technical Debt Management**: Refactoring guidelines prevent accumulation of maintenance burden
+- **Security Compliance**: Security practices integrate with overall application security strategy
+
+## Core Standards Reference
+
+### Clean Code Principles
+- **Naming**: Classes=nouns, Functions=verbs, Variables=specific, Constants=UPPER, Booleans=is/has/can
+- **Functions**: Single responsibility, minimal parameters, clear return values
+- **Complexity**: Maximum 2-3 levels of nesting, extract complex logic to helper methods
+- **Comments**: Explain WHY, not WHAT - code should be self-documenting
+
+### SOLID Principles
+- **SRP (Single Responsibility)**: One class, one reason to change
+- **OCP (Open/Closed)**: Open for extension, closed for modification
+- **LSP (Liskov Substitution)**: Subtypes substitutable for base types
+- **ISP (Interface Segregation)**: Small focused interfaces, not monolithic
+- **DIP (Dependency Inversion)**: Depend on abstractions, not concretions
+
+### Testing Standards
+- **Test Pyramid**: 70% unit tests, 20% integration tests, 10% E2E tests
+- **TDD Cycle**: RED (failing test) → GREEN (minimal implementation) → REFACTOR (improve quality)
+- **Test Characteristics**: Isolated, repeatable, fast, readable, comprehensive
+
+### Security Requirements
+- **Input Validation**: Validate data type, format, length, range
+- **Authentication**: Verify identity using proven frameworks
+- **Authorization**: Verify permissions for specific actions
+- **Data Protection**: Encrypt sensitive data, secure API keys, minimal retention
+
+### Performance Guidelines
+- **Measurement First**: Profile before optimizing
+- **Algorithm Focus**: Optimize Big O complexity for expected data volumes
+- **Caching Strategy**: Implement where appropriate without consistency issues
+- **Scalability Design**: Stateless services, proper indexing, connection pooling
+
+### Code Review Checklist
+- [ ] Implements specified requirements and acceptance criteria
+- [ ] Follows SOLID principles and avoids unnecessary complexity
+- [ ] Uses clear, meaningful naming throughout
+- [ ] Includes comprehensive test coverage (happy path, edge cases, errors)
+- [ ] Validates input and handles errors appropriately
+- [ ] Contains no hardcoded secrets or credentials
+- [ ] Performance is acceptable for expected load
+- [ ] Code is self-documenting and maintainable
 
 ---
 
-## Refactoring
-**When**: Hard to understand, duplication, too large, hard to test, better solution found
-**Don't**: When code won't change, time pressure, no tests, unclear requirements
-**Safe**: Tests pass before → Small changes → Test after each → Commit on success
-**Techniques**: Extract method/class, rename, simplify conditionals, remove duplication
-
-## Anti-Patterns
-
-### 1. Code Smells
-
-| Smell | Problem | Solution |
-|-------|---------|----------|
-| **Long Method** | Too much logic in one function | Extract smaller methods |
-| **Large Class** | Too many responsibilities | Split into focused classes |
-| **Duplicate Code** | Copy-paste code | Extract to shared function/class |
-| **Long Parameter List** | Function signature too complex | Group into object |
-| **Global Variables** | Hidden dependencies, hard to test | Pass as parameters |
-| **Magic Numbers** | Unexplained constants | Extract named constants |
-| **Dead Code** | Unused code clutters codebase | Delete it |
-| **Feature Envy** | Method uses more of another class | Move method |
-
-### 2. Common Anti-Patterns
-
-**God Object**: One class doing everything
-- Solution: Split by responsibility (SRP)
-
-**Tight Coupling**: Classes depend heavily on each other
-- Solution: Use dependency injection, interfaces
-
-**Primitive Obsession**: Using primitives for everything
-- Solution: Create meaningful objects
-
-**Data Clumps**: Same data passed together everywhere
-- Solution: Create object to hold related data
-
-**Switch Statements**: Long conditionals for different types
-- Solution: Use polymorphism/strategy pattern
-
-**Speculative Generality**: Over-engineering for future needs
-- Solution: Follow YAGNI, refactor later if needed
+**Related Resources**:
+- [Test Strategy Instructions](test-strategy.instructions.md)
+- [Code Review Instructions](code-review.instructions.md) 
+- [API Design Instructions](api-design.instructions.md)
+- [Security Guidelines](../security/security-requirements.md)
 
 ---
 
-## Code Review Checklist
-
-### Functionality
-- [ ] Code implements specified requirements
-- [ ] All acceptance criteria met
-- [ ] Edge cases handled
-- [ ] Error conditions handled
-- [ ] Tests verify behavior
-
-### Design & Architecture
-- [ ] Code follows SOLID principles
-- [ ] No duplication of logic
-- [ ] Appropriate design patterns used
-- [ ] Consistent with codebase architecture
-- [ ] No unnecessary complexity
-
-### Code Quality
-- [ ] Naming is clear and meaningful
-- [ ] Functions are single-responsibility
-- [ ] No dead code
-- [ ] No magic numbers/strings
-- [ ] Readable without comments
-
-### Testing
-- [ ] Unit tests provide good coverage
-- [ ] Tests are focused and isolated
-- [ ] Happy path tested
-- [ ] Edge cases tested
-- [ ] Error paths tested
-
-### Security
-- [ ] Input properly validated
-- [ ] No hardcoded secrets
-- [ ] Authentication/authorization correct
+**Document Status**: Active Framework | **Version**: 1.0 | **Last Updated**: March 31, 2026  
+**Scope**: AI-first delivery Software Development Standards  
+**Usage**: Coding standards implementation for AI-first delivery methodology
 - [ ] Sensitive data protected
 - [ ] No SQL injection/XSS vulnerabilities
 

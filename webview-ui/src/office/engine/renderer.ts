@@ -173,7 +173,15 @@ export function renderScene(
     drawables.push({
       zY: charZY,
       draw: (c) => {
-        c.drawImage(cached, drawX, drawY)
+        // Placeholder characters: render with reduced opacity
+        if (ch.isPlaceholder) {
+          c.save()
+          c.globalAlpha = 0.4  // Dimmed placeholder
+          c.drawImage(cached, drawX, drawY)
+          c.restore()
+        } else {
+          c.drawImage(cached, drawX, drawY)
+        }
       },
     })
   }
@@ -482,6 +490,142 @@ export function renderBubbles(
   }
 }
 
+// ── Handoff icons ───────────────────────────────────────────────
+
+/**
+ * Render handoff icons and path lines for agents in the handoff animation state.
+ * Shows directional arrows pointing toward target agents and animated connecting lines.
+ */
+export function renderHandoffIcons(
+  ctx: CanvasRenderingContext2D,
+  characters: Character[],
+  offsetX: number,
+  offsetY: number,
+  zoom: number,
+): void {
+  const HANDOFF_DURATION_MS = 3000
+  const handoffPairs: Array<{ from: Character; to: Character; elapsed: number; alpha: number }> = []
+
+  // First pass: identify handoff pairs and collect data
+  for (const ch of characters) {
+    if (!ch.isHandingOff || !ch.handoffTargetId) continue
+    
+    const target = characters.find(c => c.id === ch.handoffTargetId)
+    if (!target) continue
+    
+    const elapsed = Date.now() - (ch.handoffStartTime || 0)
+    const fadeProgress = elapsed / HANDOFF_DURATION_MS
+    let alpha = 1.0
+    if (fadeProgress < 0.2) {
+      alpha = fadeProgress / 0.2 // Fade in
+    } else if (fadeProgress > 0.8) {
+      alpha = (1 - fadeProgress) / 0.2 // Fade out
+    }
+    
+    // Only add pair once (from sender perspective)
+    if (!handoffPairs.some(p => p.from.id === ch.id || p.to.id === ch.id)) {
+      handoffPairs.push({ from: ch, to: target, elapsed, alpha })
+    }
+  }
+
+  // Second pass: draw connecting path lines between pairs
+  for (const { from, to, elapsed, alpha } of handoffPairs) {
+    const fromX = offsetX + from.x * zoom
+    const fromY = offsetY + from.y * zoom
+    const toX = offsetX + to.x * zoom
+    const toY = offsetY + to.y * zoom
+
+    ctx.save()
+    ctx.globalAlpha = alpha * 0.6
+    ctx.strokeStyle = '#FFD700'
+    ctx.lineWidth = 2 * zoom
+    
+    // Animated dashed line (dash pattern moves along the path)
+    const dashPhase = (elapsed % 1000) / 1000 // 0→1 loop
+    const dashOffset = dashPhase * 20 * zoom
+    ctx.setLineDash([8 * zoom, 4 * zoom])
+    ctx.lineDashOffset = -dashOffset
+    
+    ctx.beginPath()
+    ctx.moveTo(fromX, fromY - 16 * zoom) // Start slightly above agent
+    ctx.lineTo(toX, toY - 16 * zoom)     // End slightly above target
+    ctx.stroke()
+    ctx.restore()
+  }
+
+  // Third pass: draw directional arrows above each agent
+  for (const ch of characters) {
+    if (!ch.isHandingOff || !ch.handoffTargetId) continue
+
+    const target = characters.find(c => c.id === ch.handoffTargetId)
+    if (!target) continue
+
+    // Position above bubble height
+    const sittingOff = ch.state === CharacterState.TYPE ? BUBBLE_SITTING_OFFSET_PX : 0
+    const iconX = Math.round(offsetX + ch.x * zoom)
+    const iconY = Math.round(offsetY + (ch.y + sittingOff - BUBBLE_VERTICAL_OFFSET_PX - 20) * zoom)
+
+    // Compute animation phase (bobbing up and down)
+    const elapsed = Date.now() - (ch.handoffStartTime || 0)
+    const bobPhase = (elapsed % 1000) / 1000 // 0→1 loop
+    const bobOffset = Math.sin(bobPhase * Math.PI * 2) * 3 * zoom
+
+    // Fade in/out based on handoff duration
+    const fadeProgress = elapsed / HANDOFF_DURATION_MS
+    let alpha = 1.0
+    if (fadeProgress < 0.2) {
+      alpha = fadeProgress / 0.2 // Fade in
+    } else if (fadeProgress > 0.8) {
+      alpha = (1 - fadeProgress) / 0.2 // Fade out
+    }
+
+    // Calculate direction to target (directional arrow)
+    const dx = target.x - ch.x
+    const dy = target.y - ch.y
+    const angle = Math.atan2(dy, dx)
+
+    ctx.save()
+    ctx.globalAlpha = alpha
+    ctx.translate(iconX, iconY + bobOffset)
+    ctx.rotate(angle) // Rotate arrow to point toward target
+
+    // Draw arrow pointing toward target
+    const arrowSize = 12 * zoom
+    ctx.strokeStyle = '#FFD700' // Golden color
+    ctx.fillStyle = '#FFD700'
+    ctx.lineWidth = 2 * zoom
+
+    // Arrow shaft
+    ctx.beginPath()
+    ctx.moveTo(-arrowSize / 2, 0)
+    ctx.lineTo(arrowSize / 2, 0)
+    ctx.stroke()
+
+    // Arrow head
+    ctx.beginPath()
+    ctx.moveTo(arrowSize / 2, 0)
+    ctx.lineTo(arrowSize / 2 - 4 * zoom, -3 * zoom)
+    ctx.lineTo(arrowSize / 2 - 4 * zoom, 3 * zoom)
+    ctx.closePath()
+    ctx.fill()
+
+    ctx.restore()
+
+    // Draw target role text below arrow (not rotated)
+    if (zoom >= 2 && ch.handoffTargetRole) {
+      ctx.save()
+      ctx.globalAlpha = alpha
+      ctx.fillStyle = '#FFD700'
+      ctx.font = `${Math.floor(10 * zoom)}px monospace`
+      ctx.textAlign = 'center'
+      ctx.fillText(`→ ${ch.handoffTargetRole}`, iconX, iconY + bobOffset + 16 * zoom)
+      ctx.restore()
+    }
+
+    ctx.restore()
+  }
+}
+
 export interface ButtonBounds {
   /** Center X in device pixels */
   cx: number
@@ -578,6 +722,9 @@ export function renderFrame(
 
   // Speech bubbles (always on top of characters)
   renderBubbles(ctx, characters, offsetX, offsetY, zoom)
+
+  // Handoff icons (on top of bubbles)
+  renderHandoffIcons(ctx, characters, offsetX, offsetY, zoom)
 
   // Editor overlays
   if (editor) {

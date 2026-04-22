@@ -7,14 +7,38 @@ Automated CI/CD pipeline evolving through 3 phases: Bootstrap → Stabilization 
 
 **Scope**: Automated validation, testing, and deployment for all code changes
 **Agents Involved**: Dev-Lead (CI/CD orchestration), Architect (deployment strategy), PM (release coordination)
-**Key Documents**: [documents.workflows.md](.github/workflows/documents.workflows.md), [architecture-design.md](../docs/prd/architecture-design.md), [tech-spec.md](../docs/prd/tech-spec.md), [coding.instructions.md](../instructions/coding.instructions.md)
+**Logging**: CI/CD agent logs at `/logs/agent-{name}-YYYYMMDD.md` (cross-phase activities)
+**Key Documents**: [02-architecture.workflows.md](.github/workflows/02-architecture.workflows.md), [architecture-design.md](../docs/02-architecture/architecture-design.md), [tech-spec.md](../docs/02-architecture/tech-spec.md), [coding.instructions.md](../instructions/coding.instructions.md)
 
 **Version Control**: Git with feature branches → develop → main
 **Issue Tracking**: GitHub Issues with CI/CD status checks and deployment logs
 **Deployment Strategy**: Progressive rollout from dev → staging → production
 
 ---
+## Referenced Artifacts
 
+### Templates
+- `.github/templates/pull_request_template.md` — PR template with validation checklist
+- `.github/templates/agent-log-tmpl.md` — Agent logging format (cross-phase activities)
+
+### Guides
+- `.github/guides/tdd-enforcement.guide.md` — TDD validation hooks
+
+### Instructions
+- `.github/instructions/coding.instructions.md` — SOLID principles, 13-point code review checklist
+- `.github/instructions/git-workflow.instructions.md` — Branch naming, commit patterns, PR workflow, merge strategy
+- `.github/instructions/documentation.instructions.md` — Code documentation standards
+- `.github/instructions/api-design.instructions.md` — OpenAPI spec enforcement
+- `.github/instructions/framework-standards.instructions.md` — Naming conventions
+- `.github/instructions/agent-logging.instructions.md` — Mandatory logging rules
+
+### Scripts
+- `.github/scripts/setup-git-hooks.mjs` — Auto-install git hooks (pre-commit, commit-msg, post-merge)
+
+### Patterns
+- `.github/patterns/implementation/tdd-cycles/layer-by-layer-tdd.md` — TDD best practices
+
+---
 ## CI/CD Pipeline Stages Overview
 
 ```
@@ -136,7 +160,7 @@ main ← develop ← feature/bugfix/hotfix/refactor
 ---
 
 ## Related Docs
-[documents.workflows.md | implementation.workflows.md | architecture-design.md | tech-spec.md | test-strategies.md | coding.instructions.md]
+[Phase-specific workflows (00-05-*.workflows.md) | architecture-design.md | tech-spec.md | test-strategies.md | coding.instructions.md]
 
 ## Evolution Summary
 

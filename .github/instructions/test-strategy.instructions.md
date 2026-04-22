@@ -3,12 +3,130 @@ description: Test strategy design patterns and edge case identification framewor
 applyTo: "src/**/*.test.ts,src/**/*.spec.ts,features/**"
 ---
 
-# Test Strategy Standards
+# Test Strategy Design Instructions
 
-## Core Principle
-**Tests verify behavior, not implementation**. Tests should describe WHAT the system does (outcomes), not HOW it works (internal mechanics).
+## Overview
+
+This document provides systematic instructions for test strategy design and edge case identification using the AI-first delivery methodology. These instructions follow comprehensive testing principles and transform quality requirements into structured test implementations that deliver reliable software through comprehensive coverage, appropriate test pyramid distribution, and systematic edge case identification across all application layers.
+
+## Process Overview
+
+**Test Strategy Design Implementation** transforms quality requirements into comprehensive testing frameworks that provide reliable verification through structured test pyramid implementation, behavior-driven development scenarios, appropriate test distribution across unit/integration/E2E layers, and systematic edge case identification ensuring robust software delivery with confidence in system reliability.
+
+## Implementation Process
+
+### 1. Test Pyramid Implementation
+**Objective**: Establish appropriate test distribution across unit, integration, and E2E layers
+
+**Activities**:
+- Implement 70% unit tests for isolated function/class verification with mocked dependencies
+- Create 20% integration tests for component interaction with real databases and services
+- Design 10% E2E tests for critical user workflows and BDD scenario validation
+- Apply test-first development (TDD) principles: RED → GREEN → REFACTOR cycle
+
+**Quality Standards**:
+- Unit tests execute quickly (<1ms per test) with complete isolation
+- Integration tests verify component interactions with real dependencies
+- E2E tests validate complete user journeys and acceptance criteria
+- All tests are readable, maintainable, and focused on behavior verification
+
+### 2. Test Design Patterns by Layer
+**Objective**: Apply appropriate testing patterns for each architectural layer
+
+**Activities**:
+- Design database layer integration tests with transaction rollback for data consistency
+- Implement service layer unit tests with mocked dependencies and business logic verification
+- Create API layer integration tests with request/response validation and error handling
+- Develop UI layer component tests with user interaction simulation and state verification
+
+**Quality Standards**:
+- Each layer has appropriate test coverage matching its responsibility
+- Test patterns align with architectural boundaries and concerns
+- Mocking strategies prevent external dependencies in unit tests
+- Integration tests verify actual component communication
+
+### 3. Edge Case and Error Scenario Testing
+**Objective**: Systematically identify and test edge cases, error conditions, and boundary scenarios
+
+**Activities**:
+- Execute boundary value analysis for input validation and limits
+- Design error path testing for exception handling and recovery scenarios
+- Implement negative testing for invalid inputs and malicious data
+- Create performance testing for load conditions and resource constraints
+
+**Quality Standards**:
+- Edge cases are systematically identified through boundary analysis
+- Error scenarios include both expected business errors and unexpected system failures
+- Test coverage includes happy path, sad path, and edge case scenarios
+- Performance testing validates acceptable response times under expected load
+
+### 4. Behavior-Driven Development (BDD) Integration
+**Objective**: Align tests with business requirements through BDD scenarios and acceptance criteria
+
+**Activities**:
+- Transform user stories into Gherkin scenarios (Given/When/Then format)
+- Implement step definitions that map BDD scenarios to executable tests
+- Create feature files that document business behavior in natural language
+- Ensure BDD scenarios drive both development and acceptance testing
+
+**Quality Standards**:
+- All user stories have corresponding BDD scenarios in feature files
+- BDD scenarios are written in business language, not technical implementation details
+- Step definitions provide traceability from business requirements to test execution
+- Acceptance criteria are fully covered by BDD scenario execution
+
+## File Location Standards
+
+**Output Location**: Organize test files following established patterns for maintainability and discoverability
+
+**Source Materials**:
+- **Unit Tests**: Co-located with source files (`*.test.ts`, `*.spec.ts`) or in dedicated `tests/unit/` directories
+- **Integration Tests**: `tests/integration/` directory organized by feature or component
+- **E2E Tests**: `tests/e2e/` or `features/` directory with BDD feature files and step definitions
+- **Test Utilities**: `tests/helpers/` or `tests/utils/` for shared test fixtures and utilities
+
+## Quality Assurance Process
+
+### Pre-Implementation Validation
+- ✅ Test strategy aligned with project architecture and technology stack
+- ✅ Testing framework and tools configured (Jest, Playwright, Cucumber, etc.)
+- ✅ Code coverage targets established and tooling configured
+- ✅ BDD scenarios written and reviewed for user story completeness
+
+### Post-Implementation Review
+- ✅ Test pyramid distribution approximates 70/20/10 split across layers
+- ✅ All tests pass consistently and execute within acceptable timeframes
+- ✅ Code coverage meets minimum thresholds for critical business logic
+- ✅ BDD scenarios provide complete acceptance criteria coverage
+- ✅ Test maintenance burden remains manageable and sustainable
+
+### Confidence Validation Requirements
+- **Comprehensive Coverage**: Tests verify behavior across happy path, edge cases, and error scenarios
+- **Performance Validation**: Test execution time remains acceptable for development workflow
+- **Business Alignment**: BDD scenarios accurately reflect business requirements and acceptance criteria
+- **Maintainability**: Tests are readable, focused, and easy to modify as requirements evolve
+
+## Integration with Overall Assessment
+
+Test Strategy serves as foundational input for:
+- **Quality Assurance Framework**: Testing standards ensure consistent quality gates across development lifecycle
+- **Continuous Integration**: Test automation enables reliable deployment pipelines and regression detection
+- **Requirements Traceability**: BDD scenarios provide clear mapping from business requirements to test verification
+- **Technical Risk Mitigation**: Comprehensive testing reduces production defects and system reliability issues
 
 ---
+
+**Related Resources**:
+- [Coding Standards Instructions](../coding.instructions.md)
+- [Code Review Instructions](../code-review.instructions.md)
+- [API Design Instructions](../api-design.instructions.md)
+- [BDD Testing Framework Documentation](../../docs/testing/bdd-framework.md)
+
+---
+
+**Document Status**: Active Framework | **Version**: 1.0 | **Last Updated**: March 31, 2026  
+**Scope**: AI-first delivery Test Strategy Standards  
+**Usage**: Test strategy implementation for AI-first delivery methodology
 
 ## Test Pyramid
 
@@ -378,7 +496,7 @@ describe('SubscriptionService', () => {
 
 ```typescript
 describe('Feature: Subscription Tier Upgrade', () => {
-  // BDD MAPPING: AUTH-003 - User can upgrade subscription tier
+  // BDD MAPPING: US-XXX - User can upgrade subscription tier
   // Test Strategy: Unit tests for business logic, integration for DB sync
   // Edge Cases: Invalid tier, payment failure, concurrent upgrades
   // Mocks: PaymentGateway (unit), Real DB (integration)
@@ -444,4 +562,4 @@ Before committing tests:
 
 **Reference**:
 - [coding.instructions.md](coding.instructions.md) for TDD discipline
-- BDD scenarios in `/docs/prd/user-stories.md` for E2E test requirements
+- BDD scenarios in `/docs/01-requirements/user-stories.md` for E2E test requirements

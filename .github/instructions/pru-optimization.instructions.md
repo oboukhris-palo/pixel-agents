@@ -3,12 +3,17 @@ description: PRU (Prompt Resource Units) optimization and cost management strate
 applyTo: ".github/agents/**,.github/prompts/**"
 ---
 
-# PRU Optimization Standards
+# PRU Optimization Instructions
 
-## Core Principle
-**Optimize for efficiency without sacrificing quality**. Reduce token waste through smart context management, prompt refinement, and strategic tool usage.
+## Overview
 
----
+This document provides systematic instructions for PRU (Prompt Resource Units) optimization and cost management using the AI-first delivery methodology. These instructions follow AI resource management best practices and transform cost optimization requirements into systematic prompt efficiency strategies, context management, and resource utilization optimization across all AI-powered development workflows.
+
+## Process Overview
+
+**PRU Optimization Implementation** transforms AI resource management requirements into structured cost optimization strategies that deliver efficient prompt engineering, optimized context usage, reduced token consumption, and cost-effective AI interactions through systematic prompt design, context compression, and resource monitoring across all AI-assisted development activities.
+
+## Implementation Process
 
 ## Token Budget by Agent Type
 
@@ -61,7 +66,7 @@ applyTo: ".github/agents/**,.github/prompts/**"
 ```markdown
 # Handoff to GREEN agent
 ## Context
-See `/docs/user-stories/US-001/implementation-plan.md` for full layer breakdown.
+See `/docs/05-implementation/epics/<EPIC-REF>/user-stories/US-001/implementation-plan.md` for full layer breakdown.
 
 ## Current Focus
 **Layer 2, Step 3**: Implement SubscriptionService.upgradeUser()
@@ -89,7 +94,7 @@ async upgradeUser(userId: string, targetTier: SubscriptionTier) {
   // [20 lines of relevant code]
 }
 ```
-Full file: `/docs/user-stories/US-001/US-001-HANDOFF-LAYER-2.json` → `files_changed`
+Full file: `/docs/05-implementation/epics/<EPIC-REF>/user-stories/US-001/US-001-HANDOFF-LAYER-2.json` → `files_changed`
 ```
 
 **Savings**: 85% reduction (200 lines → 20 lines)
@@ -419,5 +424,5 @@ const quality = await copilot.metrics.getQualityScores({
 ---
 
 **Reference**:
-- [context-optimization-strategy.md](../guides/context-optimization-strategy.md) for semantic handoff architecture
+- [context-optimization-strategy.guide.md](../guides/context-optimization-strategy.guide.md) for semantic handoff architecture
 - [quality-metrics.md](../quality/quality-metrics.md) for quality scoring algorithms

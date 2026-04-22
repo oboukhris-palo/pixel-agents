@@ -16,11 +16,11 @@
 ```markdown
 For EACH user story selected in sprint:
 
-1. **Extract BDD Scenarios** from /docs/prd/user-stories.md
+1. **Extract BDD Scenarios** from /docs/01-requirements/user-stories.md
 2. **Create Feature File**: features/auth/login.feature  
 3. **Create Step Definitions**: with real API calls/assertions
 4. **Run BDD Tests** → THEY FAIL (expected - no endpoints exist)
-5. **Create Implementation Plan**: /docs/user-stories/US-001/implementation-plan.md
+5. **Create Implementation Plan**: /docs/05-implementation/epics/<EPIC-REF>/user-stories/US-001/implementation-plan.md
 
 Implementation Plan Structure:
 - Layer 1 (Database): Specific files to create, BDD assertions to satisfy

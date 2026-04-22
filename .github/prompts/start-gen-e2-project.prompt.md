@@ -1,125 +1,144 @@
 
-We will start a new Gen-e2 project.
+## Objective
+Initialize a new AI-first delivery project by gathering comprehensive requirements, creating structured project architecture, and establishing complete development framework with documentation, infrastructure, and deployment pipelines.
 
-Ask the following questions before proceeding:
-## Questions to Ask
-1. **Project Requirements and Features**:
-   - What are the project requirements and features?
-   - Are there any specific requirements for the project, like compliance, security, etc.?
+## Context
+You are setting up a greenfield AI-first delivery project that requires complete project initialization including infrastructure setup, comprehensive documentation, development workflows, and CI/CD pipelines. This process involves stakeholder consultation and systematic project scaffolding following AI-first delivery methodology.
 
-2. **Infrastructure**:
-   - Which cloud will we be using?
-   - What is our target architecture?
-   - Do you want to create the infrastructure files, and in which format (e.g., Terraform, CloudFormation)?
+## Requirements
 
-3. **Legacy App**:
-   - Is this a legacy app replatforming? (If yes, create a LegacyApp folder)
+### Pre-Implementation Consultation
+Conduct structured stakeholder interview to gather essential project information:
 
-4. **Project Type**:
-   - Will this be an API-first project or a frontend first project?
-   - Are there any requirements for the API, like being RESTful, GraphQL, etc.?
-   - Is there any need for specific languages or frameworks?
+1. **Project Requirements & Features**:
+   - What are the core project requirements and key features?
+   - Are there specific compliance, security, or regulatory requirements?
+   - What business problem does this project solve?
+   - What are the success criteria and key performance indicators?
 
-## Actions Based on Answers
-1. **Update Project Structure**:
-Here is the base project structure:
+2. **Infrastructure & Architecture**:
+   - Which cloud provider will be used (AWS/Azure/GCP/On-premises)?
+   - What is the target architecture pattern (microservices/monolith/serverless)?
+   - Infrastructure as Code preference (Terraform/CloudFormation/CDK)?
+   - Scalability and performance requirements?
+
+3. **Legacy System Considerations**:
+   - Is this a legacy application replatforming project?
+   - Are there existing systems requiring integration or data migration?
+   - What migration constraints and timeline exist?
+
+4. **Technical Stack Decisions**:
+   - API-first or frontend-first development approach?
+   - API architecture preference (RESTful/GraphQL/gRPC)?
+   - Required programming languages and frameworks?
+   - Database and data storage strategy?
+
+### Project Architecture Foundation
+Establish comprehensive project structure based on requirements:
+## Deliverables
+
+### 1. Comprehensive Project Structure
+Create complete directory architecture based on requirements:
+
 ```
 .
-├── README.md -- Describe the project and project goals
-├── scripts/ -- Contains scripts to manage the project
-│   ├── manage.sh -- Manages servers and services (start,stop,status)
-│   ├── setup.sh -- Installs project dependencies
-│   ├── init_db.sh -- Initializes the database (if required)
-├── apps/ -- Contains the frontend application
-│   ├── mobile/ -- Contains the mobile application
-│   └── web/ -- Contains the web application
-├── docs/ -- Contains project documentation
-│   ├── features/ -- Contains documentation for project features (one file per feature)
-│   ├── project-overview/ -- Contains an overview of the project
-│   ├── meeting-transcripts/ -- Contains transcripts of project meetings & Mob Programming sessions
-│   ├── index.md -- Main documentation file, indexing all other documentation
-│   └── CONTRIBUTE.md -- Describes the project structure and best practices for contributions
-├── backend/ -- Contains the backend application
-│   ├── api/ -- Contains the API code
-│   ├── services/ -- Contains the services code
-│   ├── data/ -- Contains the data access code (e.g., database, SQL, ORM, etc.)
-│   └── docs/ -- Contains backend documentation
-├── infra/ -- Contains infrastructure code
-│   ├── modules/ -- Contains Terraform modules
-│   ├── tf-components/
-│   └── docs/
-│       └── feature/
-│           └── authentication/
-├── DevOps/
-│   ├── pipeline/
-|   └── docs/
-└── services/ -- Contains serverless functions
-    └── functions/ -- Contains the serverless functions
+├── README.md                    # Project overview and setup guide
+├── scripts/                    # Project management automation
+│   ├── manage.sh              # Service management (start/stop/status)
+│   ├── setup.sh               # Dependency installation
+│   └── init_db.sh             # Database initialization
+├── src/                        # Source code generation root
+│   ├── backend/               # Backend application components
+│   │   └── src/              # Backend source code (API, services, data)
+│   └── frontend/              # Frontend application components  
+│       └── src/              # Frontend source code (web, mobile)
+├── docs/                       # Project documentation
+│   ├── features/              # Feature specifications
+│   ├── project-overview/      # Project context and goals
+│   ├── meeting-transcripts/   # Meeting records
+│   ├── index.md              # Documentation index
+│   └── CONTRIBUTE.md         # Development guidelines
+├── infra/                      # Infrastructure as Code
+│   ├── modules/              # Reusable infrastructure modules
+│   ├── tf-components/        # Terraform components
+│   └── docs/                 # Infrastructure documentation
+├── DevOps/                     # CI/CD and deployment
+│   ├── pipeline/             # Pipeline configurations
+│   └── docs/                 # DevOps documentation
+└── services/                   # Serverless functions
+    └── functions/             # Function implementations
+```
 
-   - Update the project structure based on the answers.
-   - Update the README.md file, docs/index.md file, and `infra/docs/feature/authentication/index.md` file with the information gathered.
+### 2. Core Documentation Suite
+- **README.md**: Project description, setup instructions, development workflow
+- **docs/index.md**: Master documentation index with navigation
+- **docs/CONTRIBUTE.md**: Development guidelines, coding standards, contribution process
+- **docs/project-overview/**: Business context, requirements, success criteria
+- **docs/features/**: Individual feature documentation (one file per feature)
 
-2. **Create TODO.md**:
-   - Create the `TODO.md` file and split it in a way that makes sense for this project.
-   - Format:
-     ```
-     ## Domain
-     [ ] Task to be done (owner)
-     ```
-   - Add tasks for each area of the project, like frontend, backend, infra, etc.
-   - Ensure tasks are detailed and small enough to be done in a few hours.
-   - Include tasks outside of development, like DevOps tasks, security tasks, etc.
-   - Add lines regarding reviewing all generated files (like Architecture or API doc) and updating them as needed.
+### 3. Technical Specifications
+- **API Documentation**: `src/backend/src/docs/apidoc.yaml` (OpenAPI/Swagger specification)
+- **Infrastructure Architecture**: PlantUML diagrams in `infra/docs/`
+- **Database Schema**: Data model documentation and migration scripts
+- **Security Documentation**: Authentication, authorization, and security best practices
 
-3. **Documentation**:
-   - If the project is API-First or has an API, suggest a swagger file `backend/docs/apidoc.yaml` .
-   - Suggest an infrastructure architecture diagram (in PLANTUML) and add it into `infra/docs` folder.
-   - In the `docs/features/` folder, create a file for each feature that will be developed in this project.
+### 4. Development Environment Setup
+- **Language-Specific Files**: Package.json, requirements.txt, or equivalent dependency files
+- **Environment Configuration**: .env templates, configuration management
+- **Version Control**: .gitignore, .gitattributes, initial Git repository setup
+- **Code Quality Tools**: Linters, formatters, pre-commit hooks configuration
 
-4. **Tools and Dependencies**:
-   - Suggest tools that could be useful for this project, like a specific database, a specific CI/CD tool, etc.
-   - Create all necessary files for the project, like the .gitignore, the .gitattributes, etc.
-   - Depending on the selected language, create the necessary files for it (like a package.json for a Node.js project or requirements.txt for python).
-   - If a virtual environment is needed, suggest it and create it. Load all dependencies needed for the project.
+### 5. Infrastructure and Deployment
+- **Infrastructure as Code**: Terraform/CloudFormation files in `infra/` directory
+- **CI/CD Pipeline**: GitHub Actions/GitLab CI configurations in `DevOps/pipeline/`
+- **Environment Management**: Staging and production environment configurations
+- **Monitoring Setup**: Logging, metrics, and alerting infrastructure
 
-5. **Infrastructure Files**:
-   - Based on the user's preference, create the necessary infrastructure files (e.g., Terraform, CloudFormation) in the `infra/` directory.
+### 6. Testing Framework
+- **Testing Strategy**: Unit, integration, and E2E testing setup
+- **Test Configuration**: Testing frameworks and initial test suites
+- **Quality Gates**: Code coverage requirements and quality metrics
+- **Automated Testing**: CI/CD integration for automated test execution
 
-6. **Version Control**:
-   - Ensure to initialize a Git repository and create an initial commit.
+### 7. Project Management
+- **TODO.md**: Structured task breakdown by domain with ownership assignments
+- **Milestone Planning**: Development phases and delivery timelines
+- **Risk Assessment**: Technical and business risk identification and mitigation
 
-7. **CI/CD Pipeline**:
-   - Set up a CI/CD pipeline using a service like GitHub Actions, GitLab CI, or Jenkins.
-   - Create the pipeline details in the `DevOps/pipeline` folder
-   - Create a documentation of the application pipeline in the `DevOps/docs` folder.
+## Quality Standards
 
-8. **Testing**:
-   - Set up testing frameworks and write initial test cases.
+- ✅ All stakeholder questions answered comprehensively before project creation
+- ✅ Project structure aligns perfectly with stated requirements and technical stack
+- ✅ Infrastructure choices match cloud provider and architecture decisions
+- ✅ Documentation follows AI-first delivery methodology standards and conventions
+- ✅ Development environment setup is complete, tested, and documented
+- ✅ Security best practices integrated throughout project structure
+- ✅ CI/CD pipeline configured and ready for immediate use
+- ✅ All generated files follow established naming conventions and standards
+- ✅ Dependencies properly documented and version-controlled
+- ✅ Testing framework operational with initial test coverage
 
-9. **Environment Configuration**:
-   - Provide guidelines for handling environment variables and secrets (e.g., using .env files).
+## File Management
 
-10. **Code Quality**:
-   - Suggest tools for code quality checks, such as linters and formatters.
+### Project Initialization Process
+1. **Requirements Gathering**: Complete stakeholder consultation before any file creation
+2. **Structure Generation**: Create directory structure based on specific requirements
+3. **Documentation Creation**: Generate comprehensive documentation suite
+4. **Technical Setup**: Configure development tools, testing, and CI/CD
+5. **Infrastructure Provisioning**: Create and test infrastructure configurations
+6. **Quality Validation**: Verify all components are properly configured
 
-11. **Security**:
-    - Include a section on security best practices and tools for vulnerability scanning.
+### Naming and Organization Standards
+- **Consistent Naming**: Follow kebab-case for directories, appropriate conventions for files
+- **Logical Grouping**: Organize related files in appropriate directory structures
+- **Documentation Links**: Ensure all documentation cross-references correctly
+- **Version Control**: Initialize Git repository with proper ignore files
 
-12. **Deployment**:
-    - Provide guidelines for deployment, including staging and production environments.
-
-## Final Steps
-1. **Project Name**:
-   - Suggest a project name and ask if it's ok to create the project. If the user agrees, create the project with the name suggested.
-
-2. **Review**:
-   - Once all the other files are created, and you're clear on the requirements, review the gitignore files, as you might want to add more (like venv or node_modules).
-
-3. **Check File Creation**:
-   - Ensure that all the necessary files and folders have been created as per the project structure.
-
-4. **Deploy Requirements**:
-   - Run the necessary commands to deploy all the dependencies listed in the requirements files (e.g., `npm install` for Node.js, `pip install -r requirements.txt` for Python).
-
-
-<!-- Prompt version 0.4 -->
+### Project Validation Checklist
+- Project structure matches requirements and technical decisions
+- All configuration files are syntactically correct and tested
+- Documentation is complete, accurate, and properly linked
+- Development environment can be set up successfully by following instructions
+- CI/CD pipeline passes initial validation tests
+- Security configurations are properly implemented
+- Infrastructure code validates and can be deployed successfully

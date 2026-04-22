@@ -1,0 +1,88 @@
+metadata:
+  id: "EPIC-002"
+  title: "Context & Task Management"
+  version: "1.0.0"
+  date: "2026-04-22"
+  author: "Product Owner"
+  
+  template:
+    source: ".github/templates/epic-tmpl.yml"
+    compliance: "COMPLIANT"
+  
+  ai_generation:
+    model: "GPT-4o"
+    generation_date: "2026-04-22"
+  
+  related_documents:
+    user_stories: ["EPIC-002-US-001", "EPIC-002-US-002", "EPIC-002-US-003"]
+    dependencies: ["docs/01-requirements/requirements.md"]
+  
+  status: "Planned"
+  required_approvers: ["Product Owner", "Solution Architect"]
+
+basic_info:
+  name: "Context & Task Management"
+  description: "Implement real-time context window tracking, task progression visualization, and project completeness metrics."
+  epic_key: "EPIC-002"
+
+business_value:
+  objectives:
+    - "Prevent context window overflow through real-time monitoring"
+    - "Optimize prompt resource usage by visualizing token breakdown"
+    - "Gamify project progress with completeness meter milestones"
+  
+  success_metrics:
+    - "Context Window Bar shows token usage with <100ms update latency"
+    - "Completeness Meter displays accurate project progress"
+    - "Milestone celebrations trigger at 25%, 50%, 75%, 100% completion"
+
+scope:
+  description: "Phase 2 focuses on resource management and progress tracking: context window bar, task progression bar enhancement, and completeness meter."
+  
+  includes:
+    - "Context Window Bar with token usage breakdown"
+    - "Task Progression Bar enhancement with task details"
+    - "Completeness Meter with project metrics and milestones"
+    - "Real-time context analysis from Copilot Chat"
+  
+  excludes:
+    - "Agent animations (Phase 3)"
+    - "Multi-framework support (Phase 5)"
+
+technical_requirements:
+  - "Integration with Copilot Chat token tracking"
+  - "Real-time metrics collection from workspace"
+  - "Milestone event system for gamification"
+  - "Context breakdown calculation engine"
+
+dependencies:
+  external: ["GitHub Copilot API", ".github/scripts/"]
+  internal: ["EPIC-001"]
+
+acceptance_criteria: |
+  - Context Window Bar displays 0-100% token usage with color-coded warnings
+  - Token breakdown shows .github, project code, and chat history percentages
+  - Completeness Meter updates within 1 second of story status changes
+  - Milestone celebrations display at 25%, 50%, 75%, 100% completion
+  - Context warnings trigger at 70%, 90% threshold levels
+
+timeline:
+  start_date: "2026-05-07"
+  target_end_date: "2026-05-20"
+  duration_days: 14
+  estimated_effort: "13 story points"
+
+risks:
+  - risk: "Context window tracking may not work with non-standard Copilot Chat configuration"
+    probability: "Medium"
+    impact: "High"
+    mitigation: "Implement fallback estimation algorithms"
+
+status_tracking:
+  status: "Not Started"
+  progress_percentage: 0
+  blockers: ["EPIC-001 must be complete"]
+
+notes: |
+  This epic addresses token efficiency and project completion visibility.
+  Depends on successful PDLC detection from EPIC-001.

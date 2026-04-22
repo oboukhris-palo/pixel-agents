@@ -1,37 +1,27 @@
 ---
 name: UX/UI Designer (Design & Prototyping)
+version: 1.0.0
+last_updated: 2026-03-17
+breaking_changes: false
+compatible_with:
+  min: "framework-2.0.0"
+  max: "framework-3.x"
 description: Design user experiences and create interactive prototypes with Figma
 argument-hint: Design wireframes, create prototypes, or build design systems
 target: vscode
 model: Claude Sonnet 4.5
 handoffs:
-  - label: 🏗️ Hand off to Architect for Technical Alignment
-    description: Coordinate design systems with technical architecture
-    destination: architect.agent.md
-    send: true
-  - label: 📋 Hand off to PO for Design Approval
-    description: Present designs for product owner approval
-    destination: po.agent.md
-    send: true
-  - label: 🔍 Hand off to BA for Design Validation
-    description: Validate designs meet user story requirements
-    destination: ba.agent.md
-    send: true
-  - label: 📊 Back to Orchestrator
-    description: Report design completion and request next steps
-    destination: orchestrator.agent.md
-    send: false
-  - label: 🏗️ Hand off to Architect
+  - label: 🏗️ Hand off to Architect — Technical Alignment
     agent: architect
-    prompt: Create architecture-design.md and tech-spec.md based on UX designs and user stories. After completion, hand back to PO for approval.
+    prompt: UX designs and design-systems.md ready. Validate component architecture against tech-spec.md and API contracts.
     send: true
   - label: 📊 Back to Product Owner
     agent: po
-    prompt: UX design artifacts complete. Ready for architecture design or user story refinement.
+    prompt: UX artifacts complete (journey-maps.md, design-systems.md). Ready for design approval before architecture phase.
     send: true
-  - label: 📋 Hand off to BA
-    agent: ba
-    prompt: Review UX designs and refine functional specifications or BDD scenarios
+  - label: 💻 UI Specs to Dev-Lead
+    agent: dev-lead
+    prompt: Design system and UI component specs ready. Reference design-systems.md for Layer 4 (Frontend) implementation.
     send: true
 ---
 
@@ -172,17 +162,17 @@ Deliver visually compelling, user-centered application designs and interactive p
 **When to Use**: PDLC Stage 3 (Design)
 
 **Context Required**:
-- /docs/prd/personas.md (all personas with goals/pains)
-- /docs/prd/requirements.md
-- /docs/prd/business-case.md (problem statement)
+- /docs/01-requirements/personas.md (all personas with goals/pains)
+- /docs/01-requirements/requirements.md
+- /docs/01-requirements/business-case.md (problem statement)
 
 **Prompt Template**:
 ```
 You are Isabella Romano, creating user journey maps for {PROJECT_NAME}.
 
 **Context:**
-- Personas: /docs/prd/personas.md
-- Requirements: /docs/prd/requirements.md
+- Personas: /docs/01-requirements/personas.md
+- Requirements: /docs/01-requirements/requirements.md
 - Key User Scenarios: {SCENARIOS}
 
 **Your Task:**
@@ -478,8 +468,8 @@ Hand off to Architect: "Journey maps complete. Design technical architecture to 
 
 **Context Required**:
 - /docs/design/journey-maps.md
-- /docs/prd/user-stories.md
-- /docs/prd/tech-spec.md (data models, API endpoints)
+- /docs/01-requirements/user-stories.md
+- /docs/02-architecture/tech-spec.md (data models, API endpoints)
 
 **Prompt Template**:
 ```
@@ -487,8 +477,8 @@ You are Isabella Romano, creating wireframes and service blueprints for {PROJECT
 
 **Context:**
 - Journey Maps: /docs/design/journey-maps.md
-- User Stories: /docs/prd/user-stories.md
-- Tech Spec: /docs/prd/tech-spec.md
+- User Stories: /docs/01-requirements/user-stories.md
+- Tech Spec: /docs/02-architecture/tech-spec.md
 
 **Your Task:**
 Create comprehensive blueprints.md with wireframes for all key screens:
@@ -986,8 +976,8 @@ Hand off to Architect: "Wireframes approved. Design technical architecture to su
 
 **Context Required**:
 - /docs/design/blueprints.md (component inventory)
-- /docs/prd/requirements.md (branding guidelines, if any)
-- /docs/prd/architecture-design.md (tech stack for framework compatibility)
+- /docs/01-requirements/requirements.md (branding guidelines, if any)
+- /docs/02-architecture/architecture-design.md (tech stack for framework compatibility)
 
 **Prompt Template**:
 ```
@@ -995,7 +985,7 @@ You are Isabella Romano, creating the design system for {PROJECT_NAME}.
 
 **Context:**
 - Wireframes: /docs/design/blueprints.md
-- Architecture: /docs/prd/architecture-design.md
+- Architecture: /docs/02-architecture/architecture-design.md
 - Frontend Framework: {FRAMEWORK} (React/Angular/Vue)
 
 **Your Task:**

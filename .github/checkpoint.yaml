@@ -1,0 +1,124 @@
+# gene2 Framework Checkpoint (v2.0)
+# Single source of truth for "where are we in the project?"
+# Updated on each commit to track current PDLC position
+# Agents: read this file + chat history to understand context (NO file handoffs)
+# Orchestrator: Uses this as compass to route workflows + track decisions
+
+last_update: "YYYY-MM-DDTHH:MM:SSZ"
+updated_by_agent: "{AGENT_NAME}"
+
+# ============================================================
+# PROJECT STATE (Orchestrator Compass)
+# ============================================================
+project_state:
+  current_phase: "00-assessment"          # 00-assessment | 01-requirements | 02-architecture | 03-testing | 04-planning | 05-implementation
+  phase_status: "not-started"             # not-started | in-progress | blocked | complete
+  last_gate_passed: null                  # e.g., "gate-00-assessment" (null if no gates passed yet)
+  last_gate_date: null                    # ISO8601 timestamp of last gate passage
+  last_gate_score: null                   # Quality score from last gate (e.g., 8.5)
+  next_expected_gate: "gate-00-assessment" # Next quality gate to execute
+  routing_strategy: null                  # Route A | B | C | D (set after assessment)
+
+  # Artifact locations (quick-access for agents)
+  artifacts_location:
+    prd: "docs/01-requirements/user-stories.md"
+    architecture: "docs/02-architecture/architecture-design.md"
+    testing: "docs/03-testing/test-strategies.md"
+    planning: "docs/04-planning/iteration-planning.md"
+    implementation: "docs/05-implementation/user-stories.md"
+
+# ============================================================
+# ACTIVE WORK CONTEXT (for agent context recovery)
+# ============================================================
+# Current PDLC sub-position
+sub_phase: null                         # e.g., "TDD-RED", "TDD-GREEN", "TDD-REFACTOR", "STAGE-3.5"
+
+# Active story/epic context
+active_epic: null                       # e.g., "AUTH-001" (or null if none)
+active_story: null                      # e.g., "US-001" (or null if none)
+current_layer: null                     # e.g., "Layer 1: Database" (or null)
+current_cycle: null                     # e.g., "RED-001" (or null)
+
+# Agent context
+last_agent: "{AGENT_NAME}"             # Agent who just completed work
+ai_model_in_use: "{MODEL_NAME}"        # e.g., "claude-sonnet-4"
+
+# ============================================================
+# METADATA & TRACKING
+# ============================================================
+generated_files: []                     # List of files created/modified in last action
+blockers: []                            # List of blocking issues (if any)
+decision_gates_pending: []              # Pending human decisions
+notes: ""                               # Brief contextual notes
+
+# ============================================================
+# DECISION TRAIL (Orchestrator Decisions Log)
+# ============================================================
+# Records phase transitions, gate outcomes, and rework decisions.
+# Append-only: never edit existing entries.
+orchestrator_decisions:
+  # Example entries (uncomment and fill as decisions occur):
+  #
+  # - timestamp: "2026-04-21T09:00:00Z"
+  #   entry_type: "phase_transition"       # phase_transition | gate_outcome | rework_decision
+  #   phase: "00-assessment"
+  #   transition:
+  #     from_phase: null
+  #     to_phase: "00-assessment"
+  #     trigger: "Project kickoff"
+  #     rationale: "Client engagement initiated"
+  #   recorded_by: "orchestrator"
+  #   workflow_ref: "00-assessment.workflows.md"
+  #   git_commit: null
+  #
+  # - timestamp: "2026-04-21T14:30:00Z"
+  #   entry_type: "gate_outcome"
+  #   phase: "00-assessment"
+  #   gate_result:
+  #     gate_id: "gate-00-assessment"
+  #     decision: "PASS"
+  #     quality_score: 8.2
+  #     metrics:
+  #       stakeholder_coverage: "3/3"
+  #       tech_audit_completeness: "95%"
+  #       ai_readiness_confidence: "75%"
+  #     details: "All prerequisites verified"
+  #   recorded_by: "orchestrator"
+  #   workflow_ref: "00-assessment.workflows.md"
+  #   git_commit: "abc1234"
+  #
+  # - timestamp: "2026-04-22T10:00:00Z"
+  #   entry_type: "rework_decision"
+  #   phase: "03-testing"
+  #   rework:
+  #     gate_id: "gate-03-testing"
+  #     issue: "BDD coverage 78% (target 95%)"
+  #     action: "Return to BA for scenario refinement"
+  #     retry_deadline: "2026-04-23T10:00:00Z"
+  #     estimated_rework_hours: 4
+  #   recorded_by: "orchestrator"
+  #   workflow_ref: "03-testing.workflows.md"
+  #   git_commit: "def5678"
+  []
+
+# ============================================================
+# HANDOFF PROTOCOL (v2.0 - Chat-Based, No File Artifacts)
+# ============================================================
+# Handoff happens in CHAT CONVERSATION, not via files.
+#
+# To hand off work:
+#   1. Post summary in chat with context (phase, epic, story, layer, cycle)
+#   2. Next agent reads chat history above + this checkpoint.yaml
+#   3. Next agent reads their .agent.md file for responsibilities
+#   4. Next agent performs work based on chat context + role
+#   5. New agent log created: /logs/{PHASE}/agent-{name}-YYYYMMDD.md
+#
+# Orchestrator Compass Protocol:
+#   1. Read project_state → determine current phase + status
+#   2. Read last_gate_passed → determine progression eligibility
+#   3. Read orchestrator_decisions → understand decision history
+#   4. Route to appropriate phase workflow based on state
+#   5. Update checkpoint on phase transitions + gate outcomes
+#
+# FORBIDDEN: Creating handoff.json or tdd-execution.md files
+# ============================================================

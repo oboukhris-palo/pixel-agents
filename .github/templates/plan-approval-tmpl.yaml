@@ -1,0 +1,135 @@
+---
+# Human Validation Gate for Implementation Plan
+# Location: /docs/05-implementation/epics/<EPIC-REF>/user-stories/<US-REF>/plan-approval.yaml
+# Purpose: Require human approval before TDD execution begins or resumes after plan changes
+# Status: approved | changes-requested | revoked
+---
+
+metadata:
+  templateId: "plan-approval"
+  templateVersion: "2.0"
+  documentType: "gate-checkpoint"
+  title: "Plan Approval Gate: {US_REF}"
+  agent_context:
+    phase: "implementation"
+    epic_ref: "{EPIC_REF}"
+    user_story_ref: "{US_REF}"
+    agent_name: "{AGENT_NAME}"
+    model_name: "{MODEL_NAME}"
+
+story: <US-REF>                      # Example: US-001, US-XXX
+plan_version: v1                     # Example: v1, v2, v3 (matches implementation-plan-vX.md)
+
+scope: 
+  - Layer1                          # Layers covered by this approval
+  - Layer2                          # Options: Layer1, Layer2, Layer3, Layer4, or "all"
+
+risk: low                           # Risk level: low | medium | high
+
+approvers:
+  - role: dev-lead                  # Role: dev-lead, architect, po
+    name: Optional Name             # Optional human name
+    approved: true                  # Approval status
+    date: 2026-03-17               # Approval date (YYYY-MM-DD)
+    notes: "Plan reviewed and approved for execution"
+
+status: approved                    # Overall status: approved | changes-requested | revoked
+
+validation_checklist:
+  - item: "Implementation plan follows layer architecture (DB → Service → API → UI)"
+    verified: true
+  - item: "BDD scenarios map to implementation layers"
+    verified: true
+  - item: "All external dependencies documented and available"
+    verified: true
+  - item: "Database migration order is correct"
+    verified: true
+  - item: "Both User.tier and Subscription.tier synchronization addressed"
+    verified: true
+  - item: "Error handling strategy defined"
+    verified: true
+
+notes: |
+  Ready to execute. No blockers identified.
+  BDD scenarios reviewed and aligned with implementation plan.
+  Critical synchronization requirement (User.tier ↔ Subscription.tier) explicitly documented.
+
+---
+
+# Approval Status Definitions
+
+# approved:
+#   - TDD execution can proceed
+#   - Plan is frozen (becomes read-only reference)
+#   - Implementation follows approved layers and architecture
+
+# changes-requested:
+#   - TDD execution BLOCKED
+#   - Plan requires revision before approval
+#   - Dev-lead must address feedback and resubmit
+
+# revoked:
+#   - Auto-set when implementation-plan.md is modified
+#   - TDD execution BLOCKED until re-approval
+#   - Triggers plan versioning (snapshot previous version)
+
+---
+
+# Workflow Integration
+
+# Orchestrator Rules:
+# 1. BLOCK TDD if status != "approved"
+# 2. BLOCK TDD if plan_version != current implementation-plan.md version
+# 3. AUTO-REVOKE approval on plan modification (create snapshot, reset status)
+# 4. ALLOW "YOLO Mode" bypass with explicit risk acknowledgment
+
+# Dev-Lead Responsibilities:
+# 1. Create plan-approval.yaml after implementation-plan.md creation
+# 2. Set status="approved" after self-review and validation
+# 3. Request architect review for high-risk stories
+# 4. Update plan-approval.yaml if plan changes (new version, reset status)
+
+# TDD Orchestrator Responsibilities:
+# 1. Check plan-approval.yaml before starting first TDD cycle
+# 2. Block execution if status != "approved"
+# 3. Display approval checklist violations to user
+
+---
+
+# Example: Changes-Requested Status
+
+# story: US-042
+# plan_version: v1
+# scope: [Layer1, Layer2, Layer3]
+# risk: high
+# approvers:
+#   - role: architect
+#     name: Sarah
+#     approved: false
+#     date: 2026-03-17
+#     notes: "Layer 2 service logic needs revision. Missing circuit breaker pattern for external API calls."
+# status: changes-requested
+# notes: |
+#   Architect review identified missing resilience patterns.
+#   Dev-lead to revise plan and resubmit for approval.
+
+---
+
+# Example: Revoked Status (Plan Modified)
+
+# story: US-042
+# plan_version: v2
+# scope: [Layer1, Layer2, Layer3]
+# risk: high
+# approvers:
+#   - role: dev-lead
+#     name: Alex
+#     approved: true
+#     date: 2026-03-17
+#     notes: "Plan updated with circuit breaker pattern. Ready for re-approval."
+# status: changes-requested  # Auto-revoked when plan changed
+# notes: |
+#   Plan modified to address architect feedback.
+#   New snapshot created: implementation-plan-v1.md (historical)
+#   Current plan: implementation-plan.md (v2)
+#   Awaiting architect re-approval before TDD execution can resume.

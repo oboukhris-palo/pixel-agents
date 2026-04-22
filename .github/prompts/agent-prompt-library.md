@@ -1,80 +1,62 @@
-# Agent Prompt Library & Standards
+## Objective
+Provide reusable, tested prompt templates for all AI-first delivery agents ensuring consistent quality, reduced hallucinations, and clear structured outputs across the development lifecycle.
 
-## 🎯 Purpose
-Reusable, tested prompt templates for all PDLC agents. Ensures consistent quality, reduces hallucinations, provides clear output formats.
+## Context
+This library serves as the central repository for all agent prompt templates within the AI-first delivery framework. Each template follows established engineering best practices and provides standardized formats for agent interactions.
 
----
+## Requirements
 
-## 📋 Prompt Template Structure
-
+### Prompt Template Structure Standards
 Every agent prompt must include:
 
 ```yaml
 ## Context Section
-- Current Stage/Phase
-- Available Inputs (documents/files)
-- Dependencies resolved
-- Previous decisions/constraints
+- Current Stage/Phase identification
+- Available input documents and files
+- Dependencies resolved and prerequisites met
+- Previous decisions and constraints
 
 ## Task Definition
-- Specific objective
-- Success criteria
-- Output format requirements
-- Quality thresholds
+- Specific objective with measurable outcomes
+- Success criteria and completion thresholds
+- Output format requirements and structure
+- Quality thresholds and validation criteria
 
 ## Instructions
-- Step-by-step execution
-- Decision criteria
-- Edge case handling
-- Validation checks
+- Step-by-step execution guidance
+- Decision criteria for complex choices
+- Edge case handling procedures
+- Validation checks and quality gates
 
 ## Output Format
 - Structured template (YAML/Markdown/JSON)
-- Required sections
-- Optional sections
-- Examples
+- Required sections and content
+- Optional sections and when to include
+- Concrete examples for reference
 
 ## Quality Gates
 - Minimum completeness threshold
-- Validation checklist
-- Escalation triggers
-- Confidence scoring
+- Validation checklist items
+- Escalation triggers for complex issues
+- Confidence scoring methodology
 
 ## Examples
-- Input example
-- Output example
-- Common variations
+- Input example with realistic data
+- Expected output example
+- Common variations and edge cases
 ```
 
----
+### Prompt Engineering Best Practices
+1. **Specificity Over Generality**: Use concrete, measurable instructions
+2. **Explicit Output Formats**: Define exact structure and content requirements
+3. **Validation Criteria**: Include specific quality checks and thresholds
+4. **Confidence Scoring**: Require confidence assessment for outputs
+5. **Escalation Triggers**: Define when to escalate complex or unclear situations
 
-## 🎨 Prompt Engineering Best Practices
+## Deliverables
 
-### 1. Specificity Over Generality
-❌ Bad: "Analyze the requirements"  
-✅ Good: "Read requirements.md, identify 5-10 functional requirements, 3-5 non-functional requirements, categorize by MoSCoW priority (Must/Should/Could/Won't)"
-
-### 2. Explicit Output Formats
-❌ Bad: "Create personas"  
-✅ Good: "Generate 3-5 personas in YAML format with fields: name, role, age, goals (3 items), pain_points (3 items), behaviors (3 items), quote"
-
-### 3. Validation Criteria
-❌ Bad: "Make sure it's complete"  
-✅ Good: "Validate: ✓ All MUST requirements addressed ✓ Each requirement has acceptance criteria ✓ No vague terms like 'fast' or 'user-friendly' ✓ Measurable metrics defined"
-
-### 4. Confidence Scoring
-❌ Bad: "Here's the architecture"  
-✅ Good: "Architecture confidence: 85% (High certainty on API design, Medium on database scaling, Need clarification: data retention policy)"
-
-### 5. Escalation Triggers
-❌ Bad: "Let me know if you need changes"  
-✅ Good: "⚠️ ESCALATE IF: Requirements contradict (flag conflicts) | >30% of requirements lack acceptance criteria | Technical constraints unclear | Budget/timeline unrealistic"
-
----
-
-## 📚 Common Prompt Patterns
-
-### Pattern 1: Document Generation
+### 1. Document Generation Pattern
+Standardized template for document creation:
 ```markdown
 You are a [ROLE] working on [PROJECT_NAME] in PDLC Stage [X].
 
@@ -85,19 +67,105 @@ You are a [ROLE] working on [PROJECT_NAME] in PDLC Stage [X].
 
 **Task:**
 Create [DOCUMENT_NAME] following these steps:
-
 1. Read [INPUT_DOCUMENT] and extract [SPECIFIC_ELEMENTS]
 2. Analyze [SPECIFIC_ASPECTS] considering [CONSTRAINTS]
 3. Generate [OUTPUT_SECTIONS] using [TEMPLATE]
 4. Validate against [QUALITY_CHECKLIST]
 
 **Output Format:**
-```yaml
 [STRUCTURED_TEMPLATE]
-```
 
 **Quality Gates:**
-- ✓ [GATE_1]
+- ✅ [GATE_1]: [VALIDATION_CRITERIA]
+- ✅ [GATE_2]: [VALIDATION_CRITERIA]
+
+**Confidence Assessment:**
+Rate confidence (0-100%) for each major section with rationale.
+```
+
+### 2. Analysis and Extraction Pattern
+Template for analyzing existing content:
+```markdown
+**Analysis Objective:** [SPECIFIC_ANALYSIS_PURPOSE]
+
+**Input Materials:**
+- Primary: [MAIN_SOURCE_DOCUMENT]
+- Supporting: [ADDITIONAL_SOURCES]
+
+**Extraction Requirements:**
+1. [ELEMENT_TYPE_1]: Extract [QUANTITY] items with [CRITERIA]
+2. [ELEMENT_TYPE_2]: Identify [PATTERNS] and categorize by [CLASSIFICATION]
+3. [ELEMENT_TYPE_3]: Prioritize using [PRIORITY_FRAMEWORK]
+
+**Output Structure:**
+[YAML/JSON_TEMPLATE]
+
+**Validation:**
+- All extracted elements traceable to source
+- Classification follows established taxonomy
+- Priority assignments justified with rationale
+```
+
+### 3. Implementation Planning Pattern
+Template for technical implementation guidance:
+```markdown
+**Implementation Context:**
+- User Story: [STORY_REFERENCE]
+- Technical Constraints: [LIMITATIONS]
+- Available Resources: [TOOLS_AND_LIBRARIES]
+
+**Implementation Steps:**
+1. **Layer 1 - [LAYER_NAME]:**
+   - Files to create: [SPECIFIC_FILES]
+   - Dependencies: [REQUIREMENTS]
+   - Testing approach: [TEST_STRATEGY]
+
+2. **Layer 2 - [LAYER_NAME]:**
+   [Similar structure]
+
+**Quality Assurance:**
+- Code coverage requirement: [PERCENTAGE]
+- Performance benchmarks: [METRICS]
+- Security validation: [SECURITY_CHECKS]
+
+**Definition of Done:**
+- ✅ All tests passing
+- ✅ Code review completed
+- ✅ Documentation updated
+```
+
+## Quality Standards
+
+- ✅ All prompt templates follow established structure consistently
+- ✅ Instructions are specific and actionable (avoid vague terms)
+- ✅ Output formats are clearly defined with examples
+- ✅ Quality gates include measurable validation criteria
+- ✅ Confidence scoring methodology is consistent across agents
+- ✅ Escalation triggers are clearly defined and actionable
+- ✅ Examples are realistic and cover common use cases
+- ✅ Templates reduce ambiguity and potential for hallucination
+
+## File Management
+
+### Template Organization
+- Store templates by agent type and function
+- Version control for template evolution
+- Cross-reference related templates
+- Maintain examples and test cases
+
+### Usage Guidelines
+- Test templates with realistic data before deployment
+- Collect feedback on template effectiveness
+- Update templates based on agent performance
+- Share successful patterns across similar agent types
+
+### Common Anti-Patterns to Avoid
+- ❌ Vague instructions ("analyze the requirements", "make sure it's complete")
+- ❌ Missing output format specifications
+- ❌ Lack of validation criteria
+- ❌ No escalation path for complex scenarios
+- ❌ Generic examples that don't reflect real usage
+- ❌ Missing confidence assessment requirements
 - ✓ [GATE_2]
 - ✓ [GATE_3]
 

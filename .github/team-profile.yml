@@ -1,0 +1,223 @@
+# Team Profile - INTERNAL USE ONLY
+# ⚠️ CRITICAL: This file contains team skill assessments and MUST NEVER be shared with stakeholders
+# 
+# Purpose: PM uses this to apply skill multipliers during story estimation
+# Privacy: Add to .gitignore for client repos, keep in framework repo for reference only
+# 
+# Last Updated: [DATE]
+# Maintained By: Project Manager / Dev-Lead
+
+project:
+  name: "[PROJECT_NAME]"
+  tech_stack:
+    primary_language: "[e.g., C#, TypeScript, Python]"
+    framework: "[e.g., .NET 9, React, Django]"
+    database: "[e.g., PostgreSQL, MongoDB]"
+    cloud_platform: "[e.g., Azure, AWS, GCP]"
+
+team_members:
+  # Format: developer-id (never use in stakeholder docs)
+  
+  - id: "dev-001"
+    # Note: Names are optional, use IDs in estimation calculations
+    name: "[Full Name]"
+    email: "[email@domain.com]"
+    
+    # Experience level
+    experience:
+      total_years: 0  # Total programming experience
+      relevant_years: 0  # Years in current tech stack
+      level: "SENIOR"  # SENIOR | MID | JUNIOR | NEW_TO_STACK
+    
+    # Tech stack proficiency (1-5 scale)
+    proficiency:
+      primary_language: 0  # 1-5: Beginner to Expert
+      framework: 0
+      database: 0
+      cloud_platform: 0
+      testing: 0
+      devops: 0
+    
+    # Calculated skill multiplier (for PM estimation)
+    skill_multiplier: 1.0  # 0.8 (senior) to 2.0 (new to stack)
+    
+    # Notes (INTERNAL ONLY)
+    notes: ""
+    # Example:
+    # - "Strong in backend, learning frontend"
+    # - "First project with async patterns"
+    # - "Expert in SQL optimization"
+    
+    # Availability
+    availability:
+      sprint_capacity_hours: 40  # Hours per 2-week sprint (accounting for meetings)
+      current_allocation_percentage: 100  # 100% = full-time on project
+      vacation_planned: []
+      # Example:
+      # - start: "2026-05-01"
+      #   end: "2026-05-10"
+  
+  # Example team member entries (REMOVE IN ACTUAL PROJECT):
+  
+  - id: "dev-002-example"
+    name: "Sarah Chen (EXAMPLE - DELETE THIS)"
+    email: "sarah.chen@example.com"
+    experience:
+      total_years: 6
+      relevant_years: 4
+      level: "SENIOR"
+    proficiency:
+      primary_language: 5  # Expert C#
+      framework: 4  # Strong .NET
+      database: 4  # Strong SQL
+      cloud_platform: 3  # Moderate Azure
+      testing: 5  # Expert TDD
+      devops: 3  # Moderate
+    skill_multiplier: 0.8  # Senior developer, fast with AI validation
+    notes: "Expert in async patterns, LINQ, Entity Framework. Mentors junior devs."
+    availability:
+      sprint_capacity_hours: 38
+      current_allocation_percentage: 100
+      vacation_planned: []
+  
+  - id: "dev-003-example"
+    name: "Alex Rivera (EXAMPLE - DELETE THIS)"
+    email: "alex.rivera@example.com"
+    experience:
+      total_years: 1
+      relevant_years: 0.5
+      level: "JUNIOR"
+    proficiency:
+      primary_language: 2  # Beginner C#
+      framework: 2  # Learning .NET
+      database: 3  # Moderate SQL
+      cloud_platform: 1  # New to Azure
+      testing: 2  # Learning TDD
+      devops: 1  # New to DevOps
+    skill_multiplier: 1.5  # Junior, needs validation time
+    notes: "First C# project. Strong Python background. Eager learner."
+    availability:
+      sprint_capacity_hours: 32  # Lower due to ramp-up/training
+      current_allocation_percentage: 80  # 20% on training
+      vacation_planned:
+        - start: "2026-06-15"
+          end: "2026-06-20"
+  
+  - id: "dev-004-example"
+    name: "Jordan Lee (EXAMPLE - DELETE THIS)"
+    email: "jordan.lee@example.com"
+    experience:
+      total_years: 8
+      relevant_years: 0.5
+      level: "NEW_TO_STACK"
+    proficiency:
+      primary_language: 2  # New to C#
+      framework: 2  # New to .NET
+      database: 5  # Expert in PostgreSQL
+      cloud_platform: 3  # Moderate Azure
+      testing: 5  # Expert TDD (from previous stack)
+      devops: 4  # Strong DevOps
+    skill_multiplier: 1.6  # Expert transitioning to new stack
+    notes: "Senior Python developer transitioning to C#. Strong architectural thinking."
+    availability:
+      sprint_capacity_hours: 35
+      current_allocation_percentage: 90
+      vacation_planned: []
+
+# Team velocity tracking (updated per sprint)
+velocity:
+  current_sprint: 0
+  
+  sprint_history:
+    # - sprint_number: 1
+    #   planned_hours: 100
+    #   actual_hours: 95
+    #   stories_completed: 8
+    #   variance_percentage: -5
+    #   notes: "Strong start, good estimation"
+    
+    # - sprint_number: 2
+    #   planned_hours: 110
+    #   actual_hours: 135
+    #   stories_completed: 7
+    #   variance_percentage: +23
+    #   notes: "Underestimated OAuth integration complexity"
+
+# Skill multiplier calibration (updated quarterly)
+multiplier_calibration:
+  last_review_date: ""
+  
+  adjustments:
+    # - date: "2026-04-01"
+    #   dev_id: "dev-001"
+    #   old_multiplier: 1.0
+    #   new_multiplier: 0.8
+    #   reason: "Completed 3 sprints, consistently ahead of estimates"
+    
+    # - date: "2026-04-01"
+    #   dev_id: "dev-002"
+    #   old_multiplier: 1.5
+    #   new_multiplier: 1.3
+    #   reason: "Ramped up on async patterns, validation time reduced"
+
+# PM notes (INTERNAL ONLY)
+pm_notes: |
+  Project-specific observations and team dynamics notes.
+  
+  Example:
+  - Sarah pairs well with Alex (mentorship)
+  - Jordan needs 2 weeks ramp-up for C# syntax
+  - Team works best with morning standup at 9:30 AM
+  - Consider tech debt sprint every 4 sprints
+
+# Usage Guidelines for PM
+usage_guidelines: |
+  1. **During Story Estimation**:
+     - Look up team member skill_multiplier
+     - Apply to context-adjusted estimate
+     - NEVER copy developer names/levels to story YAML
+  
+  2. **Sprint Planning**:
+     - Use availability.sprint_capacity_hours for capacity planning
+     - Account for current_allocation_percentage
+     - Check vacation_planned for conflicts
+  
+  3. **Retrospective**:
+     - Update velocity.sprint_history after each sprint
+     - Compare actual vs. estimated hours
+     - Adjust skill_multiplier if consistent variance
+  
+  4. **Quarterly Review**:
+     - Update experience.relevant_years
+     - Re-assess proficiency scores
+     - Recalibrate skill_multiplier based on velocity data
+     - Document adjustments in multiplier_calibration
+  
+  5. **Privacy Rules**:
+     - NEVER share this file with stakeholders
+     - NEVER reference developer names/levels in user stories
+     - Use anonymous skill factors in estimation documentation
+     - Store in .gitignore for client repos
+     - Keep in framework repo as reference template only
+
+# Skill Multiplier Reference Table
+multiplier_reference:
+  SENIOR: 
+    range: "0.8 - 0.9"
+    description: "5+ years experience, expert in stack, quickly validates AI"
+  
+  MID:
+    range: "1.0 - 1.1"
+    description: "2-4 years experience, solid foundation, baseline"
+  
+  JUNIOR:
+    range: "1.3 - 1.5"
+    description: "0-2 years experience, learning curve, validation time"
+  
+  NEW_TO_STACK:
+    range: "1.5 - 2.0"
+    description: "Expert in other tech, new to this stack, ramp-up time"
+  
+  COMBINED_FACTORS:
+    junior_new_stack: "1.4 × 1.6 = 2.24"
+    description: "Junior developer completely new to tech stack"

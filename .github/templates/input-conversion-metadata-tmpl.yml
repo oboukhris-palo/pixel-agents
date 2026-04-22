@@ -1,0 +1,63 @@
+# Input Conversion Metadata
+# Tracks all raw → converted transformations for audit and re-processing
+# Location: /docs/00-assessment/processed-metadata.yml
+
+schema_version: "1.0"
+project: "{PROJECT_NAME}"
+last_updated: "YYYY-MM-DDTHH:MM:SSZ"
+updated_by: "{AGENT_NAME}"
+
+# Summary statistics
+summary:
+  total_raw_inputs: 0
+  total_converted: 0
+  conversion_rate: "0%"
+  avg_confidence: "N/A"
+  last_conversion_date: null
+
+# Individual conversion records
+conversions:
+  # Example entry (copy and fill for each conversion):
+  # - conversion_id: "CONV-001"
+  #   raw_source:
+  #     filename: "executive-interview-2026-04-15.mp3"
+  #     type: "interview-transcript"
+  #     category: "interview-transcripts"         # Matches raw/ subfolder
+  #     size: "2.4MB"
+  #     date_received: "2026-04-15"
+  #   converted_output:
+  #     filename: "interview-001-executives-synthesized.md"
+  #     template_used: "interview-synthesis-tmpl.md"
+  #     location: "converted/interview-001-executives-synthesized.md"
+  #   conversion_details:
+  #     converted_by: "ba"                        # Agent that performed conversion
+  #     conversion_date: "2026-04-16T10:30:00Z"
+  #     confidence_level: "HIGH"                  # HIGH / MEDIUM / LOW
+  #     completeness: "95%"                       # % of source content extracted
+  #     gaps_identified: 1                        # Number of gaps found
+  #     gap_descriptions:
+  #       - "Missing budget figures — follow up with CFO"
+  #   quality_assessment:
+  #     source_quality: "GOOD"                    # EXCELLENT / GOOD / FAIR / POOR
+  #     staleness_risk: "LOW"                     # LOW / MEDIUM / HIGH / UNKNOWN
+  #     contradictions: []                        # List of CONV-IDs with conflicts
+  #     cross_references:
+  #       - "CONV-002"                            # Related conversions
+  #   status: "complete"                          # complete / partial / failed / pending
+  []
+
+# Pending conversions (raw inputs not yet processed)
+pending:
+  # - filename: "legacy-architecture.pdf"
+  #   category: "client-documentation"
+  #   priority: "HIGH"
+  #   assigned_to: "architect"
+  #   notes: "Critical for Phase 3-4 architecture workflow"
+  []
+
+# Conversion quality rules
+quality_rules:
+  min_confidence: "MEDIUM"          # Minimum acceptable confidence for gate passage
+  max_staleness: "18 months"        # Documents older than this flagged for validation
+  require_cross_reference: true     # Every conversion should reference related sources
+  require_gap_documentation: true   # All identified gaps must be documented

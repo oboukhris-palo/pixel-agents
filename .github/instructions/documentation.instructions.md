@@ -2,7 +2,69 @@
 applyTo: '**'
 ---
 
-# Documentation Rules
+# Documentation Standards Instructions
+
+> 📋 **PHASE NAMING CONVENTION**: All PDLC phases (0-8) use strict numbering in folder names (00-assessment, 01-requirements, 02-architecture, etc.). See `.github/instructions/framework-standards.instructions.md` for the complete naming and terminology standards that MUST be used throughout this codebase.
+
+## Overview
+
+This document provides systematic instructions for documentation standards and content creation guidelines using the AI-first delivery methodology. These instructions establish clear boundaries between code-level documentation (required), project documentation (forbidden unless requested), and structured artifacts (template-based) to maintain focused, maintainable documentation that enhances code readability without creating maintenance burden.
+
+## Process Overview
+
+**Documentation Standards Implementation** transforms documentation requirements into structured content creation guidelines that deliver focused code documentation, prevent documentation bloat, and maintain consistency through established templates while ensuring developers can access necessary information without overwhelming maintenance overhead or redundant content creation.
+
+## Implementation Process
+
+### 1. Code Documentation Generation
+**Objective**: Create comprehensive inline documentation that enhances code readability and maintainability
+
+**Activities**:
+- Generate inline comments explaining WHY for non-obvious logic and business rules
+- Create API documentation using JSDoc/docstrings for all public functions and classes
+- Implement automated code review reports against coding standards checklist
+- Add TODO comments referencing future implementations with story references
+
+**Quality Standards**:
+- All public APIs include comprehensive JSDoc/docstring documentation
+- Inline comments explain business reasoning, not obvious code functionality
+- Security and performance annotations are present where relevant
+- Test documentation clearly states purpose and BDD scenario mappings
+
+### 2. Documentation Boundary Enforcement
+**Objective**: Prevent creation of maintenance-heavy project documentation unless explicitly required
+
+**Activities**:
+- Restrict creation of additional markdown files in /docs/ directory
+- Prevent duplicate documentation when README.md covers the topic
+- Use code comments instead of separate Architecture Decision Records
+- Direct project documentation requests to established templates
+
+**Quality Standards**:
+- No unnecessary markdown files created outside standard templates
+- README.md remains the single source for project overview information
+- Code comments serve as primary source for architectural decisions
+- All project documentation follows established template patterns
+
+### 3. Structured Artifact Creation
+**Objective**: Maintain consistency through template-based documentation for formal deliverables with comprehensive metadata tracking
+
+**Activities**:
+- Create PRD documents in phase-based folders following established templates (01-requirements, 02-architecture, 03-testing, 04-planning)
+- Generate implementation plans in /docs/05-implementation/epics/<EPIC-REF>/user-stories/ with consistent format
+- Produce handoff files in JSON format using handoff-tmpl.md template
+- Generate meeting minutes in YAML format using meeting.assistant.agent
+- **MANDATORY**: Include comprehensive metadata section in ALL generated documents using `.github/templates/metadata-standard-tmpl.yml`
+- Track template compliance and AI generation details for audit and quality purposes
+
+**Quality Standards**:
+- All structured artifacts follow designated template formats exactly
+- **Every document MUST include enhanced metadata section with template source, LLM model, generation context, and compliance status**
+- PRD documents maintain consistency across requirements, user-stories, and technical specifications
+- Implementation plans use standardized structure for reproducible workflows
+- Meeting minutes capture actionable items in structured YAML format
+- **Template compliance warnings**: Documents must indicate `COMPLIANT`, `NON-COMPLIANT`, or `CUSTOM` status
+- **AI generation tracking**: All AI-generated content must specify model, version, and generation context
 
 ## Documentation Categories
 
@@ -28,12 +90,20 @@ Project-level documentation is FORBIDDEN unless explicitly requested by user:
 - Custom documentation outside standard templates
 
 ### 📋 STANDARD PROJECT DOCUMENTATION (Follow Templates)
-These are created during PDLC/Implementation workflows using templates:
+These are created during PDLC/Implementation workflows using templates with mandatory enhanced metadata:
 
-- PRD documents in /docs/prd/ (requirements, user-stories, architecture-design, etc.)
-- Implementation plans in /docs/user-stories/<US-REF>/
-- Handoff files (JSON format using handoff.template.md)
+- PRD documents in phase folders: docs/01-requirements/, docs/02-architecture/, docs/03-testing/, docs/04-planning/
+- Implementation plans in /docs/05-implementation/epics/<EPIC-REF>/user-stories/<US-REF>/
+- Handoff files (JSON format using handoff-tmpl.md)
 - Meeting minutes (YAML format using meeting.assistant.agent)
+
+**MANDATORY METADATA REQUIREMENTS FOR ALL DOCUMENTS**:
+- **Template Source**: Must specify which template from `.github/templates/` was used
+- **Compliance Status**: Must indicate `COMPLIANT`, `NON-COMPLIANT`, or `CUSTOM`
+- **AI Generation Info**: Must specify LLM model and generation date
+- **Document Traceability**: Must include related documents and dependencies as applicable
+- **Approval Tracking**: Must list required approvers for the document type
+- **Concise Format**: Use streamlined metadata structure from `metadata-standard-tmpl.yml`
 
 ---
 
@@ -100,12 +170,32 @@ This includes:
 ```
 docs/
 ├── index.md                         # Project Overview
-├── prd/                             # All PRD documents (requirements, personas, architecture, tech-spec, etc.)
-├── user-stories/                    # User story documents and implementation plans
-│   ├── user-stories.md              # Master user stories document
-│   └── <USER-STORY-REF>/            # Individual story folders (e.g., US-001/)
-│       ├── implementation-plan.md   # Layer breakdown and technical approach
-│       └── bdd-scenarios/           # Story-specific BDD feature files
+├── 01-requirements/                 # Phase 1-2: Requirements & personas (IMMUTABLE)
+│   ├── requirements.md              # Business requirements & user needs
+│   ├── personas.md                  # User archetypes
+│   ├── user-stories.md              # Master user stories catalog (SSOT for story definitions)
+│   └── business-case.md             # Business case & ROI analysis
+├── 02-architecture/                 # Phase 3-4: Architecture & Design (IMMUTABLE)
+│   ├── architecture-design.md       # System architecture & constraints
+│   ├── tech-spec.md                 # Technical specifications (API, database, etc.)
+│   └── design-systems.md            # UI/UX components & design tokens
+├── 03-testing/                      # Phase 5: Testing Strategy (IMMUTABLE)
+│   └── test-strategies.md           # Testing approach & BDD scenarios
+├── 04-planning/                     # Phase 6: Planning (IMMUTABLE)
+│   ├── iteration-planning.md        # Sprint & iteration planning
+│   └── deployment-plan.md           # Deployment approach
+├── 05-implementation/               # Phase 8: Implementation Tracking (ACTIVE during sprints)
+│   ├── epics/                       # Epic-based organization
+│   │   ├── epic-01/                 # Epic 1: [Domain]
+│   │   │   ├── description.md       # Epic overview and scope
+│   │   │   └── user-stories/        # User stories belonging to this epic
+│   │   │       └── us-001/          # Per-story implementation folder
+│   │   │           ├── description.md              # Story definition (from 01-requirements)
+│   │   │           ├── implementation-plan.md      # Layer breakdown and technical approach
+│   │   │           └── bdd-scenarios/              # Story-specific BDD feature files
+│   │   └── epic-02/                 # Epic 2: [Domain]
+│   │       └── user-stories/
+│   └── user-stories.md              # Master status tracking (SSOT for progress)
 ├── design/                          # UX/UI design documents and design systems
 │   └── diagrams/                    # Design-specific diagrams
 ├── features/                        # Feature Documentation
@@ -123,11 +213,11 @@ docs/
 - Store infrastructure diagrams in infra/docs/diagrams/
 
 ### Application Documentation
-- Location: apps/docs/index.md
+- Location: src/docs/index.md (if application-specific) or root docs/
 - Include development guidelines
 - Define testing requirements
 - Maintain Definition of Done
-- Store application diagrams in apps/docs/diagrams/
+- Store application diagrams in docs/architecture/diagrams/
 
 ### Services Documentation
 - Location: services/docs/index.md

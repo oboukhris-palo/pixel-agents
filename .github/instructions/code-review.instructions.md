@@ -3,7 +3,17 @@ description: Code review standards and automated review report generation
 applyTo: "src/**"
 ---
 
-# Code Review Standards
+# Code Review Standards Instructions
+
+## Overview
+
+This document provides systematic instructions for code review standards and automated review report generation using the AI-first delivery methodology. These instructions follow industry best practices for code quality assessment and transform review processes into comprehensive quality gates that ensure consistent code standards, identify potential issues, and facilitate knowledge transfer across development teams through structured review protocols.
+
+## Process Overview
+
+**Code Review Standards Implementation** transforms quality assurance requirements into structured review processes that deliver consistent code quality through systematic evaluation criteria, automated analysis integration, constructive feedback protocols, and comprehensive quality gates ensuring code meets standards before integration while facilitating team knowledge sharing and continuous improvement.
+
+## Implementation Process
 
 ## Review Purpose
 Ensure code quality, maintainability, security, and compliance with project standards before merging.

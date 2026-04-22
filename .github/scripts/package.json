@@ -1,0 +1,26 @@
+{
+  "name": "gene2-framework-scripts",
+  "version": "2.0.0",
+  "description": "AI-First Delivery Framework automation and initialization scripts",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node cli.mjs",
+    "init-framework": "node init-framework.mjs",
+    "init-client": "node init-client-repo.mjs",
+    "verify": "node verify-framework.mjs",
+    "cleanup": "node cleanup-old-framework.mjs",
+    "help": "node cli.mjs --help"
+  },
+  "keywords": [
+    "ai-first-delivery",
+    "framework",
+    "automation",
+    "gene2-core"
+  ],
+  "author": "Palo IT",
+  "license": "MIT",
+  "dependencies": {}
+}

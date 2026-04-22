@@ -1,0 +1,78 @@
+metadata:
+  id: "EPIC-003"
+  title: "Agent Customization"
+  version: "1.0.0"
+  date: "2026-04-22"
+  author: "Product Owner"
+  
+  template:
+    source: ".github/templates/epic-tmpl.yml"
+    compliance: "COMPLIANT"
+  
+  related_documents:
+    user_stories: ["EPIC-003-US-001", "EPIC-003-US-002", "EPIC-003-US-003"]
+    dependencies: ["docs/01-requirements/requirements.md"]
+  
+  status: "Planned"
+  required_approvers: ["Product Owner", "Solution Architect"]
+
+basic_info:
+  name: "Agent Customization"
+  description: "Enable developers to customize agent sprites, personalities, and skill definitions for personalized workflow experiences."
+  epic_key: "EPIC-003"
+
+business_value:
+  objectives:
+    - "Allow personalization of agent appearances and behaviors"
+    - "Reduce 'black box' perception of AI agents through customization"
+    - "Enable team-specific agent configurations"
+  
+  success_metrics:
+    - "Custom sprite upload and assignment working for all agents"
+    - "Agent personality traits affect animation and interaction styles"
+    - "Custom configurations persist across sessions"
+
+scope:
+  description: "Phase 3 focuses on personalization: agent sprite editor, personality configuration, and skill builder."
+  
+  includes:
+    - "Agent sprite editor for custom character design"
+    - "Agent personality configuration system"
+    - "Skill builder for defining agent capabilities"
+    - "Agent registry enhancement with custom metadata"
+  
+  excludes:
+    - "Community asset marketplace (EPIC-005)"
+    - "Multi-framework adapters (EPIC-005)"
+
+technical_requirements:
+  - "File upload and validation system"
+  - "Sprite rendering with custom images"
+  - "Personality trait state management"
+  - "Persistent configuration storage"
+
+dependencies:
+  external: ["Canvas 2D API"]
+  internal: ["EPIC-001"]
+
+acceptance_criteria: |
+  - Custom sprite images loadable from user filesystem
+  - Agent personality traits affect animation selection
+  - Custom configurations saved to workspace state
+  - Sprite editor provides intuitive controls
+  - Skill definitions stored in .github/agents/ metadata
+
+timeline:
+  start_date: "2026-05-21"
+  target_end_date: "2026-06-03"
+  duration_days: 14
+  estimated_effort: "13 story points"
+
+status_tracking:
+  status: "Not Started"
+  progress_percentage: 0
+  blockers: ["EPIC-001 must be complete"]
+
+notes: |
+  This epic personalizes the user experience by allowing customization of agent appearances.
+  Enhances emotional connection to AI agents through visual and personality customization.

@@ -1,11 +1,138 @@
 
-# Start Legacy Replatforming Project
+## Objective
+Create a comprehensive legacy replatforming project with structured approach to modernizing existing applications while maintaining system integrations and business continuity.
 
-We will create a new AI-PDLC project, that will be a legacy replatforming project. 
+## Context
+You are establishing an AI-first delivery project specifically focused on replatforming legacy applications. This requires systematic analysis of existing systems, migration planning, and modern architecture implementation while preserving critical business functionality and data integrity.
 
-## Questions to Ask
+## Requirements
 
-Ask the following questions BEFORE proceeding. DO NOT PROCEED WITHOUT THE ANSWER TO THESE QUESTIONS:
+### Pre-Implementation Discovery
+Conduct thorough stakeholder consultation to gather essential information:
+
+1. **Project Goals & Requirements**:
+   - What are the primary project goals and business drivers for replatforming?
+   - Which key features of the legacy application must be preserved or enhanced?
+   - Are there specific compliance, security, or regulatory requirements?
+   - What business problems will the replatforming solve?
+
+2. **Infrastructure & Architecture**:
+   - Which cloud provider will be used (AWS/Azure/GCP)?
+   - What is the target architecture pattern (microservices/serverless/containerized)?
+   - Preferred Infrastructure as Code format (Terraform/CloudFormation/ARM)?
+   - Performance and scalability requirements?
+
+3. **Legacy Application Analysis**:
+   - What is the current legacy application technology stack?
+   - What are the key challenges and pain points with the current system?
+   - Are there existing system interfaces or integrations that must be maintained?
+   - Where is documentation for current interfaces and dependencies located?
+   - Are there specific requirements for the replatforming process (data preservation, user experience continuity)?
+
+4. **Technical Strategy**:
+   - API-first or frontend-first development approach?
+   - API architecture preference (RESTful/GraphQL/microservices)?
+   - Required programming languages and frameworks for new platform?
+   - Database migration and data storage strategy?
+
+## Deliverables
+
+### 1. Enhanced Project Structure
+Create comprehensive directory structure including legacy analysis:
+
+```
+.
+├── README.md                    # Project overview and replatforming goals
+├── LegacyApps/                 # Legacy application analysis
+│   ├── legacy-app/            # Source legacy application code
+│   └── docs/                  # Legacy system documentation
+├── scripts/                    # Project management and migration scripts
+│   ├── manage.sh              # Service management
+│   ├── setup.sh               # Dependency installation
+│   ├── init_db.sh             # Database initialization
+│   └── migrate.sh             # Data migration scripts
+├── src/                        # Source code generation root
+│   ├── backend/               # Modern backend application components
+│   │   └── src/              # Backend source code (API, services, data)
+│   └── frontend/              # Modern frontend application components
+│       └── src/              # Frontend source code (web, mobile)
+├── docs/                       # Comprehensive project documentation
+│   ├── legacy-app/            # Legacy system analysis
+│   ├── features/              # Feature documentation (current and new)
+│   ├── migration/             # Migration strategy and plans
+│   ├── CriticalFeatures.md    # Priority features for initial implementation
+│   ├── meeting-transcripts/   # Project meeting records
+│   ├── index.md               # Master documentation index
+│   └── CONTRIBUTE.md          # Development guidelines
+└── infra/                      # Infrastructure as Code
+    ├── modules/               # Reusable infrastructure modules
+    ├── tf-components/         # Terraform components
+    └── docs/                  # Infrastructure documentation
+```
+
+### 2. Legacy Application Documentation
+Comprehensive analysis in `docs/legacy-app/`:
+- Current architecture documentation and system diagrams
+- Data structure analysis and migration requirements
+- User experience documentation and workflow analysis
+- Interface documentation for external system connections
+- Feature inventory with prioritization for replatforming
+- Technical debt assessment and modernization opportunities
+
+### 3. Migration Strategy Documentation
+Create detailed migration planning:
+- **Migration Plan** (`docs/migration/`): Phased approach to system migration
+- **Data Migration Strategy**: ETL processes, data validation, and rollback procedures
+- **Interface Preservation**: Maintaining external system connections during transition
+- **User Migration**: Training and transition planning for end users
+
+### 4. Critical Features Analysis
+- **Feature Prioritization** (`docs/CriticalFeatures.md`): Business-critical features requiring immediate implementation
+- **Feature Documentation** (`docs/features/`): Detailed specifications for each feature to be replatformed
+- Risk assessment and mitigation strategies for high-priority features
+
+### 5. Infrastructure and Deployment Strategy
+- **Infrastructure Documentation** (`docs/infrastructure.md`): Target architecture with cloud-specific services
+- **Deployment Strategy** (`docs/deployment/`): CI/CD pipelines and deployment automation
+- **Monitoring Strategy** (`docs/monitoring/`): Observability, logging, and alerting for new platform
+- **Security Strategy** (`docs/security/`): Security controls, compliance, and data protection
+
+### 6. Development Environment Setup
+- **Development Guidelines** (`docs/development-environment.md`): Local development setup and tools
+- **API Documentation Framework**: OpenAPI specifications and integration guides
+- **Testing Strategy** (`docs/testing/`): Test frameworks, coverage requirements, and validation approaches
+
+## Quality Standards
+
+- ✅ All stakeholder questions answered comprehensively before project creation
+- ✅ Legacy system analysis is complete with documented interfaces and dependencies
+- ✅ Migration strategy addresses data integrity and business continuity
+- ✅ Critical features identified and prioritized based on business impact
+- ✅ Infrastructure choices align with scalability and compliance requirements
+- ✅ Development environment supports both legacy analysis and modern development
+- ✅ Documentation follows AI-first delivery methodology standards
+- ✅ Risk assessment covers technical, business, and operational concerns
+
+## File Management
+
+### Legacy Analysis Process
+1. Create comprehensive inventory of legacy application components
+2. Document all external interfaces and system dependencies
+3. Analyze data structures and migration complexity
+4. Identify critical business processes requiring preservation
+5. Generate feature prioritization matrix based on business value and technical complexity
+
+### Documentation Organization
+- Maintain clear separation between legacy analysis and modern requirements
+- Create traceability between legacy features and new implementations
+- Establish issue tracking documentation for unclear requirements (`docs/issue-tracker.md`)
+- Generate visual architecture comparisons using PlantUML diagrams
+
+### Project Validation
+- Suggest professional project name reflecting replatforming goals
+- Review and optimize .gitignore files for both legacy and modern codebases
+- Validate all generated files and folder structures
+- Test deployment and migration scripts for functionality
 
 1. **Project goals and requirements**:
    - What are the project goals and requirements?
@@ -43,14 +170,11 @@ Ask the following questions BEFORE proceeding. DO NOT PROCEED WITHOUT THE ANSWER
 │   ├── manage.sh -- Manages servers and services (start,stop,status)
 │   ├── setup.sh -- Installs project dependencies
 │   ├── init_db.sh -- Initializes the database (if required)
-├── apps/ -- Contains the frontend application
-│   ├── mobile/ -- Contains the mobile application
-│   └── web/ -- Contains the web application
-├── backend/ -- Contains the backend application
-│   ├── api/ -- Contains the API code
-│   ├── services/ -- Contains the services code
-│   ├── data/ -- Contains the data access code (e.g., database, SQL, ORM, etc.)
-│   └── docs/ -- Contains backend documentation
+├── src/ -- Contains source code generation root
+│   ├── backend/ -- Contains the backend application components
+│   │   └── src/ -- Contains backend source code (API, services, data, ORM)
+│   └── frontend/ -- Contains the frontend application components
+│       └── src/ -- Contains frontend source code (web, mobile)
 ├── docs/ -- Contains project documentation
 │   ├── features/ -- Contains documentation for project features (one file per feature)
 │   ├── project-overview/ -- Contains an overview of the project

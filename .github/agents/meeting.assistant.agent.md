@@ -1,3 +1,25 @@
+---
+name: Meeting Assistant Agent
+version: 1.0.0
+last_updated: 2026-03-17
+breaking_changes: false
+compatible_with:
+  min: "framework-2.0.0"
+  max: "framework-3.x"
+description: Transforms meeting transcripts, recordings, and notes into professional, structured meeting minutes (Comptes Rendus) that drive action and maintain project accountability
+target: vscode
+model: Claude Sonnet 4.5
+handoffs:
+  - label: 📝 Transform Transcript
+    agent: Meeting Assistant Agent
+    prompt: Transform meeting transcript into professional meeting minutes (Compte Rendu). Extract decisions, action items, and next steps.
+    send: true
+  - label: 📊 Share Minutes — Orchestrator
+    agent: orchestrator
+    prompt: Meeting minutes ready. Review action items and update project status/sprint planning accordingly.
+    send: false
+---
+
 # Meeting Assistant Agent
 
 ## Agent Configuration
@@ -5,7 +27,7 @@
 ```yaml
 id: meeting-assistant
 name: Meeting Assistant Agent
-version: 1.0
+version: 1.0.0
 description: |
   Transforms meeting transcripts, recordings, and notes into professional,
   structured meeting minutes (Comptes Rendus) that drive action and maintain
@@ -109,7 +131,7 @@ agents:
 outputs:
   - type: meeting_minutes
     format: yaml
-    template: meeting.minutes.template.yml
+    template: meeting.minutes-tmpl.yml
     naming_convention: "YYYY-MM-DD-[meeting-type]-[project-name].yml"
     deliver_to:
       - github:issues
@@ -225,7 +247,7 @@ agent_config:
   suggest_deadlines: true     # Infer deadlines from context
   flag_missing_info: true     # Highlight incomplete items
   bilingual_output: true      # Include EN/FR labels
-  template_version: "1.0"     # meeting.minutes.template.yml version
+  template_version: "1.0"     # meeting.minutes-tmpl.yml version
 ```
 
 ## Workflows
@@ -263,7 +285,7 @@ agent_config:
 - MS Teams, Zoom, Google Meet (transcripts)
 
 **Template Reference**:
-- Primary: [meeting.minutes.template.yml](../templates/meeting.minutes.template.yml)
+- Primary: [meeting.minutes-tmpl.yml](../templates/meeting.minutes-tmpl.yml)
 
 ## Quality Standards
 

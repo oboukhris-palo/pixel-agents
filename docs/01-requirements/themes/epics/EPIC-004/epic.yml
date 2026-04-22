@@ -1,0 +1,79 @@
+metadata:
+  id: "EPIC-004"
+  title: "Multi-Project Coordination"
+  version: "1.0.0"
+  date: "2026-04-22"
+  author: "Product Owner"
+  
+  template:
+    source: ".github/templates/epic-tmpl.yml"
+    compliance: "COMPLIANT"
+  
+  related_documents:
+    user_stories: ["EPIC-004-US-001", "EPIC-004-US-002", "EPIC-004-US-003"]
+    dependencies: ["docs/01-requirements/requirements.md"]
+  
+  status: "Planned"
+  required_approvers: ["Product Owner", "Solution Architect"]
+
+basic_info:
+  name: "Multi-Project Coordination"
+  description: "Scale Pixel Agents to handle multiple concurrent projects with shared context and activity tracking."
+  epic_key: "EPIC-004"
+
+business_value:
+  objectives:
+    - "Enable monitoring of multiple projects in parallel"
+    - "Share context and best practices across projects"
+    - "Provide holistic view of team productivity"
+  
+  success_metrics:
+    - "Switch between 5+ projects seamlessly"
+    - "Activity history persists across projects"
+    - "Shared context accessible across projects"
+
+scope:
+  description: "Phase 4 focuses on scalability: multi-project dashboard, project switching, shared context management, and activity history."
+  
+  includes:
+    - "Project switcher UI component"
+    - "Multi-project dashboard aggregation"
+    - "Shared agent activity history"
+    - "Cross-project context sharing"
+    - "Workspace/worktree integration"
+  
+  excludes:
+    - "Cloud synchronization (beyond scope for MVP)"
+    - "Team collaboration features (future enhancement)"
+
+technical_requirements:
+  - "Multi-workspace support"
+  - "Project metadata management"
+  - "Activity history persistence"
+  - "Context aggregation and filtering"
+
+dependencies:
+  external: ["VS Code Workspace API"]
+  internal: ["EPIC-001", "EPIC-002"]
+
+acceptance_criteria: |
+  - Project switcher allows selection from all open workspaces
+  - Dashboard updates when switching projects
+  - Activity history aggregates across all projects
+  - Shared context accessible and searchable
+  - Worktree support for parallel development
+
+timeline:
+  start_date: "2026-06-04"
+  target_end_date: "2026-06-17"
+  duration_days: 14
+  estimated_effort: "13 story points"
+
+status_tracking:
+  status: "Not Started"
+  progress_percentage: 0
+  blockers: ["EPIC-001, EPIC-002 must be complete"]
+
+notes: |
+  This epic scales Pixel Agents from single-project to multi-project use cases.
+  Critical for supporting teams working on multiple concurrent initiatives.

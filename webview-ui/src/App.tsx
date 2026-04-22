@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { OfficeState } from './office/engine/officeState.js'
 import { OfficeCanvas } from './office/components/OfficeCanvas.js'
 import { ToolOverlay } from './office/components/ToolOverlay.js'
@@ -15,6 +15,8 @@ import { ZoomControls } from './components/ZoomControls.js'
 import { BottomToolbar } from './components/BottomToolbar.js'
 import { DebugView } from './components/DebugView.js'
 import { AgentRegistry } from './components/AgentRegistry.js'
+import { WorkflowStatusBar } from './components/WorkflowStatusBar.js'
+import { spawnPlaceholderAgents } from './office/engine/placeholderAgents.js'
 
 // Game state lives outside React — updated imperatively by message handlers
 const officeStateRef = { current: null as OfficeState | null }
@@ -122,7 +124,7 @@ function App() {
 
   const isEditDirty = useCallback(() => editor.isEditMode && editor.isDirty, [editor.isEditMode, editor.isDirty])
 
-  const { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, workspaceFolders, agentMetadata, githubFileAccess } = useExtensionMessages(getOfficeState, editor.setLastSavedLayout, isEditDirty)
+  const { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, workspaceFolders, agentMetadata, githubFileAccess, workflowState } = useExtensionMessages(getOfficeState, editor.setLastSavedLayout, isEditDirty)
 
   const [isDebugMode, setIsDebugMode] = useState(false)
 
@@ -160,6 +162,14 @@ function App() {
   }, [])
 
   const officeState = getOfficeState()
+
+  // Spawn placeholder agents when layout and metadata are ready
+  useEffect(() => {
+    if (layoutReady && agentMetadata.length > 0) {
+      console.log(`[App] Spawning ${agentMetadata.length} placeholder agents`)
+      spawnPlaceholderAgents(officeState, agentMetadata, agents)
+    }
+  }, [layoutReady, agentMetadata, agents])
 
   // Force dependency on editorTickForKeyboard to propagate keyboard-triggered re-renders
   void editorTickForKeyboard
@@ -210,6 +220,8 @@ function App() {
         onZoomChange={editor.handleZoomChange}
         panRef={editor.panRef}
       />
+
+      <WorkflowStatusBar workflowState={workflowState} />
 
       <ZoomControls zoom={editor.zoom} onZoomChange={editor.handleZoomChange} />
 

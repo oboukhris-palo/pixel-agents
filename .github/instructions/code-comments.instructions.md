@@ -3,7 +3,17 @@ description: Standards for inline code comments and API documentation
 applyTo: "src/**"
 ---
 
-# Code Comments Standards
+# Code Comments Standards Instructions
+
+## Overview
+
+This document provides systematic instructions for inline code comments and API documentation standards using the AI-first delivery methodology. These instructions follow established documentation principles and transform code comprehension requirements into structured commenting practices that enhance code readability, explain business logic rationale, and provide comprehensive API documentation while avoiding redundant or obvious comments.
+
+## Process Overview
+
+**Code Comments Standards Implementation** transforms code clarity requirements into systematic commenting practices that deliver enhanced code readability through meaningful inline documentation, comprehensive API documentation using standard formats (JSDoc/docstrings), business logic explanation, and security/performance annotations while maintaining focus on WHY explanations rather than WHAT descriptions.
+
+## Implementation Process
 
 ## Core Principle
 **Comment the WHY, not the WHAT**. Code should be self-explanatory (what it does), but comments explain reasoning (why it exists, why this approach, what constraints/assumptions).
@@ -133,7 +143,7 @@ Use JSDoc for TypeScript/JavaScript, docstrings for Python:
  * Upgrades user subscription to specified tier.
  * 
  * WHY: Synchronizes both User.tier and Subscription.tier to prevent data inconsistency.
- * Critical for AUTH-003 BDD scenario compliance.
+ * Critical for US-XXX BDD scenario compliance.
  * 
  * @param userId - UUID of user to upgrade
  * @param targetTier - Tier to upgrade to ('free' | 'premium' | 'enterprise')

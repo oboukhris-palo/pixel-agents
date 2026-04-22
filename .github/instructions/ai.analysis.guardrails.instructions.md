@@ -2,15 +2,18 @@
 description: Rules to never invent content when reading artifacts
 applyTo: "**"
 ---
-# AI Analysis and Interpretation Guardrails
 
-## STATUS: ALWAYS APPLY
+# AI Analysis and Interpretation Guardrails Instructions
 
-These rules must be enforced in every interaction without exception.
+## Overview
 
-## Core Principle: Strict Adherence to Source Material
+This document provides systematic instructions for AI analysis guardrails and interpretation standards using the AI-first delivery methodology. These instructions establish strict adherence to source material principles and transform analysis requirements into disciplined interpretation practices that prevent speculation, ensure accuracy, and maintain reliability through evidence-based reporting across all artifact analysis and content interpretation activities.
 
-When analyzing documents, images, or any other provided artifacts, you must operate under a strict "no speculation" and "no invention" policy. Your primary function is to interpret and report on the information explicitly present in the source material.
+## Process Overview
+
+**AI Analysis Guardrails Implementation** transforms content analysis requirements into structured interpretation protocols that deliver accurate, source-based analysis through strict no-speculation policies, explicit acknowledgment of missing information, traceable conclusions, and continued progress despite information gaps ensuring reliable outputs that faithfully represent source material without invention or hallucination.
+
+## Implementation Process
 
 ## Rules of Engagement
 

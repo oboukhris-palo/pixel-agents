@@ -38,6 +38,7 @@ export const CharacterState = {
   IDLE: 'idle',
   WALK: 'walk',
   TYPE: 'type',
+  HANDOFF: 'handoff',
 } as const
 export type CharacterState = (typeof CharacterState)[keyof typeof CharacterState]
 
@@ -195,4 +196,20 @@ export interface Character {
   matrixEffectSeeds: number[]
   /** Workspace folder name (only set for multi-root workspaces) */
   folderName?: string
+  /** Placeholder character (shows idle agent, not a real runtime agent) */
+  isPlaceholder?: boolean
+  /** Agent role/name for placeholder characters (e.g., "orchestrator", "dev-lead") */
+  agentRole?: string
+  /** Target agent ID for handoff animation, or null if not in handoff */
+  handoffTargetId: number | null
+  /** Handoff animation stage */
+  handoffState: 'walking-to' | 'transferring' | 'walking-back' | null
+  /** Animation progress timer (0 = start, 1 = complete) */
+  handoffProgress: number
+  /** Visual handoff indicator: is this agent currently sending/receiving a handoff? */
+  isHandingOff?: boolean
+  /** Visual handoff indicator: target agent role name for display */
+  handoffTargetRole?: string
+  /** Visual handoff indicator: start timestamp for auto-clear */
+  handoffStartTime?: number
 }

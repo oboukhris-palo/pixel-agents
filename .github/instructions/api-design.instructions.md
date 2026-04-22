@@ -3,14 +3,210 @@ description: API design standards and OpenAPI specification generation
 applyTo: "api/**,src/controllers/**,src/routes/**"
 ---
 
-# API Design Standards
+# API Design Standards Instructions
 
-## Core Principle
-**APIs are contracts**. Design for consumers first (external developers, frontend teams), not internal convenience.
+## Overview
+
+This document provides systematic instructions for API design and OpenAPI specification generation using the AI-first delivery methodology. These instructions follow industry REST API best practices and transform API requirements into comprehensive, well-documented API specifications that deliver consistent, secure, and consumer-focused interfaces with complete OpenAPI 3.0 documentation.
+
+## Process Overview
+
+**API Design Standards Implementation** transforms functional requirements into structured, production-ready API specifications that provide consistent REST endpoints, comprehensive validation rules, security implementations, and complete OpenAPI documentation enabling seamless integration for consumers while maintaining high standards for reliability and maintainability.
+
+## Implementation Process
+
+### 1. RESTful API Design Foundation
+**Objective**: Establish resource-based URL structure and HTTP method conventions
+
+**Activities**:
+- Design resource-based URLs using nouns, not verbs (e.g., /api/users, not /api/getUsers)
+- Apply appropriate HTTP methods (GET, POST, PUT, PATCH, DELETE) with correct semantics
+- Limit nested resources to maximum 2 levels for maintainability
+- Implement consistent status code usage (2xx success, 4xx client errors, 5xx server errors)
+
+**Quality Standards**:
+- All endpoints follow resource-based naming conventions
+- HTTP methods are semantically correct and idempotent where appropriate
+- Status codes accurately reflect operation results
+- URL nesting remains manageable and logical
+
+### 2. Request/Response Format Standardization
+**Objective**: Implement consistent JSON format and error handling across all endpoints
+
+**Activities**:
+- Establish consistent response envelope format with success/error indicators
+- Design comprehensive error response format with codes, messages, and details
+- Implement request validation with clear error messaging
+- Apply consistent field naming conventions (camelCase recommended)
+
+**Quality Standards**:
+- All responses use consistent envelope format
+- Error responses provide actionable diagnostic information
+- Field names follow established case conventions consistently
+- Request/response schemas are well-defined and validated
+
+### 3. OpenAPI 3.0 Specification Generation
+**Objective**: Create comprehensive API documentation using OpenAPI 3.0 standard
+
+**Activities**:
+- Generate complete OpenAPI specification with all endpoints, schemas, and examples
+- Document authentication and authorization requirements
+- Define component schemas for reusable request/response models
+- Include operation descriptions with business context and rate limiting details
+
+**Quality Standards**:
+- OpenAPI specification passes validation tools
+- All endpoints include comprehensive documentation and examples
+- Security schemes are properly defined and referenced
+- Component schemas eliminate duplication and ensure consistency
+
+### 4. Security and Validation Implementation
+**Objective**: Apply comprehensive security measures and input validation
+
+**Activities**:
+- Implement JWT Bearer token authentication with proper validation
+- Apply input validation at API boundary using schema validation libraries
+- Design rate limiting strategies appropriate for each endpoint
+- Implement request tracing and logging for debugging and monitoring
+
+**Quality Standards**:
+- Authentication is required for all protected endpoints
+- Input validation prevents malformed requests from reaching business logic
+- Rate limits protect against abuse while allowing normal usage
+- Security configurations follow principle of least privilege
+
+### 5. Versioning and Evolution Strategy
+**Objective**: Establish API versioning strategy for backward compatibility and evolution
+
+**Activities**:
+- Implement URL-based versioning strategy (/api/v1/, /api/v2/)
+- Design backward compatibility maintenance approach
+- Establish deprecation timeline and communication strategy
+- Document breaking change policies and migration procedures
+
+**Quality Standards**:
+- Versioning strategy is consistently applied across all endpoints
+- Version changes maintain backward compatibility where possible
+- Deprecation process provides adequate migration time for consumers
+- API evolution follows semantic versioning principles
+
+## File Location Standards
+
+**Output Location**: Store API specifications and implementation following established project structure
+
+**Source Materials**:
+- **OpenAPI Specification**: `/api/openapi.yaml` (mandatory location for all projects)
+- **API Controllers**: `src/controllers/`, `src/routes/`, `api/` following project conventions
+- **Validation Schemas**: Co-located with controllers or in dedicated `schemas/` directory
+- **API Documentation**: Generated from OpenAPI spec, served at `/docs` or `/swagger` endpoint
+
+## Quality Assurance Process
+
+### Pre-Implementation Validation
+- ✅ Business requirements fully understood and API contracts defined
+- ✅ Resource modeling completed with clear entity relationships
+- ✅ Authentication and authorization requirements specified
+- ✅ Rate limiting and performance requirements established
+
+### Post-Implementation Review
+- ✅ OpenAPI specification validates successfully using OpenAPI tools
+- ✅ All endpoints follow consistent REST conventions and naming
+- ✅ Error handling provides clear diagnostic information
+- ✅ Security controls prevent unauthorized access and validate inputs
+- ✅ API documentation is comprehensive and includes working examples
+
+### Confidence Validation Requirements
+- **REST Compliance**: All endpoints follow resource-based design and correct HTTP semantics
+- **Security Validation**: Authentication works correctly and input validation prevents malformed requests
+- **Documentation Quality**: OpenAPI specification is complete, accurate, and generates usable documentation
+- **Consumer Experience**: API is intuitive for consumers and provides clear feedback for errors
+
+## Integration with Overall Assessment
+
+API Design Standards serve as foundational inputs for:
+- **Frontend Integration**: Consistent interfaces enable reliable frontend development and client SDK generation
+- **Security Architecture**: API security controls integrate with overall application security strategy
+- **Testing Strategy**: Well-defined APIs enable comprehensive contract testing and validation
+- **Developer Experience**: High-quality documentation improves developer onboarding and reduces integration time
+
+## API Design Reference Standards
+
+### Core Design Principles
+- **APIs as Contracts**: Design for consumers first, not internal convenience
+- **Resource-Based URLs**: Use nouns for resources (/api/users), verbs for HTTP methods (GET, POST)
+- **Consistent Responses**: Standardized success/error envelope format across all endpoints
+- **Comprehensive Documentation**: Every endpoint documented with examples and error scenarios
+
+### RESTful Conventions
+```
+GET    /api/users               # List users
+GET    /api/users/123           # Get specific user
+POST   /api/users               # Create new user
+PUT    /api/users/123           # Replace entire user
+PATCH  /api/users/123           # Update specific fields
+DELETE /api/users/123           # Delete user
+```
+
+### Response Format Standards
+**Success Response**:
+```json
+{
+  "success": true,
+  "data": { /* response payload */ },
+  "meta": {
+    "requestId": "req_abc123",
+    "timestamp": "2026-03-31T10:30:00Z"
+  }
+}
+```
+
+**Error Response**:
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid input provided",
+    "details": { /* specific error information */ }
+  },
+  "meta": {
+    "requestId": "req_def456", 
+    "timestamp": "2026-03-31T10:32:00Z"
+  }
+}
+```
+
+### HTTP Status Code Usage
+- **200 OK**: Successful GET, PUT, PATCH
+- **201 Created**: Successful POST (resource created)
+- **204 No Content**: Successful DELETE
+- **400 Bad Request**: Invalid input (validation failure)
+- **401 Unauthorized**: Authentication required
+- **403 Forbidden**: Authenticated but not authorized
+- **404 Not Found**: Resource doesn't exist
+- **409 Conflict**: Resource state conflict
+- **429 Too Many Requests**: Rate limit exceeded
+- **500 Internal Server Error**: Unexpected server failure
+
+### OpenAPI 3.0 Requirements
+- **Mandatory Location**: `/api/openapi.yaml` in project root
+- **Complete Specification**: All endpoints, schemas, security, and examples
+- **Component Reuse**: Shared schemas, parameters, and response formats
+- **Security Documentation**: Authentication methods and authorization requirements
 
 ---
 
-## RESTful API Conventions
+**Related Resources**:
+- [Coding Standards Instructions](coding.instructions.md)
+- [Security Guidelines](../security/security-requirements.md)
+- [Test Strategy Instructions](test-strategy.instructions.md)
+- [OpenAPI 3.0 Specification](https://spec.openapis.org/oas/v3.0.3)
+
+---
+
+**Document Status**: Active Framework | **Version**: 1.0 | **Last Updated**: March 31, 2026  
+**Scope**: AI-first delivery API Development Standards  
+**Usage**: API design standards implementation for AI-first delivery methodology
 
 ### Resource-Based URLs (Nouns, Not Verbs)
 ✅ **GOOD**:
@@ -178,7 +374,7 @@ paths:
       summary: Upgrade user subscription tier
       description: |
         Upgrades a user's subscription to the specified tier. This operation:
-        - Synchronizes User.tier and Subscription.tier (critical for AUTH-003)
+        - Synchronizes User.tier and Subscription.tier (critical for US-XXX)
         - Charges payment method
         - Activates new tier immediately
         
@@ -546,6 +742,6 @@ Before finalizing API design:
 ---
 
 **Reference**:
-- [architecture-design.md]( ../../docs/prd/architecture-design.md) for system architecture
-- [tech-spec.md](../../docs/prd/tech-spec.md) for technology stack decisions
+- [architecture-design.md](../../docs/02-architecture/architecture-design.md) for system architecture
+- [tech-spec.md](../../docs/02-architecture/tech-spec.md) for technology stack decisions
 - OpenAPI Generator: https://openapi-generator.tech for client SDK generation

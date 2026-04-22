@@ -1,0 +1,164 @@
+---
+# Human Validation Gate for Implementation Plan
+# Location: /docs/05-implementation/epics/EPIC-001/user-stories/US-001-001/plan-approval.yaml
+# Purpose: Require human approval before TDD execution begins or resumes after plan changes
+# Status: approved | changes-requested | revoked
+---
+
+metadata:
+  templateId: "plan-approval"
+  templateVersion: "2.0"
+  documentType: "gate-checkpoint"
+  title: "Plan Approval Gate: US-001-001"
+  agent_context:
+    phase: "implementation"
+    epic_ref: "EPIC-001"
+    user_story_ref: "US-001-001"
+    agent_name: "dev-lead"
+    model_name: "claude-3.5-sonnet"
+
+story: US-001-001
+plan_version: v1
+epic: EPIC-001
+title: "Task Progression Bar Implementation"
+
+scope: 
+  - Layer1
+  - Layer2
+  - Layer3
+  - Layer4
+
+risk: medium
+
+approvers:
+  - role: dev-lead
+    name: Sebastian (Tech Lead)
+    approved: true
+    date: 2026-04-22
+    notes: "Implementation plan reviewed and validated. Architecture follows established patterns. BDD scenarios comprehensive. Ready for TDD execution."
+
+status: approved
+
+validation_checklist:
+  - item: "Implementation plan follows layer architecture (Layer 1-4 defined)"
+    verified: true
+  - item: "BDD scenarios map to implementation layers (9 scenarios covered)"
+    verified: true
+  - item: "All external dependencies documented and available (VS Code Extension API, React, TypeScript)"
+    verified: true
+  - item: "No database migrations required (Layer 1 is type definitions only)"
+    verified: true
+  - item: "Error handling strategy defined (graceful fallbacks for missing data)"
+    verified: true
+  - item: "Performance requirements specified (<500ms updates, debouncing)"
+    verified: true
+  - item: "Accessibility requirements addressed (WCAG 2.1 AA, keyboard nav, ARIA labels)"
+    verified: true
+  - item: "Layer sequence optimized (Foundation → Communication → UI)"
+    verified: true
+
+technical_review:
+  architecture_alignment: true
+  bdd_coverage: true
+  dependencies_clear: true
+  risk_mitigation_adequate: true
+  estimation_reasonable: true
+
+notes: |
+  ✅ APPROVED FOR TDD EXECUTION
+
+  **Plan Quality**: High confidence in layer breakdown and BDD mapping.
+  
+  **Key Strengths**:
+  - Clear 4-layer architecture (Types → Backend → Protocol → Frontend)
+  - Comprehensive BDD coverage (9 scenarios: 6 essential, 3 edge cases)
+  - Well-defined TDD cycle estimates (8 cycles over 2 days)
+  - Risk mitigation strategies documented
+  - Performance targets explicit (<500ms updates)
+  - Accessibility requirements detailed
+
+  **Potential Challenges Identified**:
+  - File parsing complexity if user-stories.md format inconsistent (mitigation: robust error handling)
+  - VS Code file navigation API may have limitations (mitigation: test early, fallback to tooltips)
+  - Performance with large files (mitigation: pagination if needed)
+
+  **Recommendation**: Proceed with TDD execution starting Layer 1 (Type definitions).
+  
+  **Next Steps**:
+  1. TDD Orchestrator to begin with Layer 1 (Type definitions) - estimated 1 cycle
+  2. Progress to Layer 2 (Backend services) - estimated 3 cycles
+  3. Implement Layer 3 (Message protocol) - estimated 1 cycle
+  4. Complete with Layer 4 (Frontend components) - estimated 3 cycles
+
+  **Review Trigger**: Re-approval required if:
+  - Layer architecture changes significantly
+  - BDD scenarios are modified
+  - New external dependencies are introduced
+  - Performance targets need adjustment
+
+---
+
+# Approval Authority
+
+approved_by: dev-lead
+approval_date: 2026-04-22
+approval_timestamp: 2026-04-22T10:30:00Z
+
+# Plan Snapshot Reference
+current_plan: implementation-plan.md
+plan_snapshots:
+  - version: v1
+    file: implementation-plan.md
+    date: 2026-04-22
+    status: current
+
+---
+
+# TDD Execution Clearance
+
+tdd_execution_permitted: true
+layers_approved: [Layer1, Layer2, Layer3, Layer4]
+estimated_cycles: 8
+estimated_duration: "2 days (full-time TDD)"
+start_permission_granted: 2026-04-22
+
+yolo_mode_eligible: true
+yolo_mode_notes: "Low-risk story with comprehensive BDD coverage. YOLO mode permitted for experienced developers after first cycle validation."
+
+---
+
+# Quality Gates
+
+minimum_test_coverage: 80%
+bdd_scenarios_required: 9
+code_review_required: true
+accessibility_audit_required: true
+performance_benchmarks:
+  - metric: "File change to UI update latency"
+    target: "<500ms"
+    critical: true
+  - metric: "Component render time"
+    target: "<100ms"
+    critical: false
+  - metric: "Memory usage (file watcher)"
+    target: "No leaks after 8 hours"
+    critical: true
+
+---
+
+# Change Management
+
+last_modified: 2026-04-22
+modification_count: 0
+requires_reapproval_if:
+  - plan_version_incremented: true
+  - layer_architecture_changed: true
+  - bdd_scenarios_modified: true
+  - risk_level_increased: true
+  - new_external_dependencies: true
+
+---
+
+**Document Status**: APPROVED AND ACTIVE  
+**TDD Execution**: AUTHORIZED  
+**Next Review**: After Layer 2 completion or on plan modification

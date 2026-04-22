@@ -1,0 +1,49 @@
+# Document Metadata Standard Template
+# This template defines the required metadata structure for ALL documentation generated within this repository.
+# Apply this metadata section to every document, regardless of format (YAML, Markdown, JSON).
+
+metadata:
+  # Document identification
+  id: "[DOC-XXX]"                            # Unique document identifier
+  title: "[Document Title]"                   # Human-readable document title
+  version: "1.0.0"                           # Semantic version
+  date: "[YYYY-MM-DD]"                       # Creation/last update date
+  author: "[Name or Agent]"                  # Document creator
+  
+  # Template and AI tracking
+  template:
+    source: ".github/templates/[template-name].yml"  # Template used
+    compliance: "COMPLIANT | NON-COMPLIANT | CUSTOM"  # Template adherence status
+  
+  ai_generation:
+    model: "[LLM-MODEL-NAME]"               # LLM model used (e.g., "claude-3.5-sonnet", "human-created")
+    generation_date: "[YYYY-MM-DD]"         # When AI generated this document
+  
+  # Document relationships
+  related_documents:
+    user_stories: ["US-XXX", "US-YYY"]      # Related user stories (if applicable)
+    dependencies: ["DOC-XXX"]               # Documents this depends on
+  
+  # Status tracking
+  status: "Draft | In Review | Approved"     # Document lifecycle status
+  required_approvers: ["Product Owner", "Tech Lead"]  # Who must approve
+  
+  # Classification
+  classification: "Internal"                 # Data classification level
+  tags: ["[category]", "[domain]", "[phase]"]  # Searchable tags
+
+# Compliance Warning Messages:
+# - "COMPLIANT": Document follows designated template exactly
+# - "NON-COMPLIANT": Document deviates from template structure - review required
+# - "CUSTOM": Document created without following any standard template - validation recommended
+
+# Template Usage Instructions:
+# 1. Copy this metadata structure to the top of every document
+# 2. Replace all bracketed placeholders with actual values
+# 3. Set compliance_warning appropriately:
+#    - Use "COMPLIANT" when following a template exactly
+#    - Use "NON-COMPLIANT" when template exists but document deviates
+#    - Use "CUSTOM" when no applicable template exists
+# 4. Include LLM model information for AI-generated content
+# 5. Set "human-created" for model field if document was created manually
+# 6. Update version when making significant changes to existing documents

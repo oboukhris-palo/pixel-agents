@@ -13,12 +13,14 @@ This is the source code for the free [Pixel Agents extension for VS Code](https:
 
 - **One agent, one character** — every GitHub Copilot agent gets its own animated character
 - **Live activity tracking** — characters animate based on what the agent is actually doing (writing, reading, running commands)
-- **Agent Registry** — collapsible panel showing all available agents from `.github/agents/` with real-time status
+- **Workflow detection** — automatically detects PDLC stages, implementation phases, and TDD cycles from structured documents in `/docs/`, displaying real-time progress in the status bar
+- **Agent Registry** — collapsible panel showing all available agents from `.github/agents/` with real-time status, descriptions, and capabilities
 - **GitHub directory highlighting** — automatically highlights when agents access `.github/` configuration files
 - **Agent roles and metadata** — displays agent names, descriptions, and capabilities from `.agent.md` definitions
+- **Multi-agent handoff animation** — when one agent completes a task and hands off to another, watch directional arrows, animated path lines, and hear a notification chime
 - **Office layout editor** — design your office with floors, walls, and furniture using a built-in editor
 - **Speech bubbles** — visual indicators when an agent is waiting for input or needs permission
-- **Sound notifications** — optional chime when an agent finishes its turn
+- **Sound notifications** — optional chime when an agent finishes its turn or during handoff transitions
 - **Persistent layouts** — your office design is saved and shared across VS Code windows
 - **Diverse characters** — 6 diverse characters. These are based on the amazing work of [JIK-A-4, Metro City](https://jik-a-4.itch.io/metrocity-free-topdown-character-pack).
 
@@ -88,6 +90,24 @@ When an agent reads, edits, or creates files in the `.github/` directory:
 - The **last accessed file** is shown in the activity status
 - This helps visualize when agents are accessing configuration, workflows, or prompt definitions
 
+## Workflow Status Bar
+
+A status bar at the top of the office displays the current development workflow:
+
+- **Workflow Type** — Shows PDLC, Implementation, CI/CD, or None
+- **Stage/Phase** — Color-coded badges (PDLC stages 1-8, TDD phases: RED/GREEN/REFACTOR)
+- **Active User Story** — Displays the current story being worked on (e.g., "US-001")
+- **Progress Tracking** — Visual progress bar with percentage completion
+- **Real-time Updates** — Automatically updates when documents in `/docs/` change
+
+Workflow detection parses:
+- `/docs/01-requirements/`, `/docs/02-architecture/`, `/docs/03-testing/`, `/docs/04-planning/` — PDLC stage completion
+- `/docs/05-implementation/user-stories.md` — Implementation status and story progress
+- `/docs/05-implementation/epics/<EPIC-REF>/user-stories/<US-REF>/implementation-plan.md` — TDD phase and active layer
+- `/docs/05-implementation/current-sprint.md` — Current sprint info
+
+The status bar hides gracefully if no docs folder is detected.
+
 ## Layout Editor
 
 The built-in editor lets you design your office:
@@ -133,6 +153,16 @@ On extension activation:
 2. Parses YAML frontmatter (name, description, argumentHint)
 3. Sends agent definitions to the webview as `agentMetadataLoaded` message
 4. Agent Registry displays all discovered agents with their metadata
+
+### Workflow Detection
+
+On webview ready:
+1. The extension initializes WorkflowDetector with the workspace root
+2. Scans `/docs/` directory for workflow state indicators
+3. Detects current PDLC stage, implementation phase, user story progress
+4. Sets up FileSystemWatcher to monitor `/docs/**/*.{md,yml,yaml}` files
+5. Sends initial state and forwards updates to webview via `workflowUpdated` message
+6. WorkflowStatusBar renders current state with real-time progress tracking
 
 ### Real-time Status Updates
 
@@ -197,14 +227,20 @@ Completed:
 - ✅ **Agent Registry** — discover and display agents from `.github/agents/`
 - ✅ **GitHub file tracking** — highlight when agents access `.github/` directory
 - ✅ **Agent metadata** — show agent roles, descriptions, and capabilities
+- ✅ **Workflow status bar** — real-time PDLC stage and TDD phase detection from `/docs/` with progress tracking
+- ✅ **Multi-agent display** — show all agents in office layout with automatic desk assignment
+- ✅ **Multi-agent handoff animation** — directional arrows, path lines, and sound effects on agent handoff
 
 In progress / future:
+- **Workflow dashboard** — clickable status bar that opens detailed workflow visualization with timeline and task breakdown
+- **Enhanced workflow tracking** — improved TDD phase detection, epic-level progress tracking, and risk indicators
+- **Agent-workflow integration** — auto-assign agents to workflow stages and highlight which agent is working on which document
+- **Handoff choreography** — customize handoff animation sequences and transition styles
 - **Community assets** — freely usable pixel art tilesets or characters that anyone can use without purchasing third-party assets
 - **Agent creation and definition** — define agents with custom skills, system prompts, names, and skins before launching them
 - **Desks as directories** — click on a desk to select a working directory, drag and drop agents or click-to-assign to move them to specific desks/projects
 - **Git worktree support** — agents working in different worktrees to avoid conflict from parallel work on the same files
 - **Support for other agentic frameworks** — integrate with additional AI coding assistants and agentic frameworks beyond GitHub Copilot
-- **Multi-agent coordination** — visualize interactions and handoffs between multiple agents working collaboratively
 - **Activity history** — show recent files and activities for each agent
 - **Custom office layout templates** — pre-built layouts based on team structure
 

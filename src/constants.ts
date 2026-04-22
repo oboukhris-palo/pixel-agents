@@ -40,3 +40,20 @@ export const WORKSPACE_KEY_AGENTS = 'pixel-agents.agents';
 export const WORKSPACE_KEY_AGENT_SEATS = 'pixel-agents.agentSeats';
 export const WORKSPACE_KEY_LAYOUT = 'pixel-agents.layout';
 export const TERMINAL_NAME_PREFIX = 'Copilot Agent';
+
+// ── Agent Handoff Configuration ──────────────────────────────
+// Mapping of agent roles to their next handoff target
+// When an agent completes a task, trigger handoff animation to next agent
+export const AGENT_HANDOFF_MAP: Record<string, string> = {
+	'orchestrator': 'po',                // Orchestrator → Product Owner
+	'po': 'dev-lead',                    // Product Owner → Tech Lead
+	'dev-lead': 'dev-tdd-red',           // Tech Lead → TDD RED
+	'dev-tdd-red': 'dev-tdd-green',      // TDD RED → TDD GREEN
+	'dev-tdd-green': 'dev-tdd-refactor', // TDD GREEN → TDD REFACTOR
+	'dev-tdd-refactor': 'dev-lead',      // TDD REFACTOR → Tech Lead (next layer)
+	'architect': 'dev-lead',             // Architect → Tech Lead
+	'ba': 'dev-tdd',                     // Business Analyst → TDD
+	'ux': 'dev-lead',                    // UX Designer → Tech Lead
+};
+
+export const HANDOFF_ANIMATION_DURATION_MS = 3000; // Handoff indicator display time
