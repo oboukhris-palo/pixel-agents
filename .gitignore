@@ -4,7 +4,6 @@ dist
 node_modules
 .vscode-test/
 *.vsix
-/logs
 /sprites-export
 .env
 
