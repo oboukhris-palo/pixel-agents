@@ -1,3 +1,4 @@
+.github/
 out
 dist
 node_modules
@@ -18,4 +19,6 @@ yarn-error.log*
 .yarn-integrity
 package-lock.json
 
-.gene2-core/
+# macOS
+.DS_Store
+**/.DS_Store
