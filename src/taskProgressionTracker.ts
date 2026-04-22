@@ -1,28 +1,62 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as vscode from 'vscode';
 import { TaskInfo, TaskProgressionState, TaskStatus, getDefaultTaskState, isValidTaskInfo } from './types';
-import { VALID_TASK_STATUSES } from './constants';
+import { VALID_TASK_STATUSES, TASK_PROGRESSION_UPDATE_DEBOUNCE_MS } from './constants';
+
+// Regular expression patterns for parsing user stories
+const STORY_HEADER_PATTERN = /### (US-\d+-\d+): (.+)/g;
+const STATUS_PATTERN = /\*\*Status\*\*:\s*(\S+)/;
+const EPIC_PATTERN = /\*\*Epic\*\*:\s*(\S+)/;
+const LAYER_PATTERN = /\*\*Layer\*\*:\s*(.+)/;
+const CYCLE_PATTERN = /\*\*Cycle\*\*:\s*(\S+)/;
+const LAYER_EXTRACTION_PATTERN = /(Layer \d+)/;
 
 /**
  * TaskProgressionTracker Service
  * 
- * Monitors and tracks task progression by parsing user-stories.md file
- * and identifying previous, current, and next tasks based on their status.
+ * Monitors and tracks task progression by:
+ * - Parsing user-stories.md file for current project state
+ * - Watching for file changes with debounced updates (when VS Code context available)
+ * - Identifying previous, current, and next tasks based on status
+ * - Emitting events when task progression changes
  * 
  * @example
- * const tracker = new TaskProgressionTracker('/workspace');
+ * // In VS Code extension context
+ * const tracker = new TaskProgressionTracker('/workspace', true);
+ * 
+ * // Register update listener (only available when enableWatcher=true)
+ * tracker.onDidChangeProgression?.(state => {
+ *   console.log('Task changed:', state.current.title);
+ * });
+ * 
+ * // Get current state (works with or without watcher)
  * const state = tracker.getCurrentTaskProgression();
  * console.log(state.current.title); // "Task Progression Bar Implementation"
+ * 
+ * // Cleanup when done
+ * tracker.dispose();
  */
 export class TaskProgressionTracker {
   private workspaceRoot: string;
   private userStoriesPath: string;
+  private fileWatcher: vscode.FileSystemWatcher | null = null;
+  private debounceTimer: NodeJS.Timeout | null = null;
+  private eventEmitter: vscode.EventEmitter<TaskProgressionState> | null = null;
+  
+  /**
+   * Event fired when task progression state changes
+   * Debounced to prevent excessive updates (500ms minimum)
+   * Only available when file watcher is enabled
+   */
+  readonly onDidChangeProgression?: vscode.Event<TaskProgressionState>;
 
   /**
    * Creates a new TaskProgressionTracker instance
    * @param workspaceRoot - Absolute path to workspace root directory
+   * @param enableWatcher - Enable file watching and event emitting (default: false for testing)
    */
-  constructor(workspaceRoot: string) {
+  constructor(workspaceRoot: string, enableWatcher: boolean = false) {
     this.workspaceRoot = workspaceRoot;
     this.userStoriesPath = path.join(
       workspaceRoot,
@@ -30,6 +64,51 @@ export class TaskProgressionTracker {
       '05-implementation',
       'user-stories.md'
     );
+    
+    // Initialize file watcher only when requested (VS Code extension context)
+    if (enableWatcher) {
+      this.eventEmitter = new vscode.EventEmitter<TaskProgressionState>();
+      this.onDidChangeProgression = this.eventEmitter.event;
+      this.initializeFileWatcher();
+    }
+  }
+  
+  /**
+   * Initializes file system watcher for user-stories.md with debounced updates
+   * @private
+   */
+  private initializeFileWatcher(): void {
+    if (!this.eventEmitter) {
+      return; // Watcher not enabled
+    }
+    
+    try {
+      const pattern = new vscode.RelativePattern(
+        this.workspaceRoot,
+        'docs/05-implementation/user-stories.md'
+      );
+      
+      this.fileWatcher = vscode.workspace.createFileSystemWatcher(pattern);
+      
+      // Handle file changes with debouncing
+      const handleChange = () => {
+        if (this.debounceTimer) {
+          clearTimeout(this.debounceTimer);
+        }
+        
+        this.debounceTimer = setTimeout(() => {
+          const state = this.getCurrentTaskProgression();
+          this.eventEmitter?.fire(state);
+        }, TASK_PROGRESSION_UPDATE_DEBOUNCE_MS);
+      };
+      
+      this.fileWatcher.onDidChange(handleChange);
+      this.fileWatcher.onDidCreate(handleChange);
+      
+      console.log('[TaskProgressionTracker] File watcher initialized');
+    } catch (error) {
+      console.error('[TaskProgressionTracker] Failed to initialize file watcher:', error);
+    }
   }
 
   /**
@@ -52,8 +131,7 @@ export class TaskProgressionTracker {
 
     try {
       // Split content by story headers (### US-XXX-XXX: Title)
-      const storyPattern = /### (US-\d+-\d+): (.+)/g;
-      const matches = Array.from(content.matchAll(storyPattern));
+      const matches = Array.from(content.matchAll(STORY_HEADER_PATTERN));
 
       for (let i = 0; i < matches.length; i++) {
         const match = matches[i];
@@ -65,11 +143,11 @@ export class TaskProgressionTracker {
         const endIndex = i < matches.length - 1 ? matches[i + 1].index! : content.length;
         const storyContent = content.substring(startIndex, endIndex);
 
-        // Parse fields from story content
-        const statusMatch = storyContent.match(/\*\*Status\*\*:\s*(\S+)/);
-        const epicMatch = storyContent.match(/\*\*Epic\*\*:\s*(\S+)/);
-        const layerMatch = storyContent.match(/\*\*Layer\*\*:\s*(.+)/);
-        const cycleMatch = storyContent.match(/\*\*Cycle\*\*:\s*(\S+)/);
+        // Parse fields from story content using extracted patterns
+        const statusMatch = storyContent.match(STATUS_PATTERN);
+        const epicMatch = storyContent.match(EPIC_PATTERN);
+        const layerMatch = storyContent.match(LAYER_PATTERN);
+        const cycleMatch = storyContent.match(CYCLE_PATTERN);
 
         // Validate required fields
         if (!statusMatch || !epicMatch) {
@@ -177,7 +255,7 @@ export class TaskProgressionTracker {
 
     if (task.layer) {
       // Extract just "Layer N" from "Layer N: Description"
-      const layerMatch = task.layer.match(/(Layer \d+)/);
+      const layerMatch = task.layer.match(LAYER_EXTRACTION_PATTERN);
       result.layer = layerMatch ? layerMatch[1] : undefined;
     }
 
@@ -244,10 +322,28 @@ export class TaskProgressionTracker {
   }
 
   /**
-   * Disposes of resources (placeholder for future file watcher cleanup)
+   * Disposes of resources (file watcher, event emitter, debounce timer)
+   * Call this when the tracker is no longer needed
    */
   dispose(): void {
-    // Placeholder for file watcher disposal
-    // Will be implemented in REFACTOR phase with actual file watching
+    // Clear debounce timer if running
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = null;
+    }
+    
+    // Dispose file watcher
+    if (this.fileWatcher) {
+      this.fileWatcher.dispose();
+      this.fileWatcher = null;
+    }
+    
+    // Dispose event emitter if it was initialized
+    if (this.eventEmitter) {
+      this.eventEmitter.dispose();
+      this.eventEmitter = null;
+    }
+    
+    console.log('[TaskProgressionTracker] Resources disposed');
   }
 }
