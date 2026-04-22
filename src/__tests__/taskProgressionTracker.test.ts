@@ -10,6 +10,27 @@ const mockFs = fs as jest.Mocked<typeof fs>;
 describe('TaskProgressionTracker', () => {
   let tracker: TaskProgressionTracker;
   const mockWorkspaceRoot = '/test/workspace';
+  
+  // Define mock content at outer scope for reusability
+  const mockUserStoriesContent = `
+# Implementation Status
+
+## Epic-001: Workflow Visualization Enhancement
+
+### US-001-001: Task Progression Bar Implementation
+- **Status**: completed
+- **Epic**: EPIC-001
+
+### US-001-002: Context Window Visualization
+- **Status**: in-progress
+- **Layer**: Layer 2: Backend Services
+- **Cycle**: GREEN-01
+- **Epic**: EPIC-001
+
+### US-001-003: Completeness Meter
+- **Status**: not-started
+- **Epic**: EPIC-001
+`;
 
   beforeEach(() => {
     tracker = new TaskProgressionTracker(mockWorkspaceRoot);
@@ -322,26 +343,6 @@ describe('TaskProgressionTracker', () => {
   });
 
   describe('getCurrentTaskProgression', () => {
-    const mockUserStoriesContent = `
-# Implementation Status
-
-## Epic-001: Workflow Visualization Enhancement
-
-### US-001-001: Task Progression Bar Implementation
-- **Status**: completed
-- **Epic**: EPIC-001
-
-### US-001-002: Context Window Visualization
-- **Status**: in-progress
-- **Layer**: Layer 2: Backend Services
-- **Cycle**: GREEN-01
-- **Epic**: EPIC-001
-
-### US-001-003: Completeness Meter
-- **Status**: not-started
-- **Epic**: EPIC-001
-`;
-
     beforeEach(() => {
       // Mock fs.existsSync to return true
       mockFs.existsSync.mockReturnValue(true);
@@ -384,7 +385,7 @@ describe('TaskProgressionTracker', () => {
 
       expect(state.previous).toBeNull();
       expect(state.current.storyId).toBe('Unknown');
-      expect(state.current.title).toBe('No Active Task');
+      expect(state.current.title).toBe('N/A');
       expect(state.next).toBeNull();
     });
 
