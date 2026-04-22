@@ -6,6 +6,29 @@ export const TOOL_DONE_DELAY_MS = 300;
 export const PERMISSION_TIMER_DELAY_MS = 7000;
 export const TEXT_IDLE_DELAY_MS = 5000;
 
+// ── Task Progression Bar (Layer 1) ──────────────────────────
+export const TASK_PROGRESSION_UPDATE_DEBOUNCE_MS = 500;  // Debounce file changes
+export const TASK_PROGRESSION_REFRESH_INTERVAL_MS = 1000; // Update UI every 1 second max
+
+// PDLC Phase to Color Mapping
+// Used for visual color-coding in Task Progression Bar
+export const PDLC_PHASE_COLORS: Record<string, string> = {
+	'documentation': '#0078D4',  // VS Code Blue
+	'red': '#E81C3F',            // VS Code Red
+	'green': '#107C10',          // VS Code Green
+	'refactor': '#8661C5',       // VS Code Purple
+	'unknown': '#CCCCCC',        // Gray
+};
+
+// Valid Task Statuses for validation
+export const VALID_TASK_STATUSES = [
+	'not-started',
+	'in-progress',
+	'completed',
+	'implemented',
+	'delivered',
+] as const;
+
 // ── Display Truncation ──────────────────────────────────────
 export const BASH_COMMAND_DISPLAY_MAX_LENGTH = 30;
 export const TASK_DESCRIPTION_DISPLAY_MAX_LENGTH = 40;

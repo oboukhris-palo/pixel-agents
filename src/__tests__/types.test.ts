@@ -219,29 +219,29 @@ describe('Layer 1: Data & State Models - Task Progression Types', () => {
 
   describe('Phase Color Mapping: getPhaseColor()', () => {
     it('should map Documentation phase to Blue', () => {
-      expect(getPhaseColor('Documentation')).toBe('blue');
+      expect(getPhaseColor('Documentation')).toBe('#0078D4');
     });
 
     it('should map RED phase to Red', () => {
-      expect(getPhaseColor('RED')).toBe('red');
+      expect(getPhaseColor('RED')).toBe('#E81C3F');
     });
 
     it('should map GREEN phase to Green', () => {
-      expect(getPhaseColor('GREEN')).toBe('green');
+      expect(getPhaseColor('GREEN')).toBe('#107C10');
     });
 
     it('should map REFACTOR phase to Purple', () => {
-      expect(getPhaseColor('REFACTOR')).toBe('purple');
+      expect(getPhaseColor('REFACTOR')).toBe('#8661C5');
     });
 
     it('should return gray for unknown phase', () => {
-      expect(getPhaseColor('UNKNOWN')).toBe('gray');
+      expect(getPhaseColor('UNKNOWN')).toBe('#CCCCCC');
     });
 
     it('should be case-insensitive for phase names', () => {
-      expect(getPhaseColor('red')).toBe('red');
-      expect(getPhaseColor('GREEN')).toBe('green');
-      expect(getPhaseColor('refactor')).toBe('purple');
+      expect(getPhaseColor('red')).toBe('#E81C3F');
+      expect(getPhaseColor('GREEN')).toBe('#107C10');
+      expect(getPhaseColor('refactor')).toBe('#8661C5');
     });
   });
 
@@ -254,10 +254,10 @@ describe('Layer 1: Data & State Models - Task Progression Types', () => {
         'REFACTOR': getPhaseColor('REFACTOR'),
       };
 
-      expect(phaseColorMap['Documentation']).toBe('blue');
-      expect(phaseColorMap['RED']).toBe('red');
-      expect(phaseColorMap['GREEN']).toBe('green');
-      expect(phaseColorMap['REFACTOR']).toBe('purple');
+      expect(phaseColorMap['Documentation']).toBe('#0078D4');
+      expect(phaseColorMap['RED']).toBe('#E81C3F');
+      expect(phaseColorMap['GREEN']).toBe('#107C10');
+      expect(phaseColorMap['REFACTOR']).toBe('#8661C5');
     });
   });
 
