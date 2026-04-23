@@ -1,9 +1,10 @@
 /** @type {import('jest').Config} */
 module.exports = {
   preset: 'ts-jest',
-  testEnvironment: 'node',
+  testEnvironment: 'jsdom',
   roots: ['<rootDir>/src', '<rootDir>/webview-ui/src'],
   testMatch: ['**/*.test.ts', '**/*.spec.ts', '**/*.test.tsx', '**/*.spec.tsx'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
     '^vscode$': '<rootDir>/src/__mocks__/vscode.ts',
@@ -15,6 +16,8 @@ module.exports = {
         module: 'ESNext',
         target: 'ES2020',
         esModuleInterop: true,
+        jsx: 'react-jsx',
+        lib: ['ES2020', 'DOM'],
       },
     }],
   },
