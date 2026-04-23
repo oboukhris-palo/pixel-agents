@@ -6,6 +6,9 @@ const config = {
   testMatch: ['**/__tests__/**/*.test.ts?(x)', '**/?(*.)+(spec|test).ts?(x)'],
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    // Strip .js extension from relative imports so Jest resolves TypeScript
+    // source files when the codebase uses ESM-style ".js" import paths.
+    '^(\\.{1,2}/.+)\\.js$': '$1',
   },
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {

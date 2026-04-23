@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { TaskProgressionBar } from '../components/TaskProgressionBar';
 import type { TaskProgressionState, TaskInfo } from '../hooks/useExtensionMessages';
@@ -435,7 +435,10 @@ describe('TaskProgressionBar Component', () => {
         },
       };
       rerender(<TaskProgressionBar taskProgression={newProgression} />);
-      expect(screen.getByText('US-001-003')).toBeInTheDocument();
+      // Scope to the current section to avoid collision with the unchanged next
+      // section which also displays 'US-001-003' (mockNextTask.storyId).
+      const currentSection = screen.getByTestId('task-section-current');
+      expect(within(currentSection).getByText('US-001-003')).toBeInTheDocument();
     });
   });
 
