@@ -412,3 +412,91 @@ Real-Time Document Monitoring Engine — File system watcher for `/docs/` with d
 **Files Created**: 8 (3 docs + 5 features)  
 **Files Updated**: 1 (SSOT)  
 **Ready for**: Plan review → Skeleton code → TDD RED phase
+
+---
+
+## 2026-04-23T16:30:00Z | US-002-001 Implementation Plan Enhanced with TDD Checkboxes
+
+**Status**: success
+
+| Field | Value |
+|-------|-------|
+| **Phase** | 05-implementation (Phase 8) |
+| **Epic/Story** | EPIC-002 / US-002-001 |
+| **Layer/Cycle** | Planning / Checkpoint System Added |
+| **Files Changed** | 1 file updated (implementation-plan.md) |
+| **PRU Estimate** | ~300 PRU (detailed checkbox planning) |
+| **Story Points** | 5 |
+| **Status** | ✅ Ready for TDD Execution — Detailed Checkboxes Added |
+
+**Action Taken**:
+Enhanced `implementation-plan.md` with comprehensive TDD execution checkboxes following workflow standards from `05-implementation.workflows.md`.
+
+**Changes Made**:
+
+### 📋 Detailed TDD Checkboxes (152 Total Tasks)
+- **Layer 1 (Types)**: 22 checkboxes across RED-GREEN-REFACTOR (Cycle 1)
+  - 11 RED tasks (failing tests for token calculations and thresholds)
+  - 5 GREEN tasks (minimal implementation)
+  - 6 REFACTOR tasks (extract constants, add validation)
+
+- **Layer 2 (Backend)**: 44 checkboxes across 3 cycles
+  - Cycle 2: File token calculation (22 tasks)
+  - Cycle 3: Monitoring & debouncing (22 tasks)
+  - Includes VS Code API integration, FileSystemWatcher setup, error handling
+
+- **Layer 3 (Protocol)**: 21 checkboxes (Cycle 4)
+  - Message protocol tests and implementation
+  - React hook integration
+  - Communication optimization
+
+- **Layer 4 (UI)**: 65 checkboxes across 4 cycles
+  - Cycle 5: Basic component rendering (22 tasks)
+  - Cycle 6: Color thresholds & warnings (21 tasks)
+  - Cycle 7: Tooltip & breakdown display (21 tasks)
+  - Cycle 8: Notifications & accessibility (28 tasks)
+
+### 🎯 TDD Agent Instructions Added
+- Sequential execution guide (Layer 1 → 2 → 3 → 4)
+- Checkbox marking protocol ([ ] → [x] as work completes)
+- Commit message format with exact patterns
+- Checkpoint recovery instructions (resume from last [x])
+- Quality gate validation per layer
+
+### 📊 Updated Metrics
+- **Total TDD Cycles**: 8 (was 4 high-level, now 8 detailed)
+- **Total Checkboxes**: 152 executable tasks
+- **Estimated Completion Rate**: ~19 checkboxes/day
+- **Timeline**: 3 days (Day 1: Cycles 1-3, Day 2: Cycles 4-6, Day 3: Cycles 7-8)
+
+### ✅ Quality Gates Enhanced
+- Per-cycle validation (tests pass before commit)
+- Per-layer completion tracking (all checkboxes [x] before next layer)
+- Story completion gate (all 152 checkboxes + 7 ACs + code review)
+- Integration testing with US-001-003 (Document Watcher dependency)
+
+**Benefits for TDD Team**:
+1. **Clear Progress Tracking**: Each checkbox = concrete deliverable
+2. **No Ambiguity**: Exact tests to write, exact code to implement
+3. **Audit Trail**: Git commits match checkbox completion
+4. **Failure Recovery**: Easy to resume from last [x] checkpoint
+5. **Velocity Measurement**: Checkboxes completed per day = velocity metric
+
+**Next Steps**:
+- ✅ Plan enhanced with 152 checkboxes ← Just completed
+- ⏳ Awaiting plan-approval.yaml validation by dev-lead
+- ⏳ Pending: TDD-Orchestrator receives approved plan
+- ⏳ Pending: dev-tdd-red begins Cycle 1 (Layer 1 RED phase)
+
+**Blockers**: None
+
+**Handoff**: Plan ready for review. Once approved via plan-approval.yaml, TDD-Orchestrator can begin execution with clear, checkbox-driven guidance.
+
+---
+
+**Prepared by**: Tech Lead (Sebastian) - dev-lead agent
+**Date**: 2026-04-23T16:30:00Z
+**Session Duration**: ~15 minutes (checkbox enhancement)
+**Files Updated**: 1 (implementation-plan.md)
+**Ready for**: Plan approval review → TDD execution
+

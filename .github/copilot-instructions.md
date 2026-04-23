@@ -151,22 +151,27 @@ All backend→frontend communication uses 5 strongly-typed messages:
 - Accessibility: 100% WCAG 2.1 AA compliance checks
 - Performance: All renders <100ms, no infinite loops
 
-### 🎓 TDD Implementation Learnings (From US-001-001 ✅ COMPLETE)
+### 🎓 TDD Implementation Learnings
 
-**Key Patterns** (4-layer architecture proven):
-- ✅ **Layer 1**: Type guards + factory functions + constants extraction (23 unit tests)
-- ✅ **Layer 2**: Service class + optional dependencies + event emitter (25 unit tests)
-- ✅ **Layer 3**: Strongly-typed messages + hook integration (110+ test suite)
-- ✅ **Layer 4**: React components + 100% test coverage (64 unit tests)
-- ✅ **Tech-Debt Fixed**: Type safety, escape hatch removal — all tests passing
+**Key Patterns** (4-layer architecture proven in US-001-001, US-001-003):
+- ✅ **Layer 1**: Type guards + factory functions + constants extraction
+- ✅ **Layer 2**: Service class + optional dependencies + event emitter (external APIs injectable)
+- ✅ **Layer 3**: Strongly-typed messages + hook integration
+- ✅ **Layer 4**: React components + 100% test coverage + WCAG 2.1 AA
 
-**Critical Insights for Next Stories**:
-1. Extract shared utilities early for reuse across layers
-2. Use lookup tables instead of ternary chains
-3. Make external dependencies optional via constructor
-4. Frontend Jest requires `extensionsToTreatAsEsm: ['.ts', '.tsx']` + `--legacy-peer-deps`
-5. Mirror backend types in frontend for consistency
-6. Debounce at service layer (500ms) to prevent UI spam
+**Critical Insights**:
+1. **Dependency Injection**: Make external APIs (VS Code, file system) optional constructor params for testability
+2. **Debouncing**: Implement at service layer (300-500ms) to prevent UI spam
+3. **Logging**: Use VS Code OutputChannel (not console.error) — inject via constructor, fallback gracefully
+4. **Input Sanitization**: Always limit content length (1MB cap), remove control chars, ReDoS-safe regex
+5. **Frontend Tests**: Mirror backend types, use `--legacy-peer-deps` for React 19
+6. **E2E Testing**: Not needed for VS Code extensions — unit + integration + manual validation sufficient
+
+**Proven Stack**:
+- Backend: TypeScript + VS Code APIs + EventEmitter pattern
+- Frontend: React 19 + Custom hooks + Tailwind CSS + React Testing Library
+- Testing: Jest + @testing-library/jest-dom + jsdom
+- Logging: VS Code OutputChannel (not console)
 ### �📚 Key Resources
 
 - **WORKFLOW-IMPLEMENTATION.md** — Complete architectural specification (5,000+ lines)
@@ -204,7 +209,7 @@ All backend→frontend communication uses 5 strongly-typed messages:
 - **dev-lead**: Pre-creates folder structure, writes concise implementation plans (max 500 words/layer)
 - **dev-tdd**: Orchestrates RED → GREEN → REFACTOR (strict sequencing, no parallel cycles)
 - **dev-tdd-red/green/refactor**: Execute TDD phases following implementation plan
-- **qa**: Executes comprehensive testing (E2E, BDD validation), verifies acceptance criteria, ensures quality gates
+- **qa**: Executes BDD validation, verifies acceptance criteria, ensures quality gates (E2E not needed for VS Code extensions)
 - **meeting.assistant**: Transforms meeting transcripts into professional meeting minutes (Comptes Rendus)
 
 ## � Folder Structure & Path Naming Conventions

@@ -1,0 +1,104 @@
+---
+# Human Validation Gate for Implementation Plan
+# Location: /docs/05-implementation/epics/EPIC-002/user-stories/US-002-003/plan-approval.yaml
+# Purpose: Require human approval before TDD execution begins
+# Status: changes-requested | approved | revoked
+---
+
+metadata:
+  templateId: "plan-approval"
+  templateVersion: "2.0"
+  documentType: "gate-checkpoint"
+  title: "Plan Approval Gate: US-002-003"
+  agent_context:
+    phase: "implementation"
+    epic_ref: "EPIC-002"
+    user_story_ref: "US-002-003"
+    agent_name: "dev-lead"
+    model_name: "claude-3.5-sonnet"
+
+story: US-002-003
+plan_version: v1
+epic: EPIC-002
+title: "Gamification Mechanics System"
+
+scope: 
+  - Layer1
+  - Layer2
+  - Layer3
+  - Layer4
+
+risk: medium
+
+approvers:
+  - role: dev-lead
+    name: Sebastian (Tech Lead)
+    approved: false
+    date: null
+    notes: "Awaiting review. Scope may be reduced if leaderboard/team mode not feasible."
+
+status: changes-requested
+
+validation_checklist:
+  - item: "Implementation plan follows layer architecture (Layer 1-4 defined)"
+    verified: true
+  - item: "BDD scenarios map to implementation layers (8 scenarios planned)"
+    verified: true
+  - item: "External dependencies documented (completeness meter events)"
+    verified: true
+  - item: "Database migrations N/A (uses ExtensionContext for persistence)"
+    verified: true
+  - item: "Error handling strategy defined (graceful degradation if state corrupted)"
+    verified: true
+  - item: "Performance requirements specified (notifications <100ms, non-blocking)"
+    verified: true
+  - item: "Accessibility requirements addressed (WCAG 2.1 AA, ARIA alert role)"
+    verified: true
+  - item: "Layer sequence optimized (Foundation → Communication → UI)"
+    verified: true
+
+technical_review:
+  architecture_alignment: true
+  bdd_coverage: true
+  dependencies_clear: true
+  risk_mitigation_adequate: true
+  estimation_reasonable: true
+
+notes: |
+  ⏳ AWAITING DEV-LEAD APPROVAL
+  
+  **Plan Quality**: Good confidence. Scope flexibility allows graceful feature reduction if needed.
+  
+  **Key Strengths**:
+  - Clear 4-layer architecture (Types → Backend → Protocol → Frontend)
+  - Comprehensive achievement registry (9 predefined achievements)
+  - Event-driven architecture (subscribes to completeness events)
+  - Persistence strategy defined (ExtensionContext.globalState)
+  - Graceful degradation plan (defer leaderboard if needed)
+  
+  **Potential Challenges**:
+  - Team mode / leaderboard may be out of scope (ACCEPTABLE: defer to EPIC-003)
+  - PRU tracking requires accurate cost measurement (mitigate: start with estimates)
+  - Achievement notification spam (mitigate: rate limiting, 1 per 5 seconds)
+  
+  **Recommendation**: Proceed with MVP scope (single-player achievements, basic streaks, simple PRU).
+  
+  **MVP Scope** (Priority 1):
+  - Milestone achievements (25%, 50%, 75%, 100%)
+  - Streak counter (consecutive task completions)
+  - Achievement notifications
+  
+  **Deferred Features** (Priority 2, may move to EPIC-003):
+  - Leaderboard (requires team mode)
+  - Advanced PRU scoring (requires accurate cost tracking)
+  - Custom achievement creation
+  
+  **Next Steps**:
+  1. TDD Orchestrator to begin with Layer 1 (Achievement types) - estimated 1-2 cycles
+  2. Progress to Layer 2 (Achievement engine) - estimated 2-3 cycles
+  3. Implement Layer 3 (Message protocol) - estimated 1 cycle
+  4. Complete with Layer 4 (Notifications) - estimated 3 cycles
+  
+  **Review Trigger**: Re-approval required if team mode implementation needed or PRU tracking significantly more complex.
+
+---
