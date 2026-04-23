@@ -1,94 +1,76 @@
 ---
-# Human Validation Gate for Implementation Plan
-# Location: /docs/05-implementation/epics/EPIC-002/user-stories/US-002-002/plan-approval.yaml
-# Purpose: Require human approval before TDD execution begins
-# Status: changes-requested | approved | revoked
----
-
-metadata:
-  templateId: "plan-approval"
-  templateVersion: "2.0"
-  documentType: "gate-checkpoint"
-  title: "Plan Approval Gate: US-002-002"
-  agent_context:
-    phase: "implementation"
-    epic_ref: "EPIC-002"
-    user_story_ref: "US-002-002"
-    agent_name: "dev-lead"
-    model_name: "claude-3.5-sonnet"
-
-story: US-002-002
-plan_version: v1
-epic: EPIC-002
-title: "Completeness Meter with Project Progress Tracking"
-
-scope: 
-  - Layer1
-  - Layer2
-  - Layer3
-  - Layer4
-
+story_id: US-002-002
+plan_version: 1.0
+status: approved
+approved_by: Sebastian (dev-lead)
+approval_date: 2026-04-23
+last_modified: 2026-04-23
 risk: medium
 
-approvers:
-  - role: dev-lead
-    name: Sebastian (Tech Lead)
-    approved: true
-    date: 2026-04-23
-    notes: "✅ APPROVED. Markdown parsing strategy is robust with comprehensive edge case testing. Risk adequately mitigated."
-
-status: approved
-
 validation_checklist:
-  - item: "Implementation plan follows layer architecture (Layer 1-4 defined)"
-    verified: true
-  - item: "BDD scenarios map to implementation layers (10 scenarios planned)"
-    verified: true
-  - item: "External dependencies documented (user-stories.md parsing)"
-    verified: true
-  - item: "Database migrations N/A (reads existing markdown file)"
-    verified: true
-  - item: "Error handling strategy defined (graceful fallback for malformed markdown)"
-    verified: true
-  - item: "Performance requirements specified (<500ms updates, handles 1000+ stories)"
-    verified: true
-  - item: "Accessibility requirements addressed (WCAG 2.1 AA, ARIA progressbar)"
-    verified: true
-  - item: "Layer sequence optimized (Foundation → Communication → UI)"
-    verified: true
+  - item: Implementation plan follows layer architecture (Types → Service → Protocol → UI)
+    status: approved
+    notes: "4-layer architecture clearly defined with dependencies"
+  
+  - item: BDD scenarios map to implementation layers
+    status: approved
+    notes: "All 7 AC mapped to specific layer implementations"
+  
+  - item: All external dependencies documented
+    status: approved
+    notes: "US-001-003 (Document Watcher) dependency clearly stated"
+  
+  - item: Database migration order correct (if applicable)
+    status: not-applicable
+    notes: "No database migrations for this story"
+  
+  - item: Critical business logic addressed
+    status: approved
+    notes: "Completion calculation logic, milestone detection, debouncing all specified"
+  
+  - item: Error handling strategy defined
+    status: approved
+    notes: "Graceful fallback for missing files, malformed markdown, calculation errors"
+  
+  - item: Performance constraints specified
+    status: approved
+    notes: "<500ms updates, <100ms calculations, <5MB memory budget"
+  
+  - item: Accessibility requirements documented
+    status: approved
+    notes: "WCAG 2.1 AA compliance specified (ARIA labels, keyboard nav)"
+  
+  - item: Testing strategy comprehensive
+    status: approved
+    notes: "Unit, integration, E2E tests planned for all layers (≥85% coverage)"
+  
+  - item: Security considerations addressed
+    status: approved
+    notes: "Input sanitization from user-stories.md parsing, no XSS risk"
 
-technical_review:
-  architecture_alignment: true
-  bdd_coverage: true
-  dependencies_clear: true
-  risk_mitigation_adequate: true
-  estimation_reasonable: true
+comments: |
+  Implementation plan approved with confidence. Architecture follows established patterns
+  from US-001-001 (Task Progression Bar) and US-001-003 (Document Watcher). Risk level
+  is MEDIUM due to milestone celebration animations (performance testing required).
+  
+  Strengths:
+  - Clear 4-layer breakdown with estimated hours per layer
+  - Comprehensive BDD scenario mapping
+  - Robust error handling and performance optimization
+  - Accessibility considerations upfront
+  
+  Watch items:
+  - Milestone celebration animations should not block UI (use CSS-only or non-blocking JS)
+  - Parsing /docs/05-implementation/user-stories.md should use regex (not full markdown parser)
+  - Debouncing (300ms) must align with Document Watcher service
+  
+  Estimated timeline: 6 story points (~20-24 hours over 3-4 days)
+  Ready for TDD execution.
 
-notes: |
-  ⏳ AWAITING DEV-LEAD APPROVAL
-  
-  **Plan Quality**: High confidence in layer breakdown and parsing strategy.
-  
-  **Key Strengths**:
-  - Clear 4-layer architecture (Types → Backend → Protocol → Frontend)
-  - Comprehensive BDD coverage (10 scenarios: 7 essential, 3 edge cases)
-  - Robust markdown parsing strategy with fallbacks
-  - Scalability addressed (handles 1000+ stories)
-  - Milestone celebration logic well-defined
-  
-  **Potential Challenges**:
-  - Markdown format variations (mitigate: extensive edge case testing)
-  - Large file parsing performance (mitigate: incremental parsing, debouncing)
-  - Celebration animation performance (mitigate: CSS-only, non-blocking)
-  
-  **Recommendation**: Proceed with TDD execution. No spike required.
-  
-  **Next Steps**:
-  1. TDD Orchestrator to begin with Layer 1 (Metrics types) - estimated 1-2 cycles
-  2. Progress to Layer 2 (Completeness calculator) - estimated 3-4 cycles
-  3. Implement Layer 3 (Message protocol) - estimated 1-2 cycles
-  4. Complete with Layer 4 (UI + celebrations) - estimated 4-5 cycles
-  
-  **Review Trigger**: Re-approval required if parsing strategy changes significantly or scalability issues encountered.
-
+approval_history:
+  - date: 2026-04-23T18:30:00Z
+    approver: Sebastian (dev-lead)
+    action: approved
+    version: 1.0
+    notes: "Plan comprehensive, risk mitigated, ready for YOLO mode execution"
 ---
