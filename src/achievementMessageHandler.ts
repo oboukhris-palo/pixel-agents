@@ -7,6 +7,39 @@
  * - Broadcasting achievement.unlocked and achievement.state messages
  * - Providing useAchievements React hook for frontend subscription
  * - Handling message serialization and error cases
+ * 
+ * Architecture Pattern:
+ * - Event-driven: Backend engine emits events → Message handler transforms → Frontend receives
+ * - Strongly-typed messages: Type discriminator ensures safe message handling
+ * - Error resilience: Catches and logs errors without breaking subscriptions
+ * - React integration: Hook provides reactive state updates to components
+ * 
+ * @example
+ * // Backend: Create handler
+ * const handler = new AchievementMessageHandler(engine);
+ * 
+ * // Frontend: Subscribe to messages
+ * handler.on('message', (msg: AchievementMessage) => {
+ *   if (msg.type === 'achievement.unlocked') {
+ *     console.log('Achievement unlocked:', msg.data.name);
+ *   }
+ * });
+ * 
+ * // React: Use hook for state management
+ * function AchievementUI() {
+ *   const { achievements, streak } = useAchievements(handler);
+ *   return <div>Achievements: {achievements.length}</div>;
+ * }
+ * 
+ * Performance Characteristics:
+ * - Message handling: O(1) per message
+ * - Subscription management: O(1) per listener
+ * - Memory: Negligible (event emitter scales linearly with listeners)
+ * 
+ * Error Handling:
+ * - Validation errors: Caught and emitted as 'error' events
+ * - Unhandled errors: Logged but don't break subscriptions
+ * - Graceful degradation: Invalid messages are skipped
  */
 
 import { EventEmitter } from 'events';
