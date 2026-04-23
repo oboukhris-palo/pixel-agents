@@ -145,6 +145,44 @@ export interface ActionBubbleMessage {
   payload: AgentActivityState
 }
 
+// ── Document Watcher Types (US-001-003) ───────────────────────────────────────
+
+/** Mirrors DocumentChange from backend documentChangeTypes.ts */
+export interface DocumentChange {
+  path: string
+  changeType: 'added' | 'modified' | 'deleted' | 'all'
+  timestamp: number
+  isMarkdown: boolean
+  isYaml: boolean
+  isFeature: boolean
+}
+
+/** Mirrors ParsedMetrics from backend documentChangeTypes.ts */
+export interface ParsedMetrics {
+  storyCount: number
+  epicsCount: number
+  completionPercent: number
+  lastUpdated: string
+}
+
+/** Message received when /docs/ files change */
+export interface DocumentWatcherMessage {
+  type: 'document-changed'
+  changes: DocumentChange[]
+  metrics: ParsedMetrics
+  timestamp: number
+  debounceDelayMs: number
+}
+
+/** Watcher state exposed by useExtensionMessages */
+export interface DocumentWatcherState {
+  changes: DocumentChange[]
+  metrics: ParsedMetrics
+  lastUpdateTime: number
+  isWatching: boolean
+  error?: string
+}
+
 export interface ExtensionMessageState {
   agents: number[]
   selectedAgent: number | null
@@ -160,6 +198,7 @@ export interface ExtensionMessageState {
   workflowState: WorkflowState | null
   taskProgression: TaskProgressionState | null
   agentActivityState: AgentActivityState | null
+  documentWatcherState: DocumentWatcherState | null
 }
 
 function saveAgentSeats(os: OfficeState): void {
@@ -190,6 +229,7 @@ export function useExtensionMessages(
   const [workflowState, setWorkflowState] = useState<WorkflowState | null>(null)
   const [taskProgression, setTaskProgression] = useState<TaskProgressionState | null>(null)
   const [agentActivityState, setAgentActivityState] = useState<AgentActivityState | null>(null)
+  const [documentWatcherState, setDocumentWatcherState] = useState<DocumentWatcherState | null>(null)
 
   // Track whether initial layout has been loaded (ref to avoid re-render)
   const layoutReadyRef = useRef(false)
@@ -541,6 +581,17 @@ export function useExtensionMessages(
         const activityMsg = msg as ActionBubbleMessage
         console.log(`[Webview] Agent activity updated:`, activityMsg.payload)
         setAgentActivityState(activityMsg.payload)
+      } else if (msg.type === 'document-changed') {
+        // US-001-003: Real-Time Document Monitoring Engine
+        const docMsg = msg as DocumentWatcherMessage
+        console.log(`[Webview] Document changes detected:`, docMsg.changes.length, 'files')
+        setDocumentWatcherState({
+          changes: docMsg.changes,
+          metrics: docMsg.metrics,
+          lastUpdateTime: docMsg.timestamp,
+          isWatching: true,
+          error: undefined,
+        })
       } else if (msg.type === 'agentHandoff') {
         const fromId = msg.fromId as number
         const toId = msg.toId as number
@@ -553,5 +604,5 @@ export function useExtensionMessages(
     return () => window.removeEventListener('message', handler)
   }, [getOfficeState])
 
-  return { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, workspaceFolders, agentMetadata, githubFileAccess, workflowState, taskProgression, agentActivityState }
+  return { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, workspaceFolders, agentMetadata, githubFileAccess, workflowState, taskProgression, agentActivityState, documentWatcherState }
 }
