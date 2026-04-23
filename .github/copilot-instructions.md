@@ -41,6 +41,12 @@
 
 #### Frontend Components (React)
 1. **TaskProgressionBar** (Top) — Shows workflow context: previous | current | next task
+   - Sub-component: TaskSection (reusable for Previous/Current/Next)
+   - Props: task, sectionType, phaseColor, onClick
+   - Icons: ✅ (completed), 🔄 (in-progress), ⏭️ (next)
+   - Color-coded by PDLC phase (using getPhaseColor() utility)
+   - 100+ test cases covering rendering, interactions, accessibility, edge cases
+   - Custom hook: useTaskProgression() for state management
 2. **ContextWindowBar** (Left) — Real-time token usage visualization (.github vs project code)
 3. **CompletenessBar** (Right) — Project completion meter (0-100%) with gamification
 4. **AgentRegistry** (Sidebar) — All agents from `.github/agents/` with status
@@ -100,7 +106,132 @@ All backend→frontend communication uses 5 strongly-typed messages:
 4. **TaskProgressionMessage** — Previous | Current | Next tasks
 5. **ParallelZonesMessage** — Layout for multi-agent zones
 
-### 📚 Key Resources
+### �🟢🟣 TDD Cycle Patterns (4-Layer Architecture)
+
+**Strict Sequencing**: RED → GREEN → REFACTOR (no parallel cycles)
+
+**Layer 1: Types & Domain Models**
+- Tests: Type guards, factory functions, validation
+- Pattern: `isValid*()` guards + `getDefault*()` factories + constants extraction
+- Commit Format: `TDD-EPIC-XX-US-XXX-RED/GREEN/REFACTOR-01`
+- Typical Duration: 1 cycle (~15-20 minutes)
+
+**Layer 2: Backend Services**
+- Tests: File parsing, state extraction, event handling
+- Pattern: Service class + optional external dependencies + event emitter
+- Key Insight: Make external APIs (VS Code, file system) optional for testability
+- Debouncing: Implement 500ms to prevent excessive updates
+- Commit Format: `TDD-EPIC-XX-US-XXX-RED/GREEN/REFACTOR-02`
+- Typical Duration: 3 cycles (~40-60 minutes, one per sub-feature)
+
+**Layer 3: Message Protocol & Integration**
+- Tests: Integration tests verifying backend→frontend message flow
+- Pattern: Strongly-typed messages + handlers + reactive state updates
+- Key Insight: Mirror types in frontend for consistency; integrate with existing hooks
+- Commit Format: Single commit (simpler than Layers 1-2)
+- Typical Duration: 1 cycle (~20-30 minutes)
+
+**Layer 4: Frontend Components & UI**
+- Tests: React Testing Library + accessibility + performance + edge cases
+- Pattern: Functional components + custom hooks + Tailwind CSS
+- Setup: Separate Jest config for webview-ui with TSX/JSX support
+- Key Patterns:
+  - Use `@testing-library/jest-dom` for DOM matchers
+  - Install with `--legacy-peer-deps` for React 19 compatibility
+  - Create CSS module mock for style imports
+  - Test WCAG 2.1 AA compliance (ARIA labels, keyboard nav)
+  - 100+ test cases covering all scenarios, edge cases, accessibility
+- Commit Format: `TDD-EPIC-XX-US-XXX-RED/GREEN/REFACTOR-04`
+- Typical Duration: 3 cycles (~90-120 minutes, one per major component)
+
+**Test Coverage Targets**:
+- Backend layers: 80%+ coverage
+- Frontend components: 100% coverage (all props, states, interactions)
+- BDD scenarios: 100% mapped to unit tests
+- Accessibility: 100% WCAG 2.1 AA compliance checks
+- Performance: All renders <100ms, no infinite loops
+### 🎓 Recent TDD Implementation Learnings: US-001-001 (April 2026)
+
+**Story**: Task Progression Bar Feature (EPIC-001, US-001-001)  
+**Status**: Layers 1-3 COMPLETE, Layer 4 RED phase COMPLETE, GREEN/REFACTOR pending
+
+#### Layer 1: Types & State Models ✅
+- **Pattern**: Type guards + factory functions + constants extraction
+- **Files**: `src/types.ts`, `src/constants.ts`
+- **Tests**: 23 passing unit tests
+- **Key Learning**: Extract phase colors to constants early for reusability across backend and frontend
+- **Commit Strategy**: RED-01 → GREEN-01 → REFACTOR-01 (3 commits, ~15 minutes)
+
+#### Layer 2: Backend Services ✅
+- **Pattern**: File watcher + event emitter + regex parsing + optional VS Code API
+- **Files**: `src/taskProgressionTracker.ts` (350 lines)
+- **Tests**: 25 passing unit tests
+- **Key Learning**: Make external dependencies (VS Code API) optional via constructor parameter for testability without mocking
+- **Debouncing**: 500ms implemented to prevent excessive updates
+- **Commit Strategy**: RED-02 → GREEN-02 → REFACTOR-02 (3 commits, ~25 minutes)
+
+#### Layer 3: Message Protocol ✅
+- **Pattern**: Strongly-typed messages + sendTaskProgressionUpdate() method + frontend hook integration
+- **Files**: `src/types.ts`, `src/PixelAgentsViewProvider.ts`, `webview-ui/src/hooks/useExtensionMessages.ts`
+- **Tests**: Integrated with existing 110+ test suite (no new test failures)
+- **Key Learning**: Mirror backend types in frontend for consistency; use message handlers in hooks for reactive updates
+- **Commit Strategy**: Single integration commit (Layer 3 simpler than Layers 1-2)
+
+#### Layer 4: Frontend Components (RED Phase) ✅
+- **Pattern**: React Testing Library + @testing-library/jest-dom + comprehensive BDD-driven tests
+- **Files**: `webview-ui/jest.config.mjs`, `webview-ui/jest.setup.js`, test files (965 lines)
+- **Tests**: 100+ comprehensive failing test cases (correct for RED phase)
+- **Key Learning**: Frontend requires separate Jest configuration with `extensionsToTreatAsEsm: ['.ts', '.tsx']` for ESM support
+- **Accessibility**: All tests include WCAG 2.1 AA compliance checks (ARIA labels, keyboard nav)
+- **Installation**: Use `--legacy-peer-deps` for @testing-library dependencies due to React 19 peer conflicts
+- **Commit Strategy**: RED-04 test creation (pending GREEN-04 implementation)
+
+### 📊 Cumulative Test Coverage (US-001-001)
+
+**Total Tests**: 110+ passing (Layers 1-3) + 100+ RED phase tests (Layer 4 awaiting implementation)
+
+| Layer | Component | Tests | Status | Time |
+|-------|-----------|-------|--------|------|
+| 1 | Types & Constants | 23 | ✅ PASS | 15m |
+| 2 | TaskProgressionTracker | 25 | ✅ PASS | 25m |
+| 3 | Message Protocol | 0 | ✅ INTEGRATED | 10m |
+| 4 | Frontend Components | 100+ | 🟡 RED FAILING | - |
+
+### 🛠️ Frontend Testing Infrastructure
+
+**Setup Pattern** (for future frontend features):
+1. Create `jest.config.mjs` with `extensionsToTreatAsEsm: ['.ts', '.tsx']`
+2. Create `jest.setup.js` (CommonJS, not ESM) importing `@testing-library/jest-dom`
+3. Install with `npm install --save-dev --legacy-peer-deps @testing-library/jest-dom`
+4. Create CSS mock at `src/__mocks__/styleMock.js`
+5. Reference CSS mock in jest config: `moduleNameMapper: { '\\.(css|...$': '<rootDir>/src/__mocks__/styleMock.js' }`
+
+**Key Configuration**:
+- Preset: `ts-jest` with `useESM: true`
+- Environment: `jsdom` for DOM APIs
+- Transform: TypeScript with `jsx: 'react-jsx'`
+
+### 🚀 Implementation Status
+
+**Current Phase**: Layer 4 GREEN phase ready to begin (all 100+ RED tests failing as expected)
+
+**Immediate Next Steps** (Priority Order):
+1. **Layer 4 GREEN**: Implement TaskProgressionBar, TaskSection, useTaskProgression hook (~45 minutes, single cycle)
+2. **Layer 4 REFACTOR**: Code quality, accessibility polish, CSS transitions (~20 minutes)
+3. **Story Completion**: Update implementation-plan.md, commit final code
+4. **Next Feature**: AgentActivityMonitor (EPIC-001, US-001-002) — similar 4-layer pattern
+5. **Future Monitors**: ContextWindowAnalyzer, CompletenessCalculator, etc.
+
+### 💡 Key Insights
+
+**Context Window = Strategic Resource**: Left bar visualizes that `.github/` instructions "cost" context tokens, making context management a game mechanic
+
+**Agents as Characters = Engagement**: Visual personality + animations create emotional investment in agent success
+
+**Metrics as Win Condition**: 100% completeness bar = YOU WON, with milestones showing constant progress
+
+**Task Progression as Story**: Previous → Current → Next creates narrative flow and reduces cognitive load
+### �📚 Key Resources
 
 - **WORKFLOW-IMPLEMENTATION.md** — Complete architectural specification (5,000+ lines)
   - Backend monitor implementations (TypeScript code examples)
@@ -117,16 +248,77 @@ All backend→frontend communication uses 5 strongly-typed messages:
   - `displayName` — Human-readable name
   - `description` — Agent role and capabilities
 
+### 🎓 Recent TDD Implementation Learnings: US-001-001 (April 2026)
+
+**Story**: Task Progression Bar Feature (EPIC-001, US-001-001)  
+**Status**: Layers 1-3 COMPLETE, Layer 4 RED phase COMPLETE, GREEN/REFACTOR pending
+
+#### Layer 1: Types & State Models ✅
+- **Pattern**: Type guards + factory functions + constants extraction
+- **Files**: `src/types.ts`, `src/constants.ts`
+- **Tests**: 23 passing unit tests
+- **Key Learning**: Extract phase colors to constants early for reusability across backend and frontend
+- **Commit Strategy**: RED-01 → GREEN-01 → REFACTOR-01 (3 commits, ~15 minutes)
+
+#### Layer 2: Backend Services ✅
+- **Pattern**: File watcher + event emitter + regex parsing + optional VS Code API
+- **Files**: `src/taskProgressionTracker.ts` (350 lines)
+- **Tests**: 25 passing unit tests
+- **Key Learning**: Make external dependencies (VS Code API) optional via constructor parameter for testability without mocking
+- **Debouncing**: 500ms implemented to prevent excessive updates
+- **Commit Strategy**: RED-02 → GREEN-02 → REFACTOR-02 (3 commits, ~25 minutes)
+
+#### Layer 3: Message Protocol ✅
+- **Pattern**: Strongly-typed messages + sendTaskProgressionUpdate() method + frontend hook integration
+- **Files**: `src/types.ts`, `src/PixelAgentsViewProvider.ts`, `webview-ui/src/hooks/useExtensionMessages.ts`
+- **Tests**: Integrated with existing 110+ test suite (no new test failures)
+- **Key Learning**: Mirror backend types in frontend for consistency; use message handlers in hooks for reactive updates
+- **Commit Strategy**: Single integration commit (Layer 3 simpler than Layers 1-2)
+
+#### Layer 4: Frontend Components (RED Phase) ✅
+- **Pattern**: React Testing Library + @testing-library/jest-dom + comprehensive BDD-driven tests
+- **Files**: `webview-ui/jest.config.mjs`, `webview-ui/jest.setup.js`, test files (965 lines)
+- **Tests**: 100+ comprehensive failing test cases (correct for RED phase)
+- **Key Learning**: Frontend requires separate Jest configuration with `extensionsToTreatAsEsm: ['.ts', '.tsx']` for ESM support
+- **Accessibility**: All tests include WCAG 2.1 AA compliance checks (ARIA labels, keyboard nav)
+- **Installation**: Use `--legacy-peer-deps` for @testing-library dependencies due to React 19 peer conflicts
+- **Commit Strategy**: RED-04 test creation (pending GREEN-04 implementation)
+
+### 📊 Cumulative Test Coverage (US-001-001)
+
+**Total Tests**: 110+ passing (Layers 1-3) + 100+ RED phase tests (Layer 4 awaiting implementation)
+
+| Layer | Component | Tests | Status | Time |
+|-------|-----------|-------|--------|------|
+| 1 | Types & Constants | 23 | ✅ PASS | 15m |
+| 2 | TaskProgressionTracker | 25 | ✅ PASS | 25m |
+| 3 | Message Protocol | 0 | ✅ INTEGRATED | 10m |
+| 4 | Frontend Components | 100+ | 🟡 RED FAILING | - |
+
+### 🛠️ Frontend Testing Infrastructure
+
+**Setup Pattern** (for future frontend features):
+1. Create `jest.config.mjs` with `extensionsToTreatAsEsm: ['.ts', '.tsx']`
+2. Create `jest.setup.js` (CommonJS, not ESM) importing `@testing-library/jest-dom`
+3. Install with `npm install --save-dev --legacy-peer-deps @testing-library/jest-dom`
+4. Create CSS mock at `src/__mocks__/styleMock.js`
+5. Reference CSS mock in jest config: `moduleNameMapper: { '\\.(css|...$': '<rootDir>/src/__mocks__/styleMock.js' }`
+
+**Key Configuration**:
+- Preset: `ts-jest` with `useESM: true`
+- Environment: `jsdom` for DOM APIs
+- Transform: TypeScript with `jsx: 'react-jsx'`
+
 ### 🚀 Implementation Status
 
-**Current Phase**: Architectural design complete, implementation pending
+**Current Phase**: Layer 4 GREEN phase ready to begin (all 100+ RED tests failing as expected)
 
 **Immediate Next Steps** (Priority Order):
-1. Backend monitors (1-2 weeks) — AgentActivityMonitor → ContextWindowAnalyzer → etc.
-2. Frontend components (2-3 weeks) — TaskProgressionBar → ContextWindowBar → etc.
-3. Canvas & animation (2-3 weeks) — GameLoop → agent sprites → zone rendering
-4. Testing & validation (1-2 weeks) — unit + integration + manual with real agents
-5. Evolution tiers (future sprints) — handoff visualization, analytics, AI coach
+1. **Layer 4 GREEN**: Implement TaskProgressionBar, TaskSection, useTaskProgression hook (~45 minutes, single cycle)
+2. **Layer 4 REFACTOR**: Code quality, accessibility polish, CSS transitions (~20 minutes)
+3. **Story Completion**: Update implementation-plan.md, commit final code
+4. **Next Feature**: AgentActivityMonitor (EPIC-001, US-001-002) — similar 4-layer pattern
+5. **Future Monitors**: ContextWindowAnalyzer, CompletenessCalculator, etc.
 
 ### 💡 Key Insights
 
