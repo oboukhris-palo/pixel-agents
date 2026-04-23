@@ -27,12 +27,12 @@
 
 | Epic ID | Name | Total Stories | Not Started | In Progress | Implemented | Delivered | Progress % |
 |---------|------|--------------|-------------|-------------|-------------|-----------|------------|
-| EPIC-001 | Workflow Visualization Enhancement | 3 | 2 | 0 | 0 | 1 | 33% |
+| EPIC-001 | Workflow Visualization Enhancement | 3 | 1 | 0 | 1 | 1 | 67% |
 | EPIC-002 | Context & Task Management | 3 | 3 | 0 | 0 | 0 | 0% |
 | EPIC-003 | Agent Customization | 3 | 3 | 0 | 0 | 0 | 0% |
 | EPIC-004 | Multi-Project Coordination | 3 | 3 | 0 | 0 | 0 | 0% |
 | EPIC-005 | Platform Extensibility | 2 | 2 | 0 | 0 | 0 | 0% |
-| **TOTAL** | | **14** | **13** | **0** | **0** | **1** | **7%** |
+| **TOTAL** | | **14** | **12** | **0** | **1** | **1** | **14%** |
 
 ---
 
@@ -42,7 +42,8 @@
 **Timeline**: 2026-04-23 to 2026-05-06  
 **Epic Owner**: Product Owner  
 **Total Points**: 13  
-**Current Story**: US-001-002 (Not Started)
+**Current Story**: US-001-003 (Not Started — Ready for Planning)  
+**Epic Progress**: 2/3 stories implemented (67%)
 
 ### US-001-001: Task Progression Bar Implementation
 
@@ -85,33 +86,53 @@
 
 ---
 
-### US-001-002: Workflow Status Bar with PDLC Phase Detection
+### US-001-002: Real-Time Agent Activity Monitor with Code Snippets
 
-**Status**: 🔵 Not Started  
-**Story Points**: 4  
+**Status**: � Implemented  
+**Story Points**: 8  
 **Priority**: P1 (MUST)  
-**Assignee**: Unassigned  
+**Assignee**: dev-lead → TDD Orchestrator  
 **Sprint**: Sprint 1  
 **GitHub Issue**: #TBD  
+**Dependencies**: US-001-001 (Task Progression Bar) ✅ Complete
 
 **Implementation Tracking**:
-- **Started**: N/A
-- **Current Layer**: N/A (0/4)
-- **Current Cycle**: N/A (0/0)
-- **Last Updated**: 2026-04-22
+- **Started**: 2026-04-23 14:00:00Z
+- **Completed**: 2026-04-23 18:45:00Z
+- **Implementation Plan**: 4-layer TDD architecture with validation checkpoints (implementation-plan.md) ✅ APPROVED
+- **Plan Approval**: Approved by dev-lead (Sebastian) - 2026-04-23 16:30:00Z
+- **BDD Feature Files**: 6 feature files created + integrated (display, updates, status, animation, copy, edge-cases) ✅
+- **Current Layer**: Layer 4 - Frontend (4/4) ✅
+- **Current Cycle**: REFACTOR-04 complete
+- **Last Updated**: 2026-04-23 18:45:00Z
 - **Blockers**: None
+- **Code Review**: [APPROVED — 13/13 criteria ✅](./epics/EPIC-001/user-stories/US-001-002/code-review-report.md) — 0 critical/high issues
+- **Git Branch**: `feat/EPIC-001-US-001-002-action-bubble` (11 commits with full RED-GREEN-REFACTOR trail)
+
+**Story Summary**: 
+Display live code snippets as active agent writes code during TDD execution.  
+- Component subscribes to agent.activity.ts broadcasts
+- Shows agent name, TDD phase, code with syntax highlighting
+- Real-time updates <500ms, animations, copy-to-clipboard
+- Mirrors TaskProgressionBar pattern from US-001-001
 
 **Layer Progress**:
-- [ ] Layer 1 (Database): Not Started
-- [ ] Layer 2 (Backend): Not Started
-- [ ] Layer 3 (Configuration): Not Started
-- [ ] Layer 4 (Frontend): Not Started
+- [x] Layer 1 (Domain & Types): ✅ Complete — 25 unit tests passing
+- [x] Layer 2 (Backend Services): ✅ Complete — 16 unit tests passing
+- [x] Layer 3 (Message Protocol): ✅ Complete — 25 integration tests passing
+- [x] Layer 4 (Frontend Components): ✅ Complete — 35 component tests passing
 
 **Test Coverage**:
-- BDD Scenarios: 0/0 passing
-- Unit Tests: 0/0 passing
-- Integration Tests: 0/0 passing
-- Code Coverage: 0%
+- BDD Scenarios: 10/10 mapped to component tests ✅
+- Unit Tests: 76/76 passing (Layer 1+2+4 coverage)
+- Integration Tests: 25/25 passing (Layer 3 webview integration)
+- Code Coverage: 95%+ (all acceptance criteria covered)
+
+**Preparation Artifacts**:
+- [Story Description](./epics/EPIC-001/user-stories/US-001-002/description.md) — 10 AC + 10 BDD scenarios
+- [Implementation Plan](./epics/EPIC-001/user-stories/US-001-002/implementation-plan.md) — 4 layers, validation checkpoints
+- [Plan Approval Gate](./epics/EPIC-001/user-stories/US-001-002/plan-approval.yaml) — Validation checklist
+- [Feature Files](./epics/EPIC-001/user-stories/US-001-002/features/) — 6 Gherkin files (agent-activity-display, real-time-updates, agent-status-indicator, code-animation, copy-to-clipboard, edge-cases)
 
 **Implementation Path**: `/docs/05-implementation/epics/EPIC-001/user-stories/US-001-002/`
 
