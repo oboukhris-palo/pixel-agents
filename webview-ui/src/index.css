@@ -63,3 +63,75 @@ html, body, #root {
 * {
   font-family: 'FS Pixel Sans', sans-serif;
 }
+
+/* ── Task Progression Bar ────────────────────────────────────── */
+.task-progression-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  padding: 4px 8px;
+  background: var(--pixel-bg);
+  border-bottom: 2px solid var(--pixel-border);
+  box-shadow: var(--pixel-shadow);
+}
+
+.task-progression-bar > div {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--pixel-border);
+  color: var(--pixel-text);
+  font-size: 11px;
+}
+
+.task-section-header {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--pixel-text-dim);
+  margin-bottom: 2px;
+}
+
+.task-section-story-id {
+  font-weight: bold;
+  color: var(--pixel-accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-section-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-section-layer,
+.task-section-cycle {
+  font-size: 10px;
+  color: var(--pixel-text-dim);
+}
+
+.task-section-phase-badge {
+  display: inline-block;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #fff;
+  margin-top: 2px;
+}
+
+.task-section-empty {
+  font-style: italic;
+  color: var(--pixel-text-dim);
+}
+
+.task-section-empty-detail {
+  font-size: 10px;
+  color: var(--pixel-text-dim);
+}
