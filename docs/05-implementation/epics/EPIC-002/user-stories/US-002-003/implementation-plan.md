@@ -4,19 +4,22 @@
 **Epic**: EPIC-002 - Context & Task Management  
 **Total Estimated Effort**: 5 story points (~16-20 hours over 3 days)  
 **TDD Cycles**: Estimated 8 cycles (2 per layer)  
-**Plan Version**: v1  
+**Plan Version**: v2  
 **Created**: 2026-04-23  
-**Status**: ⏳ Awaiting Approval
+**Last Updated**: 2026-04-23  
+**Status**: ⏳ Layer 2 Complete - Layer 3 Ready (Message Protocol)
 
 ---
 
 ## Architecture Overview
 
 **4-Layer Implementation** (Foundation → Communication → Presentation):
-1. **Layer 1**: Achievement types, badge definitions, streak logic (domain model)
-2. **Layer 2**: Achievement engine service (event subscriptions)
-3. **Layer 3**: Message protocol and React hook (communication)
-4. **Layer 4**: Achievement notification component + leaderboard (UI)
+1. **Layer 1**: Achievement types, badge definitions, streak logic (domain model) ✅ COMPLETE (34 tests)
+2. **Layer 2**: Achievement engine service (event subscriptions) ✅ COMPLETE (31 tests)
+3. **Layer 3**: Message protocol and React hook (communication) ⏳ Not Started
+4. **Layer 4**: Achievement notification component + leaderboard (UI) ⏳ Not Started
+
+**Progress**: 2/4 layers complete (50%) | Total tests passing: 65/65 (100% of completed work)
 
 **Dependencies**:
 - US-002-002 (Completeness Meter) ✅ Provides completion events
@@ -402,18 +405,44 @@
 
 ---
 
-## Layer 2: Achievement Engine Service (Backend)
+## Layer 2: Achievement Engine Service (Backend) ✅ COMPLETE
+
+**Completion Date**: 2026-04-23  
+**Test Count**: 31/31 passing (30 tests written in RED, +1 adjustment)  
+**Coverage**: 100% (exceeds 85% requirement)  
+**Status**: Cycle 02 complete - RED → GREEN → REFACTOR all passing  
+**Commits**:
+- RED-02: 29d0e4d - Write failing tests for achievement engine (30 tests)
+- GREEN-02: 771c379 - Implement achievement engine service (31/31 tests passing)
+- REFACTOR-02: 0fd8b4f - Enhance documentation, extract helper methods
 
 **Purpose**: Subscribe to project events and trigger achievement unlocks
 
-**Files to Create** (~200-300 lines total):
-- `src/achievementEngine.ts` - Service class with event subscriptions
-- `src/achievementEngine.test.ts` - Service integration tests
+**Files Created** (~600 lines total):
+- `src/achievementEngine.ts` - Service class with event subscriptions, persistence, validation (320 lines)
+- `src/achievementEngine.test.ts` - Service integration tests (346 lines)
 
 **BDD Coverage**:
 - Scenario 1: Award achievement on milestone
 - Scenario 4: Display achievement notification
 - Scenario 5: Persist achievement history across sessions
+
+---
+
+### 🔴 RED Phase: Cycle 02 - ✅ Completed
+
+**Goal**: Write tests for achievement engine event handling and persistence  
+**Result**: All 30 failing tests written, committed
+
+#### Test Suites Implemented:
+- ✅ Service Initialization (3 tests)
+- ✅ Milestone Achievement Logic (5 tests)
+- ✅ Streak Management (5 tests)
+- ✅ PRU Score Management (3 tests)
+- ✅ State Persistence (3 tests)
+- ✅ Event Subscriptions (3 tests)
+- ✅ Achievement Queries (3 tests)
+- ✅ Input Validation (4 tests)
 
 ---
 
