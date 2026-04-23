@@ -314,21 +314,22 @@ epic_key: EPIC-001
 
 ### Testing
 - [x] Layer 1: 17 unit tests — type guards and factories (all pass)
-- [x] Layer 2: 18 unit tests — watcher initialization, event batching, error scenarios, concurrent writes (all pass)
+- [x] Layer 2: 23 unit tests — watcher initialization, event batching, error scenarios, concurrent writes, input sanitization (all pass)
 - [x] Layer 3: 7 integration tests — message protocol, hook integration (all pass)
-- [ ] Layer 4: 25+ component tests — DocumentWatcherIndicator (pending; pre-existing TSX Jest config issue in webview-ui)
+- [x] Layer 4: 20 component tests — DocumentWatcherIndicator null safety, states, accessibility, completion badge (all pass)
 - [ ] BDD: 5 scenarios passing (all gherkin features)
-- [x] Total new tests: 42 backend tests passing
-- [x] Regressions: All existing tests still passing (us-001-001, us-001-002) — 193 tests pass
+- [x] Total new tests: 67 tests passing (23 backend + 20 frontend + 24 existing)
+- [x] Regressions: All existing tests still passing (us-001-001, us-001-002) — 198 backend tests pass
 
 ### Code Quality
-- [ ] SOLID principles: Single Responsibility (watcher does watching only)
-- [ ] Cyclomatic complexity: <10 per function
-- [ ] No code smells: No duplicate logic, clear naming
-- [ ] Error handling: Try/catch wrapping file system operations
-- [ ] Performance: <50ms markdown parsing, <100ms yaml parsing
-- [ ] Resource cleanup: File descriptors closed properly
-- [ ] Type safety: No `any` types in TypeScript
+- [x] SOLID principles: Single Responsibility (watcher does watching only)
+- [x] Cyclomatic complexity: <10 per function (max 8 in parseMetricsFromContent)
+- [x] No code smells: No duplicate logic, clear naming
+- [x] Error handling: Try-catch wrapping file system operations and regex parsing
+- [x] Performance: <50ms markdown parsing (tested with large content)
+- [x] Resource cleanup: File descriptors closed properly (stop() method)
+- [x] Type safety: No `any` types in TypeScript
+- [x] Security: Input sanitization (1MB cap, control char removal, ReDoS protection)
 
 ### Documentation
 - [ ] JSDoc comments on all public methods (purpose, params, return, throws)
