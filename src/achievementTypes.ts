@@ -4,6 +4,27 @@
  */
 
 /**
+ * Constants for achievement thresholds
+ */
+export const MILESTONE_THRESHOLDS = {
+  QUARTER: 25,
+  HALF: 50,
+  THREE_QUARTER: 75,
+  COMPLETE: 100,
+} as const;
+
+export const STREAK_THRESHOLDS = {
+  THREE_DAY: 3,
+  WEEK: 7,
+} as const;
+
+export const PRU_THRESHOLDS = {
+  MASTER: 1000,
+  EXPERT: 2000,
+  INTERMEDIATE: 3000,
+} as const;
+
+/**
  * Badge visual representation
  */
 export interface BadgeDefinition {
@@ -75,7 +96,7 @@ export function calculatePRUEfficiency(
     throw new Error('PRU and story points must be non-negative');
   }
   
-  if (storyPoints === 0) return Infinity;
+  if (storyPoints === 0) {return Infinity;}
   return pruUsed / storyPoints;
 }
 
@@ -85,9 +106,9 @@ export function calculatePRUEfficiency(
  * @returns Rank: master (<1000), expert (1000-2000), intermediate (2000-3000), novice (>3000)
  */
 export function calculatePRURank(efficiency: number): PRUScore['rank'] {
-  if (efficiency < 1000) return 'master';
-  if (efficiency < 2000) return 'expert';
-  if (efficiency < 3000) return 'intermediate';
+  if (efficiency < PRU_THRESHOLDS.MASTER) {return 'master';}
+  if (efficiency < PRU_THRESHOLDS.EXPERT) {return 'expert';}
+  if (efficiency < PRU_THRESHOLDS.INTERMEDIATE) {return 'intermediate';}
   return 'novice';
 }
 
@@ -97,9 +118,9 @@ export function calculatePRURank(efficiency: number): PRUScore['rank'] {
 export const ACHIEVEMENT_REGISTRY: Achievement[] = [
   // Milestone achievements (25%, 50%, 75%, 100%)
   {
-    id: 'milestone-25',
+    id: `milestone-${MILESTONE_THRESHOLDS.QUARTER}`,
     name: 'Quarter Mark',
-    description: 'Completed 25% of the project',
+    description: `Completed ${MILESTONE_THRESHOLDS.QUARTER}% of the project`,
     badge: {
       icon: '🎯',
       color: 'bronze',
@@ -108,9 +129,9 @@ export const ACHIEVEMENT_REGISTRY: Achievement[] = [
     category: 'milestone',
   },
   {
-    id: 'milestone-50',
+    id: `milestone-${MILESTONE_THRESHOLDS.HALF}`,
     name: 'Half Way There',
-    description: 'Completed 50% of the project',
+    description: `Completed ${MILESTONE_THRESHOLDS.HALF}% of the project`,
     badge: {
       icon: '🎯',
       color: 'silver',
@@ -119,9 +140,9 @@ export const ACHIEVEMENT_REGISTRY: Achievement[] = [
     category: 'milestone',
   },
   {
-    id: 'milestone-75',
+    id: `milestone-${MILESTONE_THRESHOLDS.THREE_QUARTER}`,
     name: 'Three Quarter Mark',
-    description: 'Completed 75% of the project',
+    description: `Completed ${MILESTONE_THRESHOLDS.THREE_QUARTER}% of the project`,
     badge: {
       icon: '🎯',
       color: 'gold',
@@ -130,9 +151,9 @@ export const ACHIEVEMENT_REGISTRY: Achievement[] = [
     category: 'milestone',
   },
   {
-    id: 'milestone-100',
+    id: `milestone-${MILESTONE_THRESHOLDS.COMPLETE}`,
     name: 'Project Victory',
-    description: 'Completed 100% of the project',
+    description: `Completed ${MILESTONE_THRESHOLDS.COMPLETE}% of the project`,
     badge: {
       icon: '🏆',
       color: 'platinum',
@@ -142,9 +163,9 @@ export const ACHIEVEMENT_REGISTRY: Achievement[] = [
   },
   // Streak achievements
   {
-    id: 'streak-3',
+    id: `streak-${STREAK_THRESHOLDS.THREE_DAY}`,
     name: 'Three Day Streak',
-    description: 'Completed tasks for 3 consecutive days',
+    description: `Completed tasks for ${STREAK_THRESHOLDS.THREE_DAY} consecutive days`,
     badge: {
       icon: '🔥',
       color: 'bronze',
@@ -153,9 +174,9 @@ export const ACHIEVEMENT_REGISTRY: Achievement[] = [
     category: 'streak',
   },
   {
-    id: 'streak-7',
+    id: `streak-${STREAK_THRESHOLDS.WEEK}`,
     name: 'Week Warrior',
-    description: 'Completed tasks for 7 consecutive days',
+    description: `Completed tasks for ${STREAK_THRESHOLDS.WEEK} consecutive days`,
     badge: {
       icon: '🔥',
       color: 'gold',
@@ -167,7 +188,7 @@ export const ACHIEVEMENT_REGISTRY: Achievement[] = [
   {
     id: 'pru-optimizer',
     name: 'PRU Optimizer',
-    description: 'Achieved PRU efficiency below 2000',
+    description: `Achieved PRU efficiency below ${PRU_THRESHOLDS.EXPERT}`,
     badge: {
       icon: '⚡',
       color: 'silver',
@@ -178,7 +199,7 @@ export const ACHIEVEMENT_REGISTRY: Achievement[] = [
   {
     id: 'pru-master',
     name: 'PRU Master',
-    description: 'Achieved PRU efficiency below 1000',
+    description: `Achieved PRU efficiency below ${PRU_THRESHOLDS.MASTER}`,
     badge: {
       icon: '⚡',
       color: 'platinum',
@@ -219,7 +240,7 @@ export function checkAchievementUnlocked(
     return metrics.completionPercentage >= threshold;
   });
   
-  if (unlockedMilestones.length === 0) return null;
+  if (unlockedMilestones.length === 0) {return null;}
   
   // Return highest milestone (sort by threshold descending)
   return unlockedMilestones.sort((a, b) => {
