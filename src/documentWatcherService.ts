@@ -32,6 +32,11 @@ import {
   type ParsedMetrics,
 } from './documentChangeTypes.js';
 
+// ── VS Code Output Channel for logging ────────────────────────────────────────
+export interface OutputChannelLike {
+  appendLine(message: string): void;
+}
+
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 /** Debounce window (ms) — matches AC3 requirement of 300ms */
@@ -68,6 +73,7 @@ type ChangesListener = (changes: DocumentChange[]) => void;
 export class DocumentWatcherService {
   private readonly workspaceRoot: string;
   private readonly enableVSCodeWatcher: boolean;
+  private readonly outputChannel: OutputChannelLike | undefined;
 
   private watching = false;
   private debounceTimer: NodeJS.Timeout | null = null;
@@ -75,9 +81,14 @@ export class DocumentWatcherService {
   private readonly listeners = new Set<ChangesListener>();
   private vsCodeWatcher: vscode.FileSystemWatcher | null = null;
 
-  constructor(workspaceRoot: string, enableVSCodeWatcher = false) {
+  constructor(
+    workspaceRoot: string,
+    enableVSCodeWatcher = false,
+    outputChannel?: OutputChannelLike
+  ) {
     this.workspaceRoot = workspaceRoot;
     this.enableVSCodeWatcher = enableVSCodeWatcher;
+    this.outputChannel = outputChannel;
   }
 
   // ── Public API ──────────────────────────────────────────────────────────────
@@ -138,7 +149,12 @@ export class DocumentWatcherService {
    * Logs the error without interrupting the watcher.
    */
   notifyError(error: Error): void {
-    console.error('[DocumentWatcher] File system error:', error);
+    const message = `[DocumentWatcher] File system error: ${error.message}`;
+    if (this.outputChannel) {
+      this.outputChannel.appendLine(message);
+    } else {
+      console.error(message, error);
+    }
   }
 
   /**
@@ -182,7 +198,12 @@ export class DocumentWatcherService {
       };
     } catch (error) {
       // If regex throws (unlikely with safe patterns), return defaults
-      console.error('[DocumentWatcher] Error parsing metrics:', error);
+      const message = `[DocumentWatcher] Error parsing metrics: ${error instanceof Error ? error.message : String(error)}`;
+      if (this.outputChannel) {
+        this.outputChannel.appendLine(message);
+      } else {
+        console.error(message, error);
+      }
       return getDefaultParsedMetrics();
     }
   }
@@ -215,7 +236,12 @@ export class DocumentWatcherService {
       try {
         listener(batch);
       } catch (err) {
-        console.error('[DocumentWatcher] Listener threw an error:', err);
+        const message = `[DocumentWatcher] Listener threw an error: ${err instanceof Error ? err.message : String(err)}`;
+        if (this.outputChannel) {
+          this.outputChannel.appendLine(message);
+        } else {
+          console.error(message, err);
+        }
       }
     }
   }

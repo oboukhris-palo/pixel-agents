@@ -115,6 +115,35 @@ describe('DocumentWatcherMessageHandler — error resilience', () => {
     consoleSpy.mockRestore();
     service.stop();
   });
+
+  it('uses OutputChannel for logging when provided', () => {
+    const mockOutputChannel = {
+      appendLine: jest.fn(),
+    };
+    
+    const service = new DocumentWatcherService('/workspace');
+    const webview = {
+      postMessage: jest.fn(() => { throw new Error('Webview error'); }),
+      messages: [],
+    };
+
+    const handler = new DocumentWatcherMessageHandler(service, webview, mockOutputChannel);
+    
+    handler.start();
+    service.start();
+
+    jest.useFakeTimers();
+    service.simulateChange(makeChange('/docs/file.md'));
+    jest.advanceTimersByTime(350);
+    jest.useRealTimers();
+    
+    expect(mockOutputChannel.appendLine).toHaveBeenCalledWith(
+      expect.stringContaining('[DocumentWatcherMessageHandler] Failed to post message')
+    );
+
+    handler.stop();
+    service.stop();
+  });
 });
 
 describe('DocumentWatcherMessageHandler — start / stop', () => {

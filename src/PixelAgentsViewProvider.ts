@@ -44,6 +44,7 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 	// Document watcher (US-001-003)
 	documentWatcherService: DocumentWatcherService | null = null;
 	documentWatcherHandler: DocumentWatcherMessageHandler | null = null;
+	documentWatcherOutputChannel: vscode.OutputChannel | null = null;
 
 	// Agent metadata from .github/agents/
 	agentMetadata = new Map<string, AgentMetadata>();
@@ -251,11 +252,22 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 
 							// Initialize document watcher (US-001-003)
 							console.log('[Extension] 📄 Initializing document watcher...');
-							this.documentWatcherService = new DocumentWatcherService(workspaceRoot, true);
+							
+							// Create output channel for document watcher logging
+							if (!this.documentWatcherOutputChannel) {
+								this.documentWatcherOutputChannel = vscode.window.createOutputChannel('Pixel Agents: Document Watcher');
+							}
+							
+							this.documentWatcherService = new DocumentWatcherService(
+								workspaceRoot,
+								true,
+								this.documentWatcherOutputChannel
+							);
 							if (this.webview) {
 								this.documentWatcherHandler = new DocumentWatcherMessageHandler(
 									this.documentWatcherService,
 									this.webview,
+									this.documentWatcherOutputChannel
 								);
 								this.documentWatcherHandler.start();
 							}
@@ -376,6 +388,15 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 	dispose() {
 		this.layoutWatcher?.dispose();
 		this.layoutWatcher = null;
+		
+		// Dispose document watcher (US-001-003)
+		this.documentWatcherHandler?.stop();
+		this.documentWatcherHandler = null;
+		this.documentWatcherService?.stop();
+		this.documentWatcherService = null;
+		this.documentWatcherOutputChannel?.dispose();
+		this.documentWatcherOutputChannel = null;
+		
 		for (const id of [...this.agents.keys()]) {
 			removeAgent(
 				id,
