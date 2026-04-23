@@ -1,0 +1,82 @@
+.context-window-bar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 12px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+  background: var(--vscode-sideBar-background, #1e1e1e);
+  z-index: 100;
+  cursor: pointer;
+}
+
+.progress-track {
+  flex: 1;
+  width: 6px;
+  border-radius: 3px;
+  background: var(--vscode-progressBar-background, #333);
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  border-radius: 3px;
+  transition: height 0.3s ease, background-color 0.3s ease;
+}
+
+.threshold-safe .progress-fill { background-color: #28a745; }
+.threshold-warning .progress-fill { background-color: #ffc107; }
+.threshold-critical .progress-fill { background-color: #dc3545; }
+
+.percentage-label {
+  font-size: 8px;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  color: var(--vscode-foreground, #ccc);
+  margin-top: 4px;
+  transform: rotate(180deg);
+}
+
+.threshold-icon {
+  font-size: 10px;
+  margin-top: 4px;
+}
+
+.tooltip {
+  position: fixed;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--vscode-editorWidget-background, #252526);
+  border: 1px solid var(--vscode-editorWidget-border, #454545);
+  border-radius: 4px;
+  padding: 8px 12px;
+  min-width: 200px;
+  z-index: 200;
+  font-size: 12px;
+  color: var(--vscode-foreground, #ccc);
+}
+
+.tooltip-title {
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 2px 0;
+}
+
+.tooltip-divider {
+  border: none;
+  border-top: 1px solid var(--vscode-editorWidget-border, #454545);
+  margin: 4px 0;
+}

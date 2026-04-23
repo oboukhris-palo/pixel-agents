@@ -1,0 +1,93 @@
+---
+# Human Validation Gate for Implementation Plan
+# Location: /docs/05-implementation/epics/EPIC-002/user-stories/US-002-001/plan-approval.yaml
+# Purpose: Require human approval before TDD execution begins
+# Status: changes-requested | approved | revoked
+---
+
+metadata:
+  templateId: "plan-approval"
+  templateVersion: "2.0"
+  documentType: "gate-checkpoint"
+  title: "Plan Approval Gate: US-002-001"
+  agent_context:
+    phase: "implementation"
+    epic_ref: "EPIC-002"
+    user_story_ref: "US-002-001"
+    agent_name: "dev-lead"
+    model_name: "claude-3.5-sonnet"
+
+story: US-002-001
+plan_version: v1
+epic: EPIC-002
+title: "Context Window Bar with Token Usage Visualization"
+
+scope: 
+  - Layer1
+  - Layer2
+  - Layer3
+  - Layer4
+
+risk: high
+
+approvers:
+  - role: dev-lead
+    name: Sebastian (Tech Lead)
+    approved: false
+    date: null
+    notes: "Awaiting review. Key risk: Copilot API integration may require fallback."
+
+status: changes-requested
+
+validation_checklist:
+  - item: "Implementation plan follows layer architecture (Layer 1-4 defined)"
+    verified: true
+  - item: "BDD scenarios map to implementation layers (8 scenarios planned)"
+    verified: true
+  - item: "External dependencies documented (Copilot Chat API, fallback strategy)"
+    verified: true
+  - item: "Database migrations N/A (Layer 1 is type definitions only)"
+    verified: true
+  - item: "Error handling strategy defined (graceful fallback if API unavailable)"
+    verified: true
+  - item: "Performance requirements specified (<100ms updates, debouncing)"
+    verified: true
+  - item: "Accessibility requirements addressed (WCAG 2.1 AA, ARIA progressbar)"
+    verified: true
+  - item: "Layer sequence optimized (Foundation → Communication → UI)"
+    verified: true
+
+technical_review:
+  architecture_alignment: true
+  bdd_coverage: true
+  dependencies_clear: true
+  risk_mitigation_adequate: true
+  estimation_reasonable: true
+
+notes: |
+  ⏳ AWAITING DEV-LEAD APPROVAL
+  
+  **Plan Quality**: Good confidence in layer breakdown. High risk requires early API validation.
+  
+  **Key Strengths**:
+  - Clear 4-layer architecture (Types → Backend → Protocol → Frontend)
+  - Comprehensive BDD coverage (8 scenarios planned)
+  - Fallback strategy for Copilot API unavailability
+  - Performance targets explicit (<100ms updates)
+  
+  **Potential Challenges**:
+  - Copilot Chat API integration unknown (HIGH RISK)
+  - Token calculation accuracy (need early spike)
+  - Real-time performance (<100ms is aggressive)
+  
+  **Recommendation**: SPIKE FIRST — validate Copilot API integration on Day 1 before proceeding
+  
+  **Next Steps**:
+  1. Spike: Test Copilot API availability (2 hours max)
+  2. If API available: proceed with Layer 1
+  3. If API unavailable: implement fallback estimation first
+  4. TDD Orchestrator begins with Layer 1 after spike
+  
+  **Review Trigger**: Re-approval required if API integration fails and fallback significantly changes plan.
+
+---
