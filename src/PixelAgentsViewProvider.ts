@@ -18,6 +18,8 @@ import { writeLayoutToFile, readLayoutFromFile, watchLayoutFile } from './layout
 import type { LayoutWatcher } from './layoutPersistence.js';
 import { loadAgentMetadata, type AgentMetadata } from './agentMetadata.js';
 import { WorkflowDetector } from './workflowDetector.js';
+import { DocumentWatcherService } from './documentWatcherService.js';
+import { DocumentWatcherMessageHandler } from './documentWatcherMessageHandler.js';
 import type { WorkflowState } from './types.js';
 
 export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
@@ -38,6 +40,10 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 	// Workflow detector
 	workflowDetector: WorkflowDetector | null = null;
 	workflowWatcherDisposable: vscode.Disposable | null = null;
+
+	// Document watcher (US-001-003)
+	documentWatcherService: DocumentWatcherService | null = null;
+	documentWatcherHandler: DocumentWatcherMessageHandler | null = null;
 
 	// Agent metadata from .github/agents/
 	agentMetadata = new Map<string, AgentMetadata>();
@@ -242,6 +248,18 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 								}
 							});
 							this.context.subscriptions.push(this.workflowWatcherDisposable);
+
+							// Initialize document watcher (US-001-003)
+							console.log('[Extension] 📄 Initializing document watcher...');
+							this.documentWatcherService = new DocumentWatcherService(workspaceRoot, true);
+							if (this.webview) {
+								this.documentWatcherHandler = new DocumentWatcherMessageHandler(
+									this.documentWatcherService,
+									this.webview,
+								);
+								this.documentWatcherHandler.start();
+							}
+							this.documentWatcherService.start();
 						}
 					} catch (err) {
 						console.error('[Extension] ❌ Error loading assets:', err);

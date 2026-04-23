@@ -17,6 +17,7 @@ import { DebugView } from './components/DebugView.js'
 import { AgentRegistry } from './components/AgentRegistry.js'
 import { WorkflowStatusBar } from './components/WorkflowStatusBar.js'
 import { TaskProgressionBar } from './components/TaskProgressionBar.js'
+import { DocumentWatcherIndicator } from './components/DocumentWatcherIndicator.js'
 import { spawnPlaceholderAgents } from './office/engine/placeholderAgents.js'
 
 // Game state lives outside React — updated imperatively by message handlers
@@ -125,7 +126,7 @@ function App() {
 
   const isEditDirty = useCallback(() => editor.isEditMode && editor.isDirty, [editor.isEditMode, editor.isDirty])
 
-  const { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, workspaceFolders, agentMetadata, githubFileAccess, workflowState, taskProgression } = useExtensionMessages(getOfficeState, editor.setLastSavedLayout, isEditDirty)
+  const { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, workspaceFolders, agentMetadata, githubFileAccess, workflowState, taskProgression, documentWatcherState } = useExtensionMessages(getOfficeState, editor.setLastSavedLayout, isEditDirty)
 
   const [isDebugMode, setIsDebugMode] = useState(false)
 
@@ -234,6 +235,8 @@ function App() {
       )}
 
       <WorkflowStatusBar workflowState={workflowState} />
+
+      <DocumentWatcherIndicator watcherState={documentWatcherState} />
 
       <ZoomControls zoom={editor.zoom} onZoomChange={editor.handleZoomChange} />
 

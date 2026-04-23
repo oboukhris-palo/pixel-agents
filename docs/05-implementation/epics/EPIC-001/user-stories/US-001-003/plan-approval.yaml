@@ -1,0 +1,235 @@
+---
+# Plan Approval Gate for EPIC-001-US-001-003
+# Generated: 2026-04-23
+# Story Key: EPIC-001-US-001-003
+# Status: PENDING_REVIEW
+
+story_key: "EPIC-001-US-001-003"
+story_title: "Real-Time Document Monitoring Engine"
+epic_key: "EPIC-001"
+epic_title: "Workflow Visualization Enhancement"
+story_points: 4
+priority: "P1"
+
+approval_status: "changes-requested"  # YOLO cycle complete — normal approval required for next cycle
+
+approval_checklist:
+  - id: "AC1"
+    item: "Implementation plan follows 4-layer architecture (Database/Backend/Config/Frontend)"
+    required: true
+    completed: true
+    notes: "Layer 1: Event Types, Layer 2: File Watcher Service, Layer 3: Message Protocol, Layer 4: WebView Integration"
+
+  - id: "AC2"
+    item: "BDD scenarios clearly map to acceptance criteria (AC1-AC10)"
+    required: true
+    completed: true
+    notes: "5 feature files created, each scenario tied to specific AC requirements"
+
+  - id: "AC3"
+    item: "All external dependencies documented (chokidar, lodash.debounce, Node.js fs)"
+    required: true
+    completed: true
+    notes: "Dependencies listed in Layer 2 and Layer 3 sections"
+
+  - id: "AC4"
+    item: "Database migration order correct (if applicable)"
+    required: false
+    completed: true
+    notes: "N/A - File watcher service, no database migrations needed"
+
+  - id: "AC5"
+    item: "Critical business logic addressed (debouncing, error handling, performance)"
+    required: true
+    completed: true
+    notes: "AC3 (debouncing), AC6 (error handling), AC5 (performance optimized) all detailed in Layer 2"
+
+  - id: "AC6"
+    item: "Error handling strategy defined (permission denied, disk errors, race conditions)"
+    required: true
+    completed: true
+    notes: "Error scenarios documented with recovery behavior in Layer 2 and Technical Notes"
+
+  - id: "AC7"
+    item: "Performance targets specified (<500ms latency, <10MB memory, <15% CPU spike)"
+    required: true
+    completed: true
+    notes: "All targets stated in Layer 2 BDD Coverage and Technical Notes sections"
+
+  - id: "AC8"
+    item: "Architectural constraints from tech-spec.md clearly referenced"
+    required: true
+    completed: true
+    notes: "tech-spec.md constraints cited in Architecture Constraints sections (Layers 2-4)"
+
+  - id: "AC9"
+    item: "Test strategy defined (unit, integration, BDD test counts and coverage targets)"
+    required: true
+    completed: true
+    notes: "Layer-specific test counts: Layer 1 (25+), Layer 2 (64+), Layer 3 (30+), Layer 4 (25+), Total >80% coverage"
+
+  - id: "AC10"
+    item: "Implementation sequence logical with no circular dependencies"
+    required: true
+    completed: true
+    notes: "Layer 1 → Layer 2 → Layer 3 → Layer 4, strict dependency order, no parallelization"
+
+  - id: "AC11"
+    item: "BDD-to-layer mapping ensures all acceptance criteria (AC1-AC10) testable"
+    required: true
+    completed: true
+    notes: "Each acceptance criterion traced to specific BDD scenario and TDD cycle"
+
+  - id: "AC12"
+    item: "Skeleton code patterns provided (method signatures, test data, comments)"
+    required: true
+    completed: false
+    notes: "Skeleton code will be created by dev-lead during pre-TDD setup phase (Layer 1-4 stubs)"
+
+  - id: "AC13"
+    item: "GitHub Issue linked with clear story definition"
+    required: true
+    completed: false
+    notes: "GitHub Issue creation pending sprint planning ceremony"
+
+reviewer_comments:
+  - timestamp: "2026-04-23T14:00:00Z"
+    reviewer: "dev-lead"
+    status: "pending-review"
+    message: "Plan submitted for technical feasibility review. Waiting for architecture validation."
+
+approval_history:
+  - timestamp: "2026-04-23T14:00:00Z"
+    status: "changes-requested"
+    reviewer: "system"
+    action: "Plan created"
+
+definition_of_done_items:
+  - item: "All 4 layers specified with max 500 words each"
+    status: "✅ Complete"
+  - item: "BDD scenarios created and mapped to acceptance criteria"
+    status: "✅ Complete"
+  - item: "Dependencies identified and documented"
+    status: "✅ Complete"
+  - item: "Performance targets explicitly stated"
+    status: "✅ Complete"
+  - item: "Error handling strategy defined"
+    status: "✅ Complete"
+  - item: "Test coverage targets defined (>80%)"
+    status: "✅ Complete"
+  - item: "Architectural alignment with existing codebase patterns"
+    status: "✅ Complete (EventEmitter, message protocol, Layers 1-4)"
+  - item: "No breaking changes to existing components"
+    status: "✅ Complete (AC10 integration)"
+  - item: "Skeleton code stubs ready (pre-TDD setup)"
+    status: "⏳ Pending (created during Layer 1 setup)"
+  - item: "GitHub Issue created and linked"
+    status: "⏳ Pending (sprint planning)"
+
+implementation_readiness:
+  - category: "Architecture"
+    status: "READY"
+    details: "4-layer decomposition aligned with existing agentActivityMonitor (Layer 2 pattern), useExtensionMessages hook (Layer 3 pattern), ActionBubble component (Layer 4 pattern)"
+
+  - category: "Dependencies"
+    status: "READY"
+    details: "chokidar and lodash.debounce already in package.json, Node.js fs native module, no new dependency installations needed"
+
+  - category: "BDD Scenarios"
+    status: "READY"
+    details: "5 feature files created in features/ subdirectory, all scenarios written, step definitions pending TDD RED phase"
+
+  - category: "Testing Strategy"
+    status: "READY"
+    details: "Unit test counts per layer defined (25+/64+/30+/25+), integration tests specified, BDD coverage mapped"
+
+  - category: "Performance Targets"
+    status: "READY"
+    details: "<500ms latency, <10MB memory, <15% CPU spike targets measurable and testable"
+
+  - category: "Error Handling"
+    status: "READY"
+    details: "Permission denied, disk errors, race conditions all documented with recovery strategies"
+
+  - category: "Integration Points"
+    status: "READY"
+    details: "PixelAgentsViewProvider, useExtensionMessages hook, TaskProgressionBar, WorkflowStatusBar all identified"
+
+risk_assessment:
+  - risk_id: "R1"
+    category: "External Dependency"
+    description: "chokidar library behavior on different OSes (Windows/Mac/Linux)"
+    probability: "MEDIUM"
+    impact: "HIGH"
+    mitigation: "chokidar well-established, handle platform-specific edge cases in error handling tests"
+
+  - risk_id: "R2"
+    category: "Performance"
+    description: "Concurrent file writes causing debounce buffer overflow, memory spike"
+    probability: "LOW"
+    impact: "MEDIUM"
+    mitigation: "Bounded queue (max 100 events), memory profiling during test phase, stress testing with 10+ concurrent writes"
+
+  - risk_id: "R3"
+    category: "Integration"
+    description: "DocumentWatcherMessage broadcasting too frequently, overwhelming webview"
+    probability: "LOW"
+    impact: "MEDIUM"
+    mitigation: "300ms debounce prevents message storms, performance testing validates <500ms latency"
+
+  - risk_id: "R4"
+    category: "Compatibility"
+    description: "Breaking changes to existing components (TaskProgressionBar, WorkflowStatus)"
+    probability: "LOW"
+    impact: "HIGH"
+    mitigation: "AC10 explicitly covers integration compatibility, all existing tests must pass"
+
+sign_off:
+  dev_lead_approval: false
+  dev_lead_signature: "Sebastian (dev-lead)"
+  dev_lead_approval_date: null
+  approval_notes: "Awaiting dev-lead review and approval before TDD RED phase can start"
+
+transition_to_approved_workflow:
+  step_1: "Dev-lead reviews checklist completeness"
+  step_2: "Dev-lead validates BDD scenarios are comprehensive"
+  step_3: "Dev-lead confirms all acceptance criteria (AC1-AC10) testable"
+  step_4: "If approved: set status='approved', create skeleton classes (Layer 1-4), hand off to TDD RED"
+  step_5: "If changes needed: update this file, dev-lead adds comments, re-submit for review"
+
+next_phase:
+  description: "Once approved, transition to Layer 1 TDD RED phase"
+  assignee: "dev-tdd-red"
+  first_task: "Write failing unit tests for type guards (isMarkdownFile, isYamlFile, isFeatureFile)"
+  feature_files: "/docs/05-implementation/epics/EPIC-001/user-stories/US-001-003/features/"
+  implementation_plan: "/docs/05-implementation/epics/EPIC-001/user-stories/US-001-003/implementation-plan.md"
+
+---
+
+## Approval Process
+
+**Current Status**: 🔵 PENDING_REVIEW (Changes Requested)
+
+**Action Items for Dev-Lead**:
+1. Review implementation plan (Layer 1-4 decomposition)
+2. Validate BDD scenarios comprehensively map AC1-AC10
+3. Confirm all dependencies available (chokidar, lodash.debounce)
+4. Assess architectural alignment with existing code patterns
+5. Approve or request changes (add comments in `reviewer_comments` section)
+
+**To Approve**: Change `approval_status` from "changes-requested" to "approved"
+
+**Approval Criteria**:
+- ✅ All 4 layers specified with clear file lists and TDD approach
+- ✅ BDD scenarios comprehensive and testable
+- ✅ Performance targets explicit and measurable
+- ✅ Error handling strategy complete
+- ✅ No breaking changes to existing components
+- ✅ Architectural alignment with codebase
+
+**Once Approved**:
+1. Dev-lead creates skeleton classes (Layer 1-4 method stubs, comments)
+2. Dev-tdd-red receives Layer 1 with failing tests
+3. TDD RED → GREEN → REFACTOR cycles begin
+4. BDD scenarios drive test assertions
+
