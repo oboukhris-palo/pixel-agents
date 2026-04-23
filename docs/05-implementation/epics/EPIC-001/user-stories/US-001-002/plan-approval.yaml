@@ -1,0 +1,226 @@
+---
+story_id: US-001-002
+plan_version: 1.0
+status: changes-requested
+approved_by: 
+approval_date: 
+last_modified: 2026-04-23
+
+validation_checklist:
+  - item: Layer 1 type contract aligns with BDD scenarios (AC1, AC3, AC6, AC7)
+    status: pending-review
+    checkpoint: 1
+    reviewer_notes: ""
+    
+  - item: ActionBubbleMessage matches message protocol pattern from US-001-001
+    status: pending-review
+    checkpoint: 1
+    reviewer_notes: ""
+    
+  - item: Constants defined for code display config (max 200 chars/line, max 50 snippets)
+    status: pending-review
+    checkpoint: 1
+    reviewer_notes: ""
+    
+  - item: Layer 2 agentActivityMonitor service architecture sound (git integration, debouncing)
+    status: pending-review
+    checkpoint: 2
+    reviewer_notes: ""
+    
+  - item: Code extraction utility handles edge cases (long lines truncation, null snippets)
+    status: pending-review
+    checkpoint: 2
+    reviewer_notes: ""
+    
+  - item: Commit message parsing regex covers TDD phases (RED/GREEN/REFACTOR/DOCUMENTATION)
+    status: pending-review
+    checkpoint: 2
+    reviewer_notes: ""
+    
+  - item: AgentActivityMonitor broadcasts with <500ms latency (AC4)
+    status: pending-review
+    checkpoint: 2
+    reviewer_notes: ""
+    
+  - item: Layer 3 message protocol integrates with useExtensionMessages (proven from US-001-001)
+    status: pending-review
+    checkpoint: 3
+    reviewer_notes: ""
+    
+  - item: useAgentActivity hook follows same pattern as useTaskProgression
+    status: pending-review
+    checkpoint: 3
+    reviewer_notes: ""
+    
+  - item: Layer 4 ActionBubble component uses React.memo (performance)
+    status: pending-review
+    checkpoint: 4
+    reviewer_notes: ""
+    
+  - item: Syntax highlighting integration using highlight.js (already in deps)
+    status: pending-review
+    checkpoint: 4
+    reviewer_notes: ""
+    
+  - item: Animation CSS fade-in 300ms ease-out cubic (AC5)
+    status: pending-review
+    checkpoint: 4
+    reviewer_notes: ""
+    
+  - item: Status indicators (✅/🔄/❌) correctly mapped to statuses (AC6)
+    status: pending-review
+    checkpoint: 4
+    reviewer_notes: ""
+    
+  - item: Copy-to-clipboard button with toast notification (AC7)
+    status: pending-review
+    checkpoint: 4
+    reviewer_notes: ""
+    
+  - item: Placeholder handling for null/empty code snippets (AC8)
+    status: pending-review
+    checkpoint: 4
+    reviewer_notes: ""
+    
+  - item: Debouncing strategy prevents animation spam (AC9)
+    status: pending-review
+    checkpoint: 2
+    reviewer_notes: ""
+    
+  - item: Component unmounts gracefully when no active agent (AC10)
+    status: pending-review
+    checkpoint: 4
+    reviewer_notes: ""
+    
+  - item: All 10 BDD scenarios mapped to layer implementations
+    status: pending-review
+    checkpoint: "1,2,3,4"
+    reviewer_notes: ""
+    
+  - item: Test coverage target 100% documented across all layers
+    status: pending-review
+    checkpoint: "1,2,3,4"
+    reviewer_notes: ""
+    
+  - item: Accessibility: WCAG 2.1 AA compliance planned (ARIA, keyboard nav)
+    status: pending-review
+    checkpoint: 4
+    reviewer_notes: ""
+    
+  - item: Performance requirements documented (>100ms render, <500ms updates)
+    status: pending-review
+    checkpoint: 4
+    reviewer_notes: ""
+    
+  - item: Design system tokens referenced (animations, colors, z-index, spacing)
+    status: pending-review
+    checkpoint: 4
+    reviewer_notes: ""
+    
+  - item: Risk assessment complete (git, metadata, performance, library size)
+    status: pending-review
+    checkpoint: "all"
+    reviewer_notes: ""
+    
+  - item: Dependencies and prerequisites clearly stated (US-001-001, agent metadata)
+    status: pending-review
+    checkpoint: "all"
+    reviewer_notes: ""
+
+validation_gates:
+  checkpoint_1_types:
+    name: "Layer 1: Domain & Types"
+    required: true
+    blockers: []
+    reviewer_feedback: ""
+    
+  checkpoint_2_service:
+    name: "Layer 2: Backend Services"
+    required: true
+    blockers: []
+    reviewer_feedback: ""
+    
+  checkpoint_3_protocol:
+    name: "Layer 3: Message Protocol"
+    required: true
+    blockers: []
+    reviewer_feedback: ""
+    
+  checkpoint_4_ui:
+    name: "Layer 4: Frontend Components"
+    required: true
+    blockers: []
+    reviewer_feedback: ""
+
+approval_summary: |
+  # Plan Review Status: US-001-002
+
+  ## Current Status: DRAFT (Awaiting Review)
+
+  This implementation plan defines a 4-layer BDD-driven TDD approach for the AgentActivityMonitor feature.
+  The plan has been created by Tech Lead (Sebastian) and is ready for architect/dev-lead review.
+
+  ## Validation Required
+
+  Please review each checkpoint and validate:
+  
+  1. **Checkpoint 1** (Layer 1): Type contract correctness and BDD mapping
+  2. **Checkpoint 2** (Layer 2): Service architecture, git integration, debouncing strategy
+  3. **Checkpoint 3** (Layer 3): Message protocol alignment with existing patterns
+  4. **Checkpoint 4** (Layer 4): Component design, accessibility, performance
+
+  ## Continuation Criteria
+
+  TDD execution (RED → GREEN → REFACTOR) cannot begin until:
+  - [ ] All 4 checkpoints marked APPROVED
+  - [ ] No blockers identified
+  - [ ] Reviewer feedback addressed
+  - [ ] Status changed to: approved
+  - [ ] Approval date recorded
+
+  ## Next Steps After Approval
+
+  1. Tech Lead updates status: approved
+  2. Dev-TDD orchestrator receives implementation plan
+  3. Layer 1 TDD RED phase begins (write failing tests)
+  4. BDD scenarios serve as acceptance criteria
+
+  ---
+
+  **Review Instructions**: Add reviewer_feedback to each checkpoint section above.
+  Status values: pending-review → approved | changes-requested → approved
+  
+  When all checkpoints APPROVED: Update status field to "approved" and record approval_date.
+
+---
+
+comments: |
+  **Prepared by**: Tech Lead (Sebastian)  
+  **Date**: 2026-04-23  
+  **Reviewer**: [Pending assignment]  
+  
+  This story builds directly on US-001-001 (Task Progression Bar) completion.
+  Reuses message protocol pattern and shared utilities approach.
+  
+  ## Key Differences from US-001-001
+  
+  1. **Service Layer Complexity**: Layer 2 much heavier (git integration, commit parsing)
+  2. **Code Parsing**: Extracting diffs vs file monitoring (higher risk)
+  3. **Animation**: More sophisticated fade-in + status transitions
+  4. **Capacity**: Manages 50+ code snippet history (memory management needed)
+  
+  ## Confidence Level
+  
+  - Type contract: 95% (proven pattern from US-001-001)
+  - Service architecture: 85% (git integration new, proven pattern for rest)
+  - Message protocol: 95% (reusing established pattern)
+  - Component complexity: 90% (similar to TaskProgressionBar)
+  - **Overall**: 90% confidence in plan correctness
+  
+  ## Risk Mitigation
+  
+  - git command failures: wrap in try-catch, graceful error messages
+  - Agent metadata missing: provide defaults, unit tests with mock metadata
+  - Performance: debounce at service layer + React.memo, performance tests required
+  
+---

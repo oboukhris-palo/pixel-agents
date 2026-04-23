@@ -187,6 +187,38 @@ describe('DocumentWatcherService — error handling (AC6)', () => {
     service.stop();
     consoleSpy.mockRestore();
   });
+
+  it('uses OutputChannel for logging when provided', () => {
+    const mockOutputChannel = {
+      appendLine: jest.fn(),
+    };
+    
+    const service = new DocumentWatcherService('/workspace', false, mockOutputChannel);
+    service.start();
+    service.notifyError(new Error('Test error'));
+    
+    expect(mockOutputChannel.appendLine).toHaveBeenCalledWith(
+      expect.stringContaining('[DocumentWatcher] File system error: Test error')
+    );
+    
+    service.stop();
+  });
+
+  it('falls back to console.error when OutputChannel not provided', () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    
+    const service = new DocumentWatcherService('/workspace');
+    service.start();
+    service.notifyError(new Error('Test error'));
+    
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[DocumentWatcher]'),
+      expect.any(Error)
+    );
+    
+    service.stop();
+    consoleSpy.mockRestore();
+  });
 });
 
 describe('DocumentWatcherService — concurrent writes (AC8)', () => {

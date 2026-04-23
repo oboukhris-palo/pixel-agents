@@ -55,11 +55,17 @@ export interface WebviewLike {
 export class DocumentWatcherMessageHandler {
   private readonly service: DocumentWatcherService;
   private readonly webview: WebviewLike;
+  private readonly outputChannel: OutputChannelLike | undefined;
   private unsubscribe: (() => void) | null = null;
 
-  constructor(service: DocumentWatcherService, webview: WebviewLike) {
+  constructor(
+    service: DocumentWatcherService,
+    webview: WebviewLike,
+    outputChannel?: OutputChannelLike
+  ) {
     this.service = service;
     this.webview = webview;
+    this.outputChannel = outputChannel;
   }
 
   // ── Lifecycle ───────────────────────────────────────────────────────────────
@@ -104,7 +110,12 @@ export class DocumentWatcherMessageHandler {
     try {
       this.webview.postMessage(message);
     } catch (err) {
-      console.error('[DocumentWatcherMessageHandler] Failed to post message to webview:', err);
+      const errorMessage = `[DocumentWatcherMessageHandler] Failed to post message to webview: ${err instanceof Error ? err.message : String(err)}`;
+      if (this.outputChannel) {
+        this.outputChannel.appendLine(errorMessage);
+      } else {
+        console.error(errorMessage, err);
+      }
     }
   }
 
