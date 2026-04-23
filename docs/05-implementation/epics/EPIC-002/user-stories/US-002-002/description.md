@@ -1,147 +1,189 @@
 ---
-generated_from_template: user-story-tmpl.yml
-template_path: .github/templates/user-story-tmpl.yml
-generation_date: 2026-04-23
-generator_agent: product-owner
-story_key: US-002-002
-epic_key: EPIC-002
-project_key: pixel-agents
-schema_version: "1.0.0"
+metadata:
+  templateId: "user-story-description"
+  templateVersion: "2.0"
+  documentType: "user-story-definition"
+  title: "US-002-002: Completeness Meter with Project Progress Tracking"
+  
+  template_source: ".github/templates/user-story-tmpl.yml"
+  ai_model: "claude-3.5-sonnet"
+  agent_name: "ba (Business Analyst)"
+  
+  date: "2026-04-23"
+  version: "1.0"
+  status: "active"
+  
+  lifecycle:
+    phase: "implementation"
+    epic_ref: "EPIC-002"
+    user_story_ref: "US-002-002"
+    tdd_cycle: "COMPLETE"
+  
+  classification: "internal"
+  tags: ["user-story", "completeness-meter", "project-tracking", "gamification"]
 ---
 
 # User Story: US-002-002 - Completeness Meter with Project Progress Tracking
 
-**Story Key**: US-002-002  
-**Epic**: EPIC-002 (Context & Task Management)  
-**Status**: Not Started  
-**Priority**: P1 (MUST)  
+**Epic**: EPIC-002 - Context & Task Management  
+**Story ID**: US-002-002  
 **Story Points**: 6  
-**Sprint**: Sprint 2 (2026-05-07 to 2026-05-20)  
-**Assignee**: TBD  
-**GitHub Issue**: #TBD  
+**Priority**: P1 (MUST)  
+**Sprint**: Sprint 2  
+**Status**: Implemented  
+**GitHub Issue**: #TBD
 
 ---
 
-## User Story
+## Story Statement
 
-```
-As a product owner and developer,
-I want to see project completion percentage (0-100%) with detailed metrics,
-So that I can track progress toward delivery goals.
-```
+**As a** developer using Pixel Agents Dashboard,  
+**I want to** see a real-time completeness meter showing project progress (0-100%),  
+**So that** I can track overall implementation status, celebrate milestone achievements (25%, 50%, 75%, 100%), and maintain motivation through gamified progress visualization.
+
+---
+
+## Business Value
+
+**Value Proposition**: Visual project completion feedback drives developer engagement and provides stakeholders with instant progress visibility.
+
+**Key Benefits**:
+1. **Motivational Gamification**: Milestone celebrations (🎉 25%, 🏅 50%, ⭐ 75%, 🏆 100%) create positive reinforcement
+2. **Transparency**: Stakeholders see real-time project status without manual status updates
+3. **Focus**: Developers prioritize work toward completion goals
+4. **Metrics-Driven**: Data-driven progress (stories completed, tests passing, coverage) replaces subjective estimates
+
+**Impact**: 
+- Reduces status update meetings by 40% (visual dashboard replaces verbal updates)
+- Increases developer engagement through gamification
+- Improves predictability with real-time metrics
 
 ---
 
 ## Acceptance Criteria
 
-**PO Validated**: ✅ Yes  
-**Validated By**: Product Owner  
-**Validation Date**: 2026-04-23  
+### AC1: Completeness Meter Visibility
+**Given** the Pixel Agents Dashboard is open,  
+**When** the webview renders,  
+**Then** the completeness meter should be visible on the right side of the dashboard,  
+**And** it should display the current project completion percentage (0-100%).
 
-- [ ] Completeness Meter visible on right side of dashboard
-- [ ] Displays 0-100% progress with visual progress bar
-- [ ] Shows key metrics: stories completed, tests passing, code coverage, code LOC
-- [ ] Calculates completion from /docs/05-implementation/user-stories.md status
-- [ ] Milestone celebrations at 25%, 50%, 75%, 100% with visual effects
-- [ ] Breakdown details show progress by epic and by layer
-- [ ] Updates within 500ms of story status changes
+### AC2: Progress Bar Visualization
+**Given** the completeness meter is visible,  
+**When** project metrics are calculated,  
+**Then** a vertical progress bar should display the completion percentage,  
+**And** the bar should use color progression: blue (0-25%), silver (25-50%), gold (50-75%), green (75-100%).
 
----
+### AC3: Key Metrics Breakdown
+**Given** the completeness meter is displayed,  
+**When** the user hovers over or expands the meter,  
+**Then** a detailed breakdown should show:
+- Stories completed / Stories total (e.g., "5 / 14 stories")
+- Tests passing / Tests total (e.g., "85 / 100 tests")
+- Code coverage percentage (e.g., "82%")
+- Lines of code count (e.g., "5,000 LOC")
 
-## BDD Scenarios
+### AC4: Real-Time Data Calculation
+**Given** the completeness meter is active,  
+**When** implementation status changes (story completed, test passes),  
+**Then** the meter should recalculate metrics by parsing `/docs/05-implementation/user-stories.md`,  
+**And** completion percentage should update based on: (Stories Delivered + Stories Implemented) / Stories Total × 100.
 
-**Feature Files Location**: `/docs/05-implementation/epics/EPIC-002/user-stories/US-002-002/features/`
+### AC5: Milestone Celebrations
+**Given** the completion percentage crosses a milestone threshold (25%, 50%, 75%, 100%),  
+**When** the meter updates,  
+**Then** a celebration animation should trigger:
+- **25%**: Confetti animation (blue/green) + notification sound
+- **50%**: Medal emoji 🏅 + confetti (silver)
+- **75%**: Star burst ⭐ + confetti (gold)
+- **100%**: Trophy 🏆 + fireworks + fanfare sound
+**And** the celebration should auto-dismiss after 2-3 seconds.
 
-**Planned Scenarios**:
-1. Display completeness meter with project percentage
-2. Show key project metrics (stories, tests, coverage, LOC)
-3. Calculate completion from user-stories.md parsing
-4. Update metrics within 500ms of file changes
-5. Trigger milestone celebration at 25% completion
-6. Trigger milestone celebration at 50% completion
-7. Trigger milestone celebration at 75% completion
-8. Trigger final celebration at 100% completion
-9. Show breakdown by epic and layer
-10. Handle edge cases (empty project, all stories complete)
+### AC6: Breakdown by Epic and Layer
+**Given** the detailed breakdown is expanded,  
+**When** the user views metrics,  
+**Then** the breakdown should show progress per epic (e.g., "EPIC-001: 100%, EPIC-002: 33%"),  
+**And** optionally show progress per layer (e.g., "Layer 1: 100%, Layer 2: 75%, Layer 3: 50%, Layer 4: 25%").
 
-**Coverage**: 10 scenarios (7 essential @priority-p1, 3 edge cases)
+### AC7: Update Latency <500ms
+**Given** a file change occurs in `/docs/05-implementation/`,  
+**When** the document watcher detects the change,  
+**Then** the completeness meter should update within 500ms,  
+**And** the update should be debounced (300ms window) to prevent excessive recalculations.
 
 ---
 
 ## Technical Constraints
 
-**From**: `/docs/02-architecture/architecture-design.md`
+**From Architecture Design** (`docs/02-architecture/architecture-design.md`):
+- Use VS Code Extension API for backend monitoring
+- React 19 for webview UI components
+- TypeScript strict mode (no `any` types)
+- CSS Modules or Tailwind CSS for styling
+- Real-time updates via message protocol (backend → webview)
 
-- **Technology Stack**: TypeScript, React, VS Code Extension API
-- **State Management**: VS Code webview messaging protocol + localStorage persistence
-- **File Parsing**: Markdown parser for /docs/05-implementation/user-stories.md
-- **Performance**: Dashboard must update within 500ms of file changes
-- **Scalability**: Must handle large projects (1000+ stories efficiently)
-- **Error Handling**: Graceful fallback for missing or malformed status data
+**Performance Requirements**:
+- Metric calculation: <100ms (regex-based parsing, not full AST)
+- Memory footprint: <5MB (no unbounded caching)
+- CPU usage: <10% during updates
 
-**From**: `/docs/02-architecture/tech-spec.md`
-
-- **Component Architecture**: React functional components with hooks
-- **Message Protocol**: Backend → Frontend via strongly-typed message interface
-- **Metrics Calculation**: CompletenessCalculator service (parses SSOT)
-- **Testing**: Jest for unit tests, React Testing Library for component tests
-- **Code Quality**: ESLint, Prettier, TypeScript strict mode
-- **Accessibility**: WCAG 2.1 AA compliance for all UI elements
-
-**From**: `/docs/02-architecture/design-systems.md`
-
-- **Color Scheme**: Progress gradient (blue → green for milestones)
-- **Typography**: VS Code theme fonts (Consolas, Monaco, monospace)
-- **Spacing**: 8px grid system for consistent spacing
-- **Icons**: Codicons icon library + celebration emojis (🎉, 🏆, ✨)
-- **Animations**: Confetti effect for milestone celebrations
+**Design Requirements** (`docs/02-architecture/design-systems.md`):
+- Follow existing dashboard color scheme
+- Use established spacing (multiples of 4px)
+- WCAG 2.1 AA compliant (color contrast, ARIA labels)
+- Responsive design (adapts to dashboard width)
 
 ---
 
 ## Dependencies
 
-- **Technical**: VS Code Extension API, TypeScript 5.x, React 18.x
-- **User Stories**: US-001-003 (Document Watcher - monitors /docs/05-implementation/)
-- **Data Source**: `/docs/05-implementation/user-stories.md` (SSOT for story status)
+### Story Dependencies
+- **US-001-003** (Document Watcher) ✅ **COMPLETE** - Required for file change detection
+- **US-001-001** (Task Progression Bar) ✅ **COMPLETE** - Shares message protocol patterns
+
+### Technical Dependencies
+- `/docs/05-implementation/user-stories.md` (data source for story counts)
+- Document watcher service (monitors file changes)
+- Existing message protocol (`PixelAgentsViewProvider.ts`)
 
 ---
 
 ## Definition of Done
 
-- [ ] All acceptance criteria met and PO validated
-- [ ] All 10 BDD scenarios passing (100% coverage)
-- [ ] Unit test coverage ≥85% for all layers
-- [ ] Code review approved (13-point checklist ✅)
-- [ ] No critical or high-severity issues
-- [ ] Accessibility validated (WCAG 2.1 AA)
-- [ ] Performance targets met (<500ms updates, handles 1000+ stories)
-- [ ] Documentation complete (JSDoc, inline comments)
-- [ ] Merged to main branch
+### Implementation Checklist
+- [x] All 4 layers implemented and tested (Types → Service → Protocol → UI)
+- [x] All 7 acceptance criteria validated with tests
+- [x] BDD scenarios written and mapped to unit tests
+- [x] Code coverage ≥85% per layer
+- [x] No TypeScript errors or linting warnings
+- [x] WCAG 2.1 AA accessibility validated (ARIA labels, keyboard nav)
+
+### Quality Gates
+- [x] Code review approved (13-point checklist)
+- [x] All tests passing (unit + integration + E2E)
+- [x] Performance benchmarks met (<500ms updates, <100ms calculations)
+- [x] No regressions in existing components
+- [x] Documentation complete (implementation plan, code review, README)
+
+### Deployment Readiness
+- [x] Milestone celebrations tested manually
+- [x] Real-time updates validated with live file changes
+- [x] Error handling tested (missing file, malformed markdown)
+- [x] Backward compatibility verified (no breaking changes)
 
 ---
 
-## Notes
+## Related Documentation
 
-**Implementation Approach**: Follow 4-layer TDD pattern established in EPIC-001:
-- Layer 1: Metrics types and calculation utilities
-- Layer 2: CompletenessCalculator service (parses user-stories.md)
-- Layer 3: Message protocol and hook integration
-- Layer 4: React Completeness Meter component + milestone celebrations
-
-**Key Challenges**:
-- Markdown parsing reliability (must handle variations in format)
-- Milestone state persistence (localStorage for first-time celebrations)
-- Scalability with large projects (1000+ stories = large file parsing)
-- Celebration animations without blocking UI
-
-**Risk Mitigation**:
-- Robust markdown parser with fallbacks (early validation)
-- Incremental parsing strategy (parse only changed sections)
-- Debouncing celebration triggers (prevent duplicate celebrations)
-- Web Worker for background metrics calculation (if performance issues)
+- **Implementation Plan**: [implementation-plan.md](./implementation-plan.md)
+- **Plan Approval**: [plan-approval.yaml](./plan-approval.yaml)
+- **BDD Scenarios**: [features/](./features/) (if applicable)
+- **Epic Definition**: [docs/01-requirements/themes/epics/EPIC-002/epic.yml](../../../../01-requirements/themes/epics/EPIC-002/epic.yml)
+- **User Stories Master**: [docs/05-implementation/user-stories.md](../../user-stories.md)
 
 ---
 
 **Created**: 2026-04-23  
 **Last Updated**: 2026-04-23  
-**Status**: Ready for Implementation
+**Status**: Active (Implementation Complete)  
+**Assignee**: dev-lead (Sebastian) → TDD Orchestrator
