@@ -347,9 +347,9 @@ epic_key: EPIC-001
 ### Deployment Readiness
 - [x] No breaking changes to existing components
 - [x] Graceful degradation: If watcher fails, extension still works
-- [ ] Logging: Errors logged to VS Code output channel "Pixel Agents" (using console.error for now, follow-up story recommended)
+- [x] Logging: VS Code Output Channel "Pixel Agents: Document Watcher" created and used (REFACTOR-06 complete)
 - [ ] GitHub Issue: Linked and updated with implementation status (PR created, Issue pending)
-- [x] Branch: Feature branch ready for PR with 10+ commits (RED-GREEN-REFACTOR trail)
+- [x] Branch: Feature branch ready for PR with 12 commits (RED-GREEN-REFACTOR trail including REFACTOR-06)
 
 ---
 
