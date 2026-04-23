@@ -95,15 +95,54 @@ export interface TaskInfo {
 
 export interface TaskProgressionState {
   previous: TaskInfo | null
-  current: TaskInfo
+  current: TaskInfo | null
   next: TaskInfo | null
 }
 
 export interface TaskProgressionMessage {
   type: 'taskProgression'
   previous: TaskInfo | null
-  current: TaskInfo
+  current: TaskInfo | null
   next: TaskInfo | null
+}
+
+// ── Agent Activity Types (US-001-002) ─────────────────────────────────────────
+
+export type CodeLanguage = 'typescript' | 'javascript' | 'css' | 'html'
+export type TDDPhase = 'RED' | 'GREEN' | 'REFACTOR' | 'DOCUMENTATION'
+export type AgentActivityStatus = 'in-progress' | 'success' | 'failed' | 'idle'
+
+export interface CodeSnippetInfo {
+  language: CodeLanguage
+  content: string
+  lineNumbers?: number[]
+}
+
+export interface AgentActivityMetadata {
+  id: string
+  name: string
+  description: string
+  spriteColor?: string
+  icon?: string
+}
+
+export interface AgentAction {
+  type: TDDPhase
+  cycle: number
+  description: string
+}
+
+export interface AgentActivityState {
+  activeAgent: AgentActivityMetadata | null
+  currentAction: AgentAction
+  codeSnippet: CodeSnippetInfo | null
+  status: AgentActivityStatus
+  timestamp: string
+}
+
+export interface ActionBubbleMessage {
+  type: 'agent-activity-update'
+  payload: AgentActivityState
 }
 
 export interface ExtensionMessageState {
@@ -120,6 +159,7 @@ export interface ExtensionMessageState {
   githubFileAccess: Record<number, { filePath: string; timestamp: number } | null>
   workflowState: WorkflowState | null
   taskProgression: TaskProgressionState | null
+  agentActivityState: AgentActivityState | null
 }
 
 function saveAgentSeats(os: OfficeState): void {
@@ -132,7 +172,7 @@ function saveAgentSeats(os: OfficeState): void {
 }
 
 export function useExtensionMessages(
-  getOfficeState: () => OfficeState,
+  getOfficeState?: () => OfficeState,
   onLayoutLoaded?: (layout: OfficeLayout) => void,
   isEditDirty?: () => boolean,
 ): ExtensionMessageState {
@@ -149,6 +189,7 @@ export function useExtensionMessages(
   const [githubFileAccess, setGithubFileAccess] = useState<Record<number, { filePath: string; timestamp: number } | null>>({})
   const [workflowState, setWorkflowState] = useState<WorkflowState | null>(null)
   const [taskProgression, setTaskProgression] = useState<TaskProgressionState | null>(null)
+  const [agentActivityState, setAgentActivityState] = useState<AgentActivityState | null>(null)
 
   // Track whether initial layout has been loaded (ref to avoid re-render)
   const layoutReadyRef = useRef(false)
@@ -159,7 +200,7 @@ export function useExtensionMessages(
 
     const handler = (e: MessageEvent) => {
       const msg = e.data
-      const os = getOfficeState()
+      const os = getOfficeState?.()
 
       if (msg.type === 'layoutLoaded') {
         // Skip external layout updates while editor has unsaved changes
@@ -167,6 +208,7 @@ export function useExtensionMessages(
           console.log('[Webview] Skipping external layout update — editor has unsaved changes')
           return
         }
+        if (!os) return // Office state required for layout messages
         const rawLayout = msg.layout as OfficeLayout | null
         const layout = rawLayout && rawLayout.version === 1 ? migrateLayoutColors(rawLayout) : null
         if (layout) {
@@ -191,8 +233,10 @@ export function useExtensionMessages(
         const folderName = msg.folderName as string | undefined
         setAgents((prev) => (prev.includes(id) ? prev : [...prev, id]))
         setSelectedAgent(id)
-        os.addAgent(id, undefined, undefined, undefined, undefined, folderName)
-        saveAgentSeats(os)
+        if (os) {
+          os.addAgent(id, undefined, undefined, undefined, undefined, folderName)
+          saveAgentSeats(os)
+        }
       } else if (msg.type === 'agentClosed') {
         const id = msg.id as number
         setAgents((prev) => prev.filter((a) => a !== id))
@@ -216,9 +260,11 @@ export function useExtensionMessages(
           return next
         })
         // Remove all sub-agent characters belonging to this agent
-        os.removeAllSubagents(id)
+        if (os) {
+          os.removeAllSubagents(id)
+          os.removeAgent(id)
+        }
         setSubagentCharacters((prev) => prev.filter((s) => s.parentAgentId !== id))
-        os.removeAgent(id)
       } else if (msg.type === 'existingAgents') {
         const incoming = msg.agents as number[]
         const meta = (msg.agentMeta || {}) as Record<number, { palette?: number; hueShift?: number; seatId?: string }>
@@ -294,6 +340,7 @@ export function useExtensionMessages(
         })
       } else if (msg.type === 'initiateHandoff') {
         // Trigger handoff animation between agents
+        if (!os) return // Office state required for handoff messages
         const fromRole = msg.from as string
         const toRole = msg.to as string
         console.log(`[Pixel Agents] Handoff: ${fromRole} → ${toRole}`)
@@ -490,6 +537,10 @@ export function useExtensionMessages(
           current: progressionMsg.current,
           next: progressionMsg.next,
         })
+      } else if (msg.type === 'agent-activity-update') {
+        const activityMsg = msg as ActionBubbleMessage
+        console.log(`[Webview] Agent activity updated:`, activityMsg.payload)
+        setAgentActivityState(activityMsg.payload)
       } else if (msg.type === 'agentHandoff') {
         const fromId = msg.fromId as number
         const toId = msg.toId as number
@@ -502,5 +553,5 @@ export function useExtensionMessages(
     return () => window.removeEventListener('message', handler)
   }, [getOfficeState])
 
-  return { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, workspaceFolders, agentMetadata, githubFileAccess, workflowState, taskProgression }
+  return { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, workspaceFolders, agentMetadata, githubFileAccess, workflowState, taskProgression, agentActivityState }
 }

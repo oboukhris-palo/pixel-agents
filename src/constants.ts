@@ -10,6 +10,25 @@ export const TEXT_IDLE_DELAY_MS = 5000;
 export const TASK_PROGRESSION_UPDATE_DEBOUNCE_MS = 500;  // Debounce file changes
 export const TASK_PROGRESSION_REFRESH_INTERVAL_MS = 1000; // Update UI every 1 second max
 
+// ── Action Bubble / Agent Activity Monitor (US-001-002) ─────
+export const ACTION_BUBBLE_DEBOUNCE_MS = 300;    // Debounce rapid agent updates (AC9)
+export const SNIPPET_HISTORY_MAX = 50;           // Circular buffer size for code history (AC8)
+
+// Agent status values
+export const AGENT_STATUS = {
+	IN_PROGRESS: 'in-progress',
+	SUCCESS: 'success',
+	FAILED: 'failed',
+	IDLE: 'idle',
+} as const;
+
+// Code display configuration
+export const CODE_DISPLAY_CONFIG = {
+	MAX_LINES: 15,              // Maximum lines to extract from git diff
+	MAX_CHARS_PER_LINE: 200,    // Truncate lines beyond this length (AC7)
+	TRUNCATION_SUFFIX: '...',   // Suffix appended to truncated lines
+} as const;
+
 // PDLC Phase to Color Mapping
 // Used for visual color-coding in Task Progression Bar
 export const PDLC_PHASE_COLORS: Record<string, string> = {

@@ -12,6 +12,10 @@ global.vscode = {
   getState: jest.fn(),
 };
 
+// VS Code WebView global — required by vscodeApi.ts which calls acquireVsCodeApi()
+// at module load time. Jest's jsdom environment does not provide this global.
+global.acquireVsCodeApi = () => global.vscode;
+
 // Suppress console warnings in tests unless explicitly needed
 const originalWarn = console.warn;
 const originalError = console.error;

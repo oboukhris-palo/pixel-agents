@@ -346,6 +346,15 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 		this.webview.postMessage(message);
 	}
 
+	/**
+	 * Send real-time agent activity update to the webview (US-001-002).
+	 * Called by AgentActivityMonitor on 'agent-activity-update' event.
+	 */
+	sendAgentActivityUpdate(payload: import('./agentActivityTypes.js').AgentActivityState): void {
+		if (!this.webview) return;
+		this.webview.postMessage({ type: 'agent-activity-update', payload });
+	}
+
 	dispose() {
 		this.layoutWatcher?.dispose();
 		this.layoutWatcher = null;
