@@ -41,8 +41,12 @@ const DEBOUNCE_WINDOW_MS = 300;
 const MAX_QUEUE_SIZE = 100;
 
 // ── Patterns for metrics parsing ──────────────────────────────────────────────
+// Designed to prevent ReDoS: no nested quantifiers, bounded repetition
 const STORY_HEADER_PATTERN = /###\s+(US-[\w-]+):/g;
 const STATUS_COMPLETED_PATTERN = /\*\*Status\*\*:\s*(?:completed|implemented|delivered)/gi;
+
+/** Maximum content length to parse (prevent DoS via massive files) */
+const MAX_CONTENT_LENGTH = 1_000_000; // 1MB
 
 // ── Type for listener callbacks ───────────────────────────────────────────────
 type ChangesListener = (changes: DocumentChange[]) => void;
@@ -141,6 +145,8 @@ export class DocumentWatcherService {
    * Parse high-level project metrics from the content of user-stories.md.
    * Designed to run in <50ms (AC9).
    *
+   * Security: Input is sanitized to prevent ReDoS attacks and malicious content.
+   *
    * @param content - Raw file content string
    */
   parseMetricsFromContent(content: string): ParsedMetrics {
@@ -148,23 +154,37 @@ export class DocumentWatcherService {
       return getDefaultParsedMetrics();
     }
 
-    // Count story headers
-    const storyMatches = Array.from(content.matchAll(STORY_HEADER_PATTERN));
-    const storyCount = storyMatches.length;
+    // Sanitize input: truncate to max length (prevent DoS)
+    const sanitized = content.length > MAX_CONTENT_LENGTH
+      ? content.slice(0, MAX_CONTENT_LENGTH)
+      : content;
 
-    // Count completed / implemented / delivered stories
-    const completedMatches = Array.from(content.matchAll(STATUS_COMPLETED_PATTERN));
-    const completedCount = completedMatches.length;
+    // Additional sanitization: remove potential control characters that could cause regex issues
+    const cleaned = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
-    const completionPercent =
-      storyCount > 0 ? Math.round((completedCount / storyCount) * 100) : 0;
+    try {
+      // Count story headers
+      const storyMatches = Array.from(cleaned.matchAll(STORY_HEADER_PATTERN));
+      const storyCount = storyMatches.length;
 
-    return {
-      storyCount,
-      epicsCount: 0, // Populated by a higher-level parser if needed
-      completionPercent,
-      lastUpdated: new Date().toISOString(),
-    };
+      // Count completed / implemented / delivered stories
+      const completedMatches = Array.from(cleaned.matchAll(STATUS_COMPLETED_PATTERN));
+      const completedCount = completedMatches.length;
+
+      const completionPercent =
+        storyCount > 0 ? Math.round((completedCount / storyCount) * 100) : 0;
+
+      return {
+        storyCount,
+        epicsCount: 0, // Populated by a higher-level parser if needed
+        completionPercent,
+        lastUpdated: new Date().toISOString(),
+      };
+    } catch (error) {
+      // If regex throws (unlikely with safe patterns), return defaults
+      console.error('[DocumentWatcher] Error parsing metrics:', error);
+      return getDefaultParsedMetrics();
+    }
   }
 
   // ── Private helpers ─────────────────────────────────────────────────────────

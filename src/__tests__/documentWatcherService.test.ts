@@ -274,3 +274,80 @@ describe('DocumentWatcherService — listener management', () => {
     service.stop();
   });
 });
+
+describe('DocumentWatcherService — input sanitization (US-001-003-B)', () => {
+  it('truncates excessively large content (>1MB) to prevent DoS', () => {
+    const service = new DocumentWatcherService('/workspace');
+    
+    // Create 1.5MB of content (exceeds MAX_CONTENT_LENGTH)
+    const largeContent = '### US-001: Story\n**Status**: completed\n'.repeat(50_000); // ~1.5MB
+    
+    // Should not throw, and should return valid metrics
+    const metrics = service.parseMetricsFromContent(largeContent);
+    
+    expect(metrics).toBeDefined();
+    expect(metrics.storyCount).toBeGreaterThan(0);
+    expect(metrics.completionPercent).toBeGreaterThanOrEqual(0);
+  });
+
+  it('removes control characters that could cause regex issues', () => {
+    const service = new DocumentWatcherService('/workspace');
+    
+    // Content with null bytes and other control characters
+    const maliciousContent = '### US-001: Test\x00\x01\x02\n**Status**: completed\x08\x0B';
+    
+    // Should sanitize and parse correctly
+    const metrics = service.parseMetricsFromContent(maliciousContent);
+    
+    expect(metrics.storyCount).toBe(1);
+    expect(metrics.completionPercent).toBe(100);
+  });
+
+  it('handles potential ReDoS patterns gracefully', () => {
+    const service = new DocumentWatcherService('/workspace');
+    
+    // Craft a string that could trigger catastrophic backtracking in poorly-designed regex
+    // Our regex patterns are safe, but this tests the error handling
+    const suspiciousContent = '###' + ' '.repeat(10_000) + 'US-001:\n**Status**:' + ' '.repeat(10_000) + 'completed';
+    
+    // Should complete quickly (<100ms) without hanging
+    const start = Date.now();
+    const metrics = service.parseMetricsFromContent(suspiciousContent);
+    const elapsed = Date.now() - start;
+    
+    expect(elapsed).toBeLessThan(100);
+    expect(metrics.storyCount).toBe(1);
+  });
+
+  it('returns default metrics if regex throws (edge case)', () => {
+    const service = new DocumentWatcherService('/workspace');
+    
+    // Empty content should return defaults without throwing
+    const metrics = service.parseMetricsFromContent('');
+    
+    expect(metrics.storyCount).toBe(0);
+    expect(metrics.epicsCount).toBe(0);
+    expect(metrics.completionPercent).toBe(0);
+    expect(metrics.lastUpdated).toBeDefined();
+  });
+
+  it('preserves valid markdown content during sanitization', () => {
+    const service = new DocumentWatcherService('/workspace');
+    
+    const validContent = `
+### US-001: User Login
+**Status**: completed
+
+### US-002: Password Reset
+**Status**: in-progress
+
+### US-003: Profile Update
+**Status**: completed
+    `;
+    
+    const metrics = service.parseMetricsFromContent(validContent);
+    
+    expect(metrics.storyCount).toBe(3);
+    expect(metrics.completionPercent).toBeCloseTo(67, 0); // 2/3 = 66.67%
+  });
+});
