@@ -186,7 +186,7 @@ export const TaskProgressionBar = memo(function TaskProgressionBar({
       aria-label="Task progression"
     >
       <TaskSection sectionType="previous" task={previous} label="Previous" onTaskClick={onTaskClick} />
-      <TaskSection sectionType="current" task={current as TaskInfo | null} label="Current" onTaskClick={onTaskClick} />
+      <TaskSection sectionType="current" task={current} label="Current" onTaskClick={onTaskClick} />
       <TaskSection sectionType="next" task={next} label="Next" onTaskClick={onTaskClick} />
     </div>
   );

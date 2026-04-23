@@ -30,7 +30,9 @@ export interface UseTaskProgressionResult {
  * `() => null as any` stub for getOfficeState is never invoked during testing.
  */
 export function useTaskProgression(): UseTaskProgressionResult {
-  const messages = useExtensionMessages(() => null as any);
+  // useExtensionMessages is called without getOfficeState callback since useTaskProgression
+  // only needs task progression messages, not office/layout state.
+  const messages = useExtensionMessages();
 
   const taskProgression = messages.taskProgression as TaskProgressionState | null | undefined;
   // `error` is not part of the declared ExtensionMessageState shape but may be

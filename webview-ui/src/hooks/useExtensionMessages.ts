@@ -95,14 +95,14 @@ export interface TaskInfo {
 
 export interface TaskProgressionState {
   previous: TaskInfo | null
-  current: TaskInfo
+  current: TaskInfo | null
   next: TaskInfo | null
 }
 
 export interface TaskProgressionMessage {
   type: 'taskProgression'
   previous: TaskInfo | null
-  current: TaskInfo
+  current: TaskInfo | null
   next: TaskInfo | null
 }
 
@@ -132,7 +132,7 @@ function saveAgentSeats(os: OfficeState): void {
 }
 
 export function useExtensionMessages(
-  getOfficeState: () => OfficeState,
+  getOfficeState?: () => OfficeState,
   onLayoutLoaded?: (layout: OfficeLayout) => void,
   isEditDirty?: () => boolean,
 ): ExtensionMessageState {
@@ -159,7 +159,7 @@ export function useExtensionMessages(
 
     const handler = (e: MessageEvent) => {
       const msg = e.data
-      const os = getOfficeState()
+      const os = getOfficeState?.()
 
       if (msg.type === 'layoutLoaded') {
         // Skip external layout updates while editor has unsaved changes
@@ -167,6 +167,7 @@ export function useExtensionMessages(
           console.log('[Webview] Skipping external layout update — editor has unsaved changes')
           return
         }
+        if (!os) return // Office state required for layout messages
         const rawLayout = msg.layout as OfficeLayout | null
         const layout = rawLayout && rawLayout.version === 1 ? migrateLayoutColors(rawLayout) : null
         if (layout) {
@@ -191,8 +192,10 @@ export function useExtensionMessages(
         const folderName = msg.folderName as string | undefined
         setAgents((prev) => (prev.includes(id) ? prev : [...prev, id]))
         setSelectedAgent(id)
-        os.addAgent(id, undefined, undefined, undefined, undefined, folderName)
-        saveAgentSeats(os)
+        if (os) {
+          os.addAgent(id, undefined, undefined, undefined, undefined, folderName)
+          saveAgentSeats(os)
+        }
       } else if (msg.type === 'agentClosed') {
         const id = msg.id as number
         setAgents((prev) => prev.filter((a) => a !== id))
@@ -216,9 +219,11 @@ export function useExtensionMessages(
           return next
         })
         // Remove all sub-agent characters belonging to this agent
-        os.removeAllSubagents(id)
+        if (os) {
+          os.removeAllSubagents(id)
+          os.removeAgent(id)
+        }
         setSubagentCharacters((prev) => prev.filter((s) => s.parentAgentId !== id))
-        os.removeAgent(id)
       } else if (msg.type === 'existingAgents') {
         const incoming = msg.agents as number[]
         const meta = (msg.agentMeta || {}) as Record<number, { palette?: number; hueShift?: number; seatId?: string }>
@@ -294,6 +299,7 @@ export function useExtensionMessages(
         })
       } else if (msg.type === 'initiateHandoff') {
         // Trigger handoff animation between agents
+        if (!os) return // Office state required for handoff messages
         const fromRole = msg.from as string
         const toRole = msg.to as string
         console.log(`[Pixel Agents] Handoff: ${fromRole} → ${toRole}`)
