@@ -17,6 +17,17 @@ export type TDDPhase = 'RED' | 'GREEN' | 'REFACTOR' | 'DOCUMENTATION';
 
 /** Agent activity status */
 export type AgentActivityStatus = 'in-progress' | 'success' | 'failed' | 'idle';
+export type AgentStatus = AgentActivityStatus; // Alias for test compatibility
+
+/**
+ * Configuration for code display and history limits (AC7, AC8, AC9)
+ */
+export const CODE_DISPLAY_CONFIG = {
+  MAX_CHARS_PER_LINE: 200, // Truncate longer lines with ... (AC7)
+  MAX_HISTORY_SNAPSHOTS: 50, // Limit history to prevent memory bloat (AC8)
+  TRUNCATION_INDICATOR: '...', // Append when truncating
+  DEBOUNCE_MS: 300, // Debounce activity updates to prevent animation spam (AC9)
+} as const;
 
 /**
  * Code snippet from agent's current work
@@ -45,6 +56,7 @@ export interface AgentActivityMetadata {
   /** Role icon (emoji) */
   icon?: string;
 }
+export type AgentMetadata = AgentActivityMetadata; // Alias for test compatibility
 
 /**
  * Current agent action context
@@ -56,6 +68,17 @@ export interface AgentAction {
   cycle: number;
   /** Human-readable description */
   description: string;
+}
+
+/**
+ * Snapshot of past agent activity for history tracking
+ * Limited to CODE_DISPLAY_CONFIG.MAX_HISTORY_SNAPSHOTS (AC8)
+ */
+export interface AgentActivitySnapshot {
+  action: AgentAction;
+  codeSnippet: CodeSnippetInfo | null;
+  status: AgentActivityStatus;
+  timestamp: string; // ISO8601 UTC
 }
 
 /**
@@ -72,8 +95,8 @@ export interface AgentActivityState {
   status: AgentActivityStatus;
   /** ISO8601 UTC timestamp of last update */
   timestamp: string;
-  /** Optional history snapshots for circular buffer */
-  historySnapshots?: AgentActivityState[];
+  /** Optional history snapshots for circular buffer (max 50) */
+  historySnapshots?: AgentActivitySnapshot[];
 }
 
 /**
@@ -87,7 +110,13 @@ export interface ActionBubbleMessage {
 }
 
 // ── ISO8601 timestamp validator ───────────────────────────────────────────────
-const ISO8601_REGEX = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
+const ISO8601_REGEX = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/;
+
+function isValidISO8601(timestamp: string): boolean {
+  if (!ISO8601_REGEX.test(timestamp)) return false;
+  const date = new Date(timestamp);
+  return !isNaN(date.getTime());
+}
 
 // ── Supported languages set for fast lookup ───────────────────────────────────
 const VALID_LANGUAGES = new Set<string>(['typescript', 'javascript', 'css', 'html']);
@@ -104,10 +133,19 @@ const VALID_PHASES = new Set<string>(['RED', 'GREEN', 'REFACTOR', 'DOCUMENTATION
 export function isValidCodeSnippetInfo(value: unknown): value is CodeSnippetInfo {
   if (!value || typeof value !== 'object') return false;
   const obj = value as Record<string, unknown>;
-  if (typeof obj.content !== 'string') return false;
+  if (typeof obj.content !== 'string' || obj.content.length === 0) return false; // Reject empty content
+  if (obj.content.length > CODE_DISPLAY_CONFIG.MAX_CHARS_PER_LINE) return false; // Enforce max chars (AC7)
   if (!VALID_LANGUAGES.has(obj.language as string)) return false;
+  
+  // lineNumbers optional, but must be array of numbers if present
+  if (obj.lineNumbers !== undefined) {
+    if (!Array.isArray(obj.lineNumbers)) return false;
+    if (!obj.lineNumbers.every((n: any) => typeof n === 'number')) return false;
+  }
+  
   return true;
 }
+export const isValidCodeSnippet = isValidCodeSnippetInfo; // Alias for test compatibility
 
 /**
  * Type guard for AgentAction
@@ -117,7 +155,7 @@ function isValidAgentAction(value: unknown): value is AgentAction {
   const obj = value as Record<string, unknown>;
   if (!VALID_PHASES.has(obj.type as string)) return false;
   if (typeof obj.cycle !== 'number' || obj.cycle < 1) return false;
-  if (typeof obj.description !== 'string') return false;
+  if (typeof obj.description !== 'string' || obj.description.length === 0) return false; // Reject empty description
   return true;
 }
 
@@ -145,10 +183,29 @@ export function isValidAgentActivityState(value: unknown): value is AgentActivit
   if (!VALID_STATUSES.has(obj.status as string)) return false;
 
   // timestamp required and ISO8601
-  if (typeof obj.timestamp !== 'string' || !ISO8601_REGEX.test(obj.timestamp)) return false;
+  if (typeof obj.timestamp !== 'string' || !isValidISO8601(obj.timestamp)) return false;
+  
+  // historySnapshots optional, but must be valid array with max length (AC8)
+  if (obj.historySnapshots !== undefined) {
+    if (!Array.isArray(obj.historySnapshots)) return false;
+    if (obj.historySnapshots.length > CODE_DISPLAY_CONFIG.MAX_HISTORY_SNAPSHOTS) return false;
+    
+    // Validate each snapshot (simpler validation to avoid recursion)
+    for (const snapshot of obj.historySnapshots) {
+      if (!snapshot || typeof snapshot !== 'object') return false;
+      const snap = snapshot as Record<string, unknown>;
+      if (!isValidAgentAction(snap.action)) return false;
+      if (snap.codeSnippet !== null && snap.codeSnippet !== undefined) {
+        if (!isValidCodeSnippetInfo(snap.codeSnippet)) return false;
+      }
+      if (!VALID_STATUSES.has(snap.status as string)) return false;
+      if (typeof snap.timestamp !== 'string' || !isValidISO8601(snap.timestamp)) return false;
+    }
+  }
 
   return true;
 }
+export const isValidActivityState = isValidAgentActivityState; // Alias for test compatibility
 
 /**
  * Type guard for ActionBubbleMessage
