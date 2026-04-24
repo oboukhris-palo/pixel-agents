@@ -25,6 +25,7 @@ import { ContextMessageHandler } from './contextMessageHandler.js';
 import { CompletenessCalculator } from './completenessCalculator.js';
 import { AchievementEngine } from './achievementEngine.js';
 import { AchievementMessageHandler } from './achievementMessageHandler.js';
+import { AgentActivityMonitor } from './agentActivityMonitor.js';
 import type { WorkflowState } from './types.js';
 
 export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
@@ -64,6 +65,10 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 	achievementEngine: AchievementEngine | null = null;
 	achievementMessageHandler: AchievementMessageHandler | null = null;
 	achievementOutputChannel: vscode.OutputChannel | null = null;
+
+	// Agent Activity Monitor (US-001-002)
+	agentActivityMonitor: AgentActivityMonitor | null = null;
+	agentActivityOutputChannel: vscode.OutputChannel | null = null;
 
 	// Agent metadata from .github/agents/
 	agentMetadata = new Map<string, AgentMetadata>();
@@ -366,6 +371,31 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 									});
 								}
 							});
+
+							// Initialize agent activity monitor (US-001-002)
+							console.log('[Extension] 👷 Initializing agent activity monitor...');
+							if (!this.agentActivityOutputChannel) {
+								this.agentActivityOutputChannel = vscode.window.createOutputChannel('Pixel Agents: Agent Activity');
+							}
+							
+							this.agentActivityMonitor = new AgentActivityMonitor(
+								workspaceRoot,
+								this.context,
+								undefined // Use default GitAdapter
+							);
+							
+							// Forward agent activity events to webview
+							this.agentActivityMonitor.on('activity-update', (payload) => {
+								if (this.webview) {
+									this.webview.postMessage({
+										type: 'agent-activity-update',
+										payload
+									});
+								}
+							});
+							
+							// Start monitoring git commits
+							this.agentActivityMonitor.startMonitoring();
 						}
 					} catch (err) {
 						console.error('[Extension] ❌ Error loading assets:', err);
@@ -511,6 +541,12 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 		this.achievementEngine = null;
 		this.achievementOutputChannel?.dispose();
 		this.achievementOutputChannel = null;
+		
+		// Dispose agent activity monitor (US-001-002)
+		this.agentActivityMonitor?.dispose();
+		this.agentActivityMonitor = null;
+		this.agentActivityOutputChannel?.dispose();
+		this.agentActivityOutputChannel = null;
 		
 		for (const id of [...this.agents.keys()]) {
 			removeAgent(

@@ -99,8 +99,9 @@ describe('Agent Activity Types - Layer 1', () => {
     it('should validate a complete activity state', () => {
       const state: AgentActivityState = {
         activeAgent: {
+          id: 'dev-tdd-red',
           name: 'dev-tdd-red',
-          role: 'RED Phase Agent',
+          description: 'RED Phase Agent - writes failing tests',
           spriteColor: '#FF5500',
           icon: '🔴',
         },
