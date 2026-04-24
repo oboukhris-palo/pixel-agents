@@ -644,6 +644,106 @@ npx jest --watch
 
 ---
 
+## 2026-04-24T22:15:00Z | Action: US-001-002 Layer 2 Partial Complete | Status: partial
+
+- **Phase**: Implementation (Phase 8) - Track B (Agent Activity Monitor)
+- **Epic/Story**: EPIC-001/US-001-002 (Agent Sidebar - Agent Activity Monitor with Code Snippets)
+- **Layer/Cycle**: Layer 2 (Backend Services) - GREEN phase in progress
+- **Files**: [src/codeExtractor.ts, src/codeExtractor.test.ts, src/agentActivityMonitor.ts, src/agentActivityMonitor.test.ts]
+- **PRU**: ~2,500 (test creation, partial implementation)
+- **Status**: partial (60% complete - codeExtractor done, agentActivityMonitor needs fixes)
+- **Changes**: 
+  - ✅ **codeExtractor.ts COMPLETE**: 25/25 tests passing
+    - `extractCodeFromDiff()` - Parse git diff, extract last 15 lines (AC2)
+    - `detectLanguageFromFilePath()` - TypeScript/JavaScript/CSS/HTML detection
+    - `truncateLongLines()` - Enforce 200 char max per line with '...' (AC7)
+    - `parseGitDiff()` - Extract added lines and file paths from diff headers
+    - `extractLineNumbersFromDiff()` - Line number extraction from hunk headers
+  - ⏳ **agentActivityMonitor.ts IN PROGRESS**: 27/46 tests (19 timeouts, async issues)
+    - Service initialization methods added (startMonitoring, dispose, isMonitoring)
+    - parseCommitMessage() skeleton created but returning undefined structure
+    - extractCodeSnippet() integration with codeExtractor
+    - getCurrentState(), getDebounceMs(), triggerUpdate() accessors added
+    - Git adapter interface defined with dependency injection pattern
+- **Blockers**: 
+  - parseCommitMessage() not returning AgentActivityState (returns undefined)
+  - Async/await patterns causing test timeouts (10s exceeded)
+  - Mock git adapter not properly configured for test expectations
+  - Debouncing logic not implemented (300ms setTimeout pattern needed)
+- **Next**: Resume Layer 2 completion in next session
+  - Fix parseCommitMessage() to return proper AgentActivityState structure
+  - Implement debouncing with setTimeout/clearTimeout pattern
+  - Configure mock git adapter properly for async test cases
+  - Implement history snapshot management (max 50 limit, AC8)
+  - Add error handling and event emission for failures
+  - Target: 46/46 tests passing, Layer 2 complete
+- **Quality Gates**: 
+  - ✅ codeExtractor: 100% test coverage, all edge cases handled
+  - ⏳ agentActivityMonitor: Needs async refinement, proper state management
+  - ⏳ BDD Coverage: AC2 ✅, AC7 ✅, AC3/AC4/AC6/AC8/AC9 ⏳
+- **Handoff**: Paused for next session - agentActivityMonitor needs 2-3 hours to complete
+
+**Decision Rationale**:
+- codeExtractor utility fully complete and tested - can be used independently
+- agentActivityMonitor architectural foundation established (class structure, interfaces, DI pattern)
+- Test suite comprehensive (46 tests cover all BDD scenarios)
+- Async issues are technical debt, not design flaws - fixable with proper await patterns
+- Session pause requested by user - clean handoff state documented
+
+**Technical Issues Identified**:
+1. **parseCommitMessage() returns undefined**: Method exists but doesn't construct AgentActivityState
+   - Expected: Return `{ activeAgent, currentAction, codeSnippet, status, timestamp, historySnapshots }`
+   - Actual: Returns `undefined` causing `Cannot read properties of undefined (reading 'type')`
+   - Fix: Implement full state construction logic in parseCommitMessage()
+
+2. **Test timeouts (10s exceeded)**: Async promises not resolving
+   - Polling test: startMonitoring() doesn't implement polling loop
+   - Git monitoring tests: Promises never resolve, tests hang
+   - Fix: Add setInterval polling logic, ensure promises resolve/reject
+
+3. **Mock configuration incomplete**: Git adapter mocks not matching test expectations
+   - execFile mock not properly stubbed for git commands
+   - fs.readFileSync mock not returning expected YAML format
+   - Fix: Add comprehensive mock setup in beforeEach blocks
+
+4. **Debouncing not implemented**: scheduleDebouncedBroadcast() incomplete
+   - No setTimeout/clearTimeout logic
+   - 300ms window not enforced (AC9 requirement)
+   - Fix: Add debounce timer management
+
+**Performance Considerations**:
+- Polling interval should be 1000ms (1 second) to balance responsiveness vs CPU usage
+- Debounce at 300ms prevents UI spam from rapid commits
+- History snapshots limited to 50 to prevent memory growth
+- Git commands should timeout after 5000ms to prevent hanging
+
+**Testing Strategy for Next Session**:
+1. Start with parseCommitMessage() fix - enables 7 tests to pass
+2. Implement debouncing logic - enables 3 tests to pass
+3. Add polling loop to startMonitoring() - enables 3 tests to pass
+4. Configure mocks properly - enables remaining tests to pass
+5. Verify all 46 tests passing
+6. Run full test suite to check for regressions
+7. Commit Layer 2 complete with TDD message
+
+**Estimated Time for Completion**: 2-3 hours (next session)
+
+**BDD Coverage Status**:
+- ✅ AC2: Extract code from git diff (last 5-15 lines) - codeExtractor complete
+- ✅ AC7: Truncate long lines (200 chars max) - codeExtractor complete
+- ⏳ AC1: Query agent metadata from .github/agents/ - method skeleton exists
+- ⏳ AC3: Parse TDD phase from commit message - regex pattern exists, state construction incomplete
+- ⏳ AC4: Broadcast message within <500ms - emit pattern exists, timing not validated
+- ⏳ AC6: Include agent status field - type system complete, runtime logic incomplete
+- ⏳ AC8: Max 50 history snapshots - constant defined, enforcement not implemented
+- ⏳ AC9: Debounce updates within 300ms - config exists, setTimeout logic missing
+
+---
+
+**Agent Signature**: Sebastian (dev-lead) - Layer 2 Partial Complete (Track B) - 2026-04-24 22:15 UTC
+
+---
+
 ## 2026-04-24T20:45:00Z | Action: US-003-001 Complete | Status: success
 
 - **Phase**: Implementation (Phase 8)
