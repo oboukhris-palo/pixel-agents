@@ -4,6 +4,17 @@ import { useExtensionMessages } from '../hooks/useExtensionMessages';
 import type { TaskProgressionState, TaskInfo } from '../hooks/useExtensionMessages';
 
 /**
+ * Mock vscodeApi module to prevent acquireVsCodeApi error
+ */
+jest.mock('../vscodeApi', () => ({
+  vscode: {
+    postMessage: jest.fn(),
+    getState: jest.fn(),
+    setState: jest.fn(),
+  },
+}));
+
+/**
  * Mock useExtensionMessages to simulate backend message flow
  */
 jest.mock('../hooks/useExtensionMessages');

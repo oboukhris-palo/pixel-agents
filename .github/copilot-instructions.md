@@ -48,11 +48,10 @@
    - 100+ test cases covering rendering, interactions, accessibility, edge cases
    - Custom hook: useTaskProgression() for state management
 2. **ContextWindowBar** (Left) — Real-time token usage visualization (.github vs project code)
-3. **CompletenessBar** (Right) — Project completion meter (0-100%) with gamification
-4. **AgentRegistry** (Sidebar) — All agents from `.github/agents/` with status
-5. **ActionBubble** (Above Agents) — Live code snippets being written
-6. **OfficeCanvas** (Center) — 2D office layout with animated agent characters
-7. **GameLoop** (Engine) — 60 FPS animation with agent movement and zones
+3. **CompletenessMeter** (Right) — Project completion meter (0-100%) with gamification
+4. **ActionBubble** (Above Agents) — Live code snippets being written
+5. **OfficeCanvas** (Center) — 2D office layout with animated agent characters
+6. **GameLoop** (Engine) — 60 FPS animation with agent movement and zones
 
 ### 📊 Key Visualizations
 
@@ -151,27 +150,86 @@ All backend→frontend communication uses 5 strongly-typed messages:
 - Accessibility: 100% WCAG 2.1 AA compliance checks
 - Performance: All renders <100ms, no infinite loops
 
+**Achieved in US-002-003**: 154/154 tests passing (34+31+35+54), 100% coverage all layers
+
+### � Design System Alignment Standards (v2.0.0)
+
+**Pixel Agents uses Palo IT Branding** — All design tokens must reference `design-systems.md v2.0.0`:
+- **Primary Colors**: Green #00C853, Yellow #FFD600, Orange #FF6D00, Gold #F59E0B
+- **TDD Phase Colors**: RED #FF5500, GREEN #10B981, REFACTOR #8B5CF6, DOCUMENT #06B6D4
+- **Typography**: 9-level scale (8px to 24px) with --text-mini through --text-h1
+- **Spacing**: 4px base scale with 11 levels (--space-1 through --space-16)
+- **VS Code Dark Theme**: Background #1E1E1E, Sidebar #252526, Header #2D2D30
+
+**Component Specification Requirements**:
+- Use **exact pixel dimensions** (e.g., 240×24px, not "small card")
+- Include **opacity values** for colors (e.g., #3B82F6 @70%)
+- Reference **design-systems.md v2.0.0** in all documentation and code comments
+- Add **version number** to all design system references (not just "design-systems.md")
+- Map **PHASE_COLORS constants** to centralized design-systems.md tokens, never hardcode hex values
+
+**Component Specs Pattern** (from EPIC-001 & EPIC-002 alignment):
+- TaskProgressionBar: Phase Pills 80×24px, card widths 240/300/240px
+- AgentSidebar: 180×246px, status dots 8px, row height 28px
+- ContextWindowBar: 30×180px vertical bar, legend 8px text
+- CompletenessMeter: 200×8px progress bar, 36px monospace percentage
+- Achievement Badge: 160×120px, border 2px with opacity
+
+**Design Token Migration Pattern**:
+- OLD (scattered): #E81C3F, #107C10, #8661C5, #0078D4 (various sources)
+- NEW (centralized): All colors reference design-systems.md v2.0.0 Palo IT palette
+- Implementation: Update PHASE_COLORS in component utilities, test assertions for color validation
+
 ### 🎓 TDD Implementation Learnings
 
-**Key Patterns** (4-layer architecture proven in US-001-001, US-001-003):
+**Key Patterns** (4-layer architecture):
 - ✅ **Layer 1**: Type guards + factory functions + constants extraction
 - ✅ **Layer 2**: Service class + optional dependencies + event emitter (external APIs injectable)
-- ✅ **Layer 3**: Strongly-typed messages + hook integration
-- ✅ **Layer 4**: React components + 100% test coverage + WCAG 2.1 AA
+- ✅ **Layer 3**: Strongly-typed messages + hook integration (mirror types frontend↔backend)
+- ✅ **Layer 4**: React components + 100% test coverage + WCAG 2.1 AA + design token validation
 
 **Critical Insights**:
-1. **Dependency Injection**: Make external APIs (VS Code, file system) optional constructor params for testability
-2. **Debouncing**: Implement at service layer (300-500ms) to prevent UI spam
-3. **Logging**: Use VS Code OutputChannel (not console.error) — inject via constructor, fallback gracefully
-4. **Input Sanitization**: Always limit content length (1MB cap), remove control chars, ReDoS-safe regex
-5. **Frontend Tests**: Mirror backend types, use `--legacy-peer-deps` for React 19
-6. **E2E Testing**: Not needed for VS Code extensions — unit + integration + manual validation sufficient
+1. **Backend Service Wiring**: Services can be fully implemented but invisible if not instantiated in PixelAgentsViewProvider - must initialize in resolveWebviewView(), forward events via postMessage, cleanup in dispose()
+2. **Test Framework Consistency**: Never mix vitest and jest - all webview-ui tests must use jest consistently with proper jest.setup.js configuration
+3. **VS Code API Mocking**: Mock acquireVsCodeApi() in jest.setup.js globally - never in individual test files (causes import-time failures)
+4. **Message Type Matching**: Backend message type strings must match frontend listener types exactly (e.g., 'completeness.update' not 'CompletenessMetricsMessage')
+5. **Multiple Element Queries**: When testing components with duplicate text (milestone markers), use specific queries like `getByRole('progressbar')` with aria-valuenow instead of `getByText()`
+6. **Auto-Fit Zoom Pattern**: Calculate viewport-to-canvas ratio with padding (90% fill), pass layout dimensions (cols/rows) as props to controls component
+7. **Dependency Injection**: Make external APIs (VS Code, file system) optional constructor params for testability
+8. **Debouncing**: Implement at service layer (300-500ms) to prevent UI spam
+9. **Logging**: Use VS Code OutputChannel (not console.error) — inject via constructor, fallback gracefully
+10. **Virtual Scrolling**: Essential for 100+ item lists - implement with ROW_HEIGHT constant and visible range calculation
+11. **Design Token Validation**: Test assertions must validate against centralized design-systems.md v2.0.0 colors, not hardcoded hex values - enables design changes without test maintenance
 
 **Proven Stack**:
 - Backend: TypeScript + VS Code APIs + EventEmitter pattern
 - Frontend: React 19 + Custom hooks + Tailwind CSS + React Testing Library
-- Testing: Jest + @testing-library/jest-dom + jsdom
-- Logging: VS Code OutputChannel (not console)
+- Testing: Jest + @testing-library/jest-dom + @testing-library/react + jsdom + jest-axe
+- Design System: CSS custom properties (--color-*, --text-*, --space-*) referencing design-systems.md v2.0.0
+- Config: `jsx: "react-jsx"` in tsconfig.json, jest.setup.js for jest-dom matchers and VS Code API mocks
+
+### 🔧 Testing & Build Configuration
+
+**Jest Setup for Webview Tests**:
+- `acquireVsCodeApi()` must be mocked in `jest.setup.js` globally (causes import-time failures in test files)
+- CSS modules: Add explicit mock in test files when using direct imports: `jest.mock('./Component.module.css', () => ({}), { virtual: true })`
+- Use `setupFiles` for environment setup (runs before test files load), `setupFilesAfterEnv` for test utilities (runs after)
+- Mock pattern: `global.acquireVsCodeApi = () => ({ postMessage: jest.fn(), getState: jest.fn(), setState: jest.fn() })`
+
+**TypeScript Compilation Fixes**:
+- Avoid parameter properties in constructors (`private readonly` params) - use explicit property declarations when `erasableSyntaxOnly` enabled
+- Add null checks for optional parameters in message handlers: `if (!os) return // Office state required`
+- Type-only imports: `import type { Type } from 'module'` when `verbatimModuleSyntax` enabled
+- CSS modules in Vite: Use ES6 imports `import styles from './Component.module.css'` (not `require()`)
+
+**Service Integration Checklist**:
+- Initialize services in `PixelAgentsViewProvider.resolveWebviewView()`
+- Forward events via `this.webview.postMessage()`
+- Dispose services in `dispose()` method: `service?.stopMonitoring()` + `service?.removeAllListeners()`
+- Verify message type strings match frontend listeners exactly (e.g., `'completeness.update'` not interface name)
+- Update PHASE_COLORS constants to reference design-systems.md v2.0.0 colors, add version comment in code
+- Update test color assertions to validate against centralized palette (not hardcoded hex values)
+
 ### �📚 Key Resources
 
 - **WORKFLOW-IMPLEMENTATION.md** — Complete architectural specification (5,000+ lines)
@@ -692,100 +750,16 @@ When context is tight:
 - Read implementation-plan.md checkboxes for current progress
 - Use `grep_search` to find specific patterns instead of reading full files
 - Delegate read-only research to `runSubagent` (never for writing/editing)
+
 ---
 
-## 🎯 Framework Consolidation Strategy (Key Findings - April 2026)
+## 🔄 Design System & Path Navigation (v2.0.0)
 
-### Problem: Framework Duplication
-**Challenge**: AI-first Delivery Framework (gene2-core) duplicated across multiple client projects → maintenance nightmare, inconsistent updates, impossible scaling.
-
-**Root Cause**: Each client repo copied 50+ framework files (agents, instructions, workflows, templates) locally → versioning nightmare, manual sync required.
-
-### Solution: Git Submodule + Central Repository
-**Strategy**: Central `gene2-core` repository as Git submodule integrated into all client projects.
-
-**Architecture**:
-```
-gene2-core/                        (Central Remote Repository)
-├── .github/                       (ALL generic framework)
-│   ├── agents/
-│   ├── instructions/
-│   ├── workflows/
-│   ├── templates/
-│   ├── scripts/                   ← Framework automation
-│   └── ...
-└── .framework-metadata.json
-
-Client Project (any repo):
-├── .gene2-core/                   (Git Submodule reference)
-├── .github/
-│   ├── [client-specific files]    (overrides only)
-│   └── copilot-instructions.md    (smart loader)
-└── .gitmodules                    (tracks submodule)
-```
-
-**Benefits**:
-- ✅ Single source of truth (central repo)
-- ✅ Zero duplication (all clients reference same framework)
-- ✅ Seamless updates (`git submodule update --remote`)
-- ✅ Scalable (new clients initialize in <2 minutes)
-- ✅ Versioned (can lock to specific framework versions)
-
-### Implementation Notes
-1. **Framework extracted** to `gene2-core` directory
-2. **Scripts organized** by function:
-   - **Core** (root): `cli.mjs`, `init-framework.mjs`, `init-client-repo.mjs`, `verify-framework.mjs`, etc.
-   - **repo-conventions/**: `enforce-naming.mjs`, `update-index.mjs`
-   - **implementation-kpis/**: `collect-metrics.mjs`, `validate-prompts.mjs`
-3. **All scripts standardized** to `.mjs` extension (Node.js ES Modules)
-4. **Documentation** genericized (no client-specific references)
-
-### Key Learnings for Automation Scripts
-1. **Naming Convention**: Use `.mjs` extension for all Node.js scripts (not `.js`)
-   - Signals ES modules (import/export, not require/module.exports)
-   - Consistent with framework standards
-   - Works cross-platform (Windows, macOS, Linux)
-
-2. **Script Organization**:
-   - **Core scripts** at `/.github/scripts/` root (frequently used)
-   - **Utility scripts** in subdirectories (functional grouping)
-   - **Each subdirectory** has comprehensive README.md
-   
-3. **Documentation Requirements**:
-   - Usage examples with real command syntax
-   - Options with descriptions and examples
-   - CI/CD integration patterns
-   - Troubleshooting guides
-   - Keep documentation updated with code
-
-4. **Generalization Pattern** (Plan Reusability):
-   - Identify client-specific references (names, paths, credentials)
-   - Replace with placeholders: `[client-name]`, `[your-git-host]`, `[your-email]`
-   - Document assumptions to enable rapid clientadaptation
-   - Result: Plan works for ANY client project
-
-5. **Automation Script Lifecycle**:
-   - Phase 1: Extract framework from template
-   - Phase 2: Integrate client via submodule
-   - Phase 3: Validate integration
-   - Phase 4: Maintenance via distributed updates
----
-
-## 🔄 Path Migration Reference (Framework 2.0.0)
-
-**If you encounter references to old paths in legacy documentation**, use this mapping:
-
-| Old Path (Pre-March 2026) | New Path (Current) | Purpose |
-|---------------------------|-------------------|---------|
-| OLD | NEW (Correct Path) | Purpose |
-|-----|--------------------|----------|
-| N/A | `/docs/01-requirements/` | Requirements phase (immutable) |
-| N/A | `/docs/01-requirements/user-stories.md` | PRD catalog (reference for implementation) |
-| N/A | `/docs/02-architecture/tech-spec.md` | Technical specifications |
-| N/A | `/docs/05-implementation/user-stories.md` | Implementation status SSOT |
-| N/A | `/docs/05-implementation/epics/<EPIC-REF>/user-stories/<US-REF>/` | Story implementation folder |
-| N/A | `/docs/05-implementation/epics/<EPIC-REF>/user-stories/<US-REF>/implementation-plan.md` | Layer-by-layer implementation |
-| N/A | `/docs/05-implementation/epics/<EPIC-REF>/user-stories/<US-REF>/features/` | BDD feature files |
+**Key Path Patterns**:
+- **PRD References**: `/docs/01-requirements/user-stories.md` (immutable specifications)
+- **Implementation Status**: `/docs/05-implementation/user-stories.md` (current progress, SSOT)
+- **Epic Structure**: Always include `/epics/<EPIC-REF>/user-stories/<US-REF>/` when referencing implementation
+- **Design System**: `/docs/02-architecture/design-systems.md` (v2.0.0, Palo IT branding)
 
 **Critical Rules**:
 - ✅ **Read from `/docs/01-requirements/`** when accessing PRD or immutable specifications
@@ -800,3 +774,23 @@ Client Project (any repo):
 
 **Path Standards Exception** (Intentional):
 - `.github/instructions/framework-standards.instructions.md` contains `/docs/assessment/` as "wrong examples" in migration table (lines 49, 239) — this is intentional documentation of old→new migration pattern and should NOT be changed
+
+---
+
+## ⚡ Design System Alignment: Key Takeaways (April 2026)
+
+**Learnings from comprehensive v2.0.0 Palo IT branding alignment**:
+
+1. **Establish design system BEFORE implementation** - Retrofitting color palettes and component specs costs 2-3x effort
+2. **Centralize all design tokens** - CSS custom properties (--color-*, --text-*, --space-*) vs. hardcoded hex values enables organization-wide consistency
+3. **Use explicit version references** - Always specify `design-systems.md v2.0.0`, never just `design-systems.md`
+4. **Include exact dimensions in component specs** - Use `240×24px`, not `small card`; use `8px opacity`, not `light`
+5. **Test against design tokens** - Validate test assertions against centralized color palette, not hardcoded hex values
+6. **Sync color references across layers** - Component source + test files + documentation must all reference same design-systems.md v2.0.0
+7. **Document color migration patterns** - When colors change, update PHASE_COLORS constants, test assertions, and implementation plans simultaneously
+
+**Pattern Applied Successfully**:
+- Updated 5 EPIC user stories with v2.0.0 specs
+- Migrated 4 component source files to new Palo IT palette
+- Updated test color assertions for new TDD phase colors (#FF5500, #10B981, #8B5CF6, #06B6D4)
+- Achieved 100% design system alignment across all components

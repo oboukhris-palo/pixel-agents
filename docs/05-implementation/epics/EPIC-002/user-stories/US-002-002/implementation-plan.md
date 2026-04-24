@@ -10,13 +10,26 @@
 
 ---
 
-## Architecture Overview
+## Architecture Overview (design-systems.md v2.0.0)
 
 **4-Layer Implementation** (Foundation → Communication → Presentation):
 1. **Layer 1**: Metrics types and calculation utilities (domain model) ✅ **COMPLETE**
 2. **Layer 2**: Completeness calculator service (parses user-stories.md) ✅ **COMPLETE**
 3. **Layer 3**: Message protocol and React hook (communication) ✅ **COMPLETE**
 4. **Layer 4**: Completeness Meter component + milestone celebrations (UI) ✅ **COMPLETE**
+
+**Design System Specifications (Palo IT Branding)**:
+- **Container**: 200px width × 246px height, right column of metrics panel
+- **DONE Label**: 9px text (#808080), weight 600, uppercase
+- **Percentage**: 36px text (#FFFFFF monospace), weight 700, center-aligned
+- **Progress Bar**: 200×8px, track bg: #3E3E42, fill bg: #10B981, border-radius: 4px
+- **Milestone Markers**: 6px circles at 25%, 50%, 75%, 90%, 100%
+  - Achieved: fill #10B981, border #1E1E1E
+  - 100%: fill #FFD600 (Palo Yellow for victory)
+- **Stats Grid**: 9px labels (#808080) left, 10px values (#FFFFFF weight 600) right
+- **Celebration Colors**: Palo Green (#00C853), Palo Yellow (#FFD600), Palo Orange (#FF6D00), Gene2 Purple (#7B3FF2)
+- **Typography**: --text-micro 9px, --text-caption 10px, --text-h1 36px
+- **Spacing**: 4px base (--space-2, --space-3, --space-4)
 
 **Dependencies**:
 - US-001-003 (Document Watcher) ✅ Complete - monitors `/docs/05-implementation/`

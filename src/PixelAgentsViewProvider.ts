@@ -20,6 +20,11 @@ import { loadAgentMetadata, type AgentMetadata } from './agentMetadata.js';
 import { WorkflowDetector } from './workflowDetector.js';
 import { DocumentWatcherService } from './documentWatcherService.js';
 import { DocumentWatcherMessageHandler } from './documentWatcherMessageHandler.js';
+import { ContextAnalyzer } from './contextAnalyzer.js';
+import { ContextMessageHandler } from './contextMessageHandler.js';
+import { CompletenessCalculator } from './completenessCalculator.js';
+import { AchievementEngine } from './achievementEngine.js';
+import { AchievementMessageHandler } from './achievementMessageHandler.js';
 import type { WorkflowState } from './types.js';
 
 export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
@@ -45,6 +50,20 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 	documentWatcherService: DocumentWatcherService | null = null;
 	documentWatcherHandler: DocumentWatcherMessageHandler | null = null;
 	documentWatcherOutputChannel: vscode.OutputChannel | null = null;
+
+	// Context Window Analyzer (US-002-001)
+	contextAnalyzer: ContextAnalyzer | null = null;
+	contextMessageHandler: ContextMessageHandler | null = null;
+	contextOutputChannel: vscode.OutputChannel | null = null;
+
+	// Completeness Calculator (US-002-002)
+	completenessCalculator: CompletenessCalculator | null = null;
+	completenessOutputChannel: vscode.OutputChannel | null = null;
+
+	// Achievement System (US-002-003)
+	achievementEngine: AchievementEngine | null = null;
+	achievementMessageHandler: AchievementMessageHandler | null = null;
+	achievementOutputChannel: vscode.OutputChannel | null = null;
 
 	// Agent metadata from .github/agents/
 	agentMetadata = new Map<string, AgentMetadata>();
@@ -272,6 +291,81 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 								this.documentWatcherHandler.start();
 							}
 							this.documentWatcherService.start();
+
+							// Initialize context window analyzer (US-002-001)
+							console.log('[Extension] 🔍 Initializing context window analyzer...');
+							if (!this.contextOutputChannel) {
+								this.contextOutputChannel = vscode.window.createOutputChannel('Pixel Agents: Context Window');
+							}
+							
+							this.contextAnalyzer = new ContextAnalyzer(workspaceRoot, this.contextOutputChannel);
+							this.contextMessageHandler = new ContextMessageHandler((msg) => {
+								if (this.webview) {
+									this.webview.postMessage(msg);
+								}
+							});
+							
+							// Start monitoring and send updates every 5 seconds
+							this.contextAnalyzer.startMonitoring(async (usage) => {
+								this.contextMessageHandler?.sendUpdate(usage);
+							});
+
+							// Initialize completeness calculator (US-002-002)
+							console.log('[Extension] 📊 Initializing completeness calculator...');
+							if (!this.completenessOutputChannel) {
+								this.completenessOutputChannel = vscode.window.createOutputChannel('Pixel Agents: Completeness');
+							}
+							
+							const workspaceUri = vscode.Uri.file(workspaceRoot);
+							this.completenessCalculator = new CompletenessCalculator(workspaceUri, this.completenessOutputChannel);
+							
+							// Calculate initial metrics
+							const initialMetrics = await this.completenessCalculator.calculateMetrics();
+							if (this.webview) {
+								this.webview.postMessage({
+									type: 'completeness.update',
+									metrics: initialMetrics
+								});
+							}
+							
+							// Watch for changes and recalculate
+							this.completenessCalculator.startMonitoring((metrics) => {
+								if (this.webview) {
+									this.webview.postMessage({
+										type: 'completeness.update',
+										metrics
+									});
+								}
+							});
+
+							// Initialize achievement system (US-002-003)
+							console.log('[Extension] 🏆 Initializing achievement system...');
+							if (!this.achievementOutputChannel) {
+								this.achievementOutputChannel = vscode.window.createOutputChannel('Pixel Agents: Achievements');
+							}
+							
+							this.achievementEngine = new AchievementEngine(this.context);
+							this.achievementMessageHandler = new AchievementMessageHandler(this.achievementEngine);
+							
+							// Forward achievement events to webview
+							this.achievementMessageHandler.on('achievement.unlocked', (achievement) => {
+								if (this.webview) {
+									this.webview.postMessage({
+										type: 'achievement.unlocked',
+										achievement,
+										timestamp: new Date().toISOString()
+									});
+								}
+							});
+							
+							this.achievementMessageHandler.on('achievement.state', (state) => {
+								if (this.webview) {
+									this.webview.postMessage({
+										type: 'achievement.state',
+										state
+									});
+								}
+							});
 						}
 					} catch (err) {
 						console.error('[Extension] ❌ Error loading assets:', err);
@@ -396,6 +490,27 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 		this.documentWatcherService = null;
 		this.documentWatcherOutputChannel?.dispose();
 		this.documentWatcherOutputChannel = null;
+		
+		// Dispose context analyzer (US-002-001)
+		this.contextAnalyzer?.stopMonitoring();
+		this.contextAnalyzer = null;
+		this.contextMessageHandler = null;
+		this.contextOutputChannel?.dispose();
+		this.contextOutputChannel = null;
+		
+		// Dispose completeness calculator (US-002-002)
+		this.completenessCalculator?.stopMonitoring();
+		this.completenessCalculator = null;
+		this.completenessOutputChannel?.dispose();
+		this.completenessOutputChannel = null;
+		
+		// Dispose achievement system (US-002-003)
+		this.achievementMessageHandler?.removeAllListeners();
+		this.achievementMessageHandler = null;
+		this.achievementEngine?.removeAllListeners();
+		this.achievementEngine = null;
+		this.achievementOutputChannel?.dispose();
+		this.achievementOutputChannel = null;
 		
 		for (const id of [...this.agents.keys()]) {
 			removeAgent(

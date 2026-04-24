@@ -211,9 +211,9 @@ describe('AchievementEngine', () => {
       // Fast-forward debounce timer
       jest.advanceTimersByTime(600);
 
-      const saved = context.globalState?.get('pixelAgents.achievements');
+      const saved = context.globalState?.get('pixelAgents.achievements') as { achievements: any } | undefined;
       expect(saved).toBeDefined();
-      expect(saved.achievements).toBeDefined();
+      expect(saved?.achievements).toBeDefined();
       
       jest.useRealTimers();
     });

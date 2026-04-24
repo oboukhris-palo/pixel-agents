@@ -30,9 +30,11 @@ export function isContextWindowMessage(value: unknown): value is ContextWindowMe
  * Formats token usage into a typed message and posts it via the provided transport.
  */
 export class ContextMessageHandler {
-  constructor(
-    private readonly postMessage: (message: ContextWindowMessage) => void
-  ) {}
+  private readonly postMessage: (message: ContextWindowMessage) => void;
+
+  constructor(postMessage: (message: ContextWindowMessage) => void) {
+    this.postMessage = postMessage;
+  }
 
   /**
    * Sends a context window update to the webview.

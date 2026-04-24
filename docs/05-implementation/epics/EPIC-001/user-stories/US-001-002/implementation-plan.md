@@ -26,12 +26,18 @@ This story implements real-time code snippet visualization as the active agent w
 
 ---
 
-## Architecture Pattern
+## Architecture Pattern (design-systems.md v2.0.0)
 
 - **Pattern**: Layered Architecture (Domain → Service → Protocol → UI)
+- **Design System**: Palo IT branding with VS Code dark theme integration
+- **Agent Sidebar**: 180px width × 246px height, bg #252526, agent rows 28px with 8px status dots
+- **Action Bubble**: 80×18px, bg #1E1E1E @ 90%, border: 1px agent color @ 50%, border-radius: 4px, 8px text
+- **Agent Status Colors**: Active (#2ECC71 pulse), Thinking (#F39C12 blink), Idle (#6B7280), Error (#E74C3C)
+- **Typography**: 9-level scale (--text-mini 8px for canvas labels, --text-caption 10px for agent names, --text-body-sm 11px for sidebar)
+- **Virtual Scrolling**: ROW_HEIGHT = 28px for 10+ agent lists (performance optimization)
 - **BDD-Driven**: Implementation follows BDD scenarios from `docs/05-implementation/epics/EPIC-001/user-stories/US-001-002/features/`
 - **TDD Cycles**: Each layer implemented via RED → GREEN → REFACTOR
-- **Message-Based**: Agent.activity service broadcasts ActionBubbleMessage; useExtensionMessages hook delivers updates
+- **Message-Based**: agentActivityMonitor service broadcasts ActionBubbleMessage; useExtensionMessages hook delivers updates
 
 ---
 

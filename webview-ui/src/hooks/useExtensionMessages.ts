@@ -354,6 +354,7 @@ export function useExtensionMessages(
           if (list.some((t) => t.toolId === toolId)) return prev
           return { ...prev, [id]: [...list, { toolId, status, done: false }] }
         })
+        if (!os) return // Office state required for agent tool updates
         const toolName = extractToolName(status)
         os.setAgentTool(id, toolName)
         os.setAgentActive(id, true)
@@ -420,6 +421,7 @@ export function useExtensionMessages(
           return next
         })
         // Remove all sub-agent characters belonging to this agent
+        if (!os) return // Office state required for clearing tools
         os.removeAllSubagents(id)
         setSubagentCharacters((prev) => prev.filter((s) => s.parentAgentId !== id))
         os.setAgentTool(id, null)
@@ -439,6 +441,7 @@ export function useExtensionMessages(
           }
           return { ...prev, [id]: status }
         })
+        if (!os) return // Office state required for status updates
         os.setAgentActive(id, status === 'active')
         if (status === 'waiting') {
           os.showWaitingBubble(id)
@@ -454,10 +457,12 @@ export function useExtensionMessages(
             [id]: list.map((t) => (t.done ? t : { ...t, permissionWait: true })),
           }
         })
+        if (!os) return // Office state required for permission bubble
         os.showPermissionBubble(id)
       } else if (msg.type === 'subagentToolPermission') {
         const id = msg.id as number
         const parentToolId = msg.parentToolId as string
+        if (!os) return // Office state required for permission bubble
         // Show permission bubble on the sub-agent character
         const subId = os.getSubagentId(id, parentToolId)
         if (subId !== null) {
@@ -475,6 +480,7 @@ export function useExtensionMessages(
             [id]: list.map((t) => (t.permissionWait ? { ...t, permissionWait: false } : t)),
           }
         })
+        if (!os) return // Office state required for clearing permission bubble
         os.clearPermissionBubble(id)
         // Also clear permission bubbles on all sub-agent characters of this parent
         for (const [subId, meta] of os.subagentMeta) {
@@ -493,6 +499,7 @@ export function useExtensionMessages(
           if (list.some((t) => t.toolId === toolId)) return prev
           return { ...prev, [id]: { ...agentSubs, [parentToolId]: [...list, { toolId, status, done: false }] } }
         })
+        if (!os) return // Office state required for subagent tool start
         // Update sub-agent character's tool and active state
         const subId = os.getSubagentId(id, parentToolId)
         if (subId !== null) {
@@ -529,6 +536,7 @@ export function useExtensionMessages(
           }
           return { ...prev, [id]: next }
         })
+        if (!os) return // Office state required for removing subagent
         // Remove sub-agent character
         os.removeSubagent(id, parentToolId)
         setSubagentCharacters((prev) => prev.filter((s) => !(s.parentAgentId === id && s.parentToolId === parentToolId)))
@@ -596,6 +604,7 @@ export function useExtensionMessages(
         const fromId = msg.fromId as number
         const toId = msg.toId as number
         console.log(`[Webview] Agent handoff requested: ${fromId} → ${toId}`)
+        if (!os) return // Office state required for handoff
         os.initiateHandoff(fromId, toId)
       }
     }

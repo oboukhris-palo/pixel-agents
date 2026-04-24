@@ -917,24 +917,28 @@ Add tests for:
 
 ---
 
-## Phase 2: Missing Critical Features (10-15 days, 24-34 SP)
+## Phase 2: Missing Critical Features (10-15 days, 24-34 SP) — 🟢 IN PROGRESS
 
 **Goal**: Implement Agent Sidebar, Office Canvas, Status Bar
+
+**Status**: Started April 24, 2026  
+**Approach**: Option B - Balanced (Parallel Backend + Incremental Frontend) ⭐  
+**Target Completion**: May 7-12, 2026
 
 ### Epic Structure
 
 **EPIC-001: Workflow Visualization Enhancement** (continued)
-- US-001-002: Agent Activity Monitor with Code Snippets (8 SP, 3-4 days)
+- 🟡 US-001-002: Agent Activity Monitor with Code Snippets (8 SP, 3-4 days) — Track B (Parallel)
 
 **EPIC-003: Office Canvas & Pixel Art Visualization** (new)
-- US-003-001: Office Canvas Grid & Furniture System (8 SP, 3-4 days)
-- US-003-002: Agent Sprite Animation Engine (8 SP, 3-4 days)
-- US-003-003: Zoom & Pan Controls with Auto-Fit (3 SP, 1-2 days)
+- 🟡 US-003-001: Office Canvas Grid & Furniture System (8 SP, 3-4 days) — Track A (Parallel)
+- ⬜ US-003-002: Agent Sprite Animation Engine (8 SP, 3-4 days) — Track C (Sequential after US-003-001)
+- ⬜ US-003-003: Zoom & Pan Controls with Auto-Fit (3 SP, 1-2 days) — Track C (Sequential after US-003-001)
 
 **EPIC-001: Workflow Visualization Enhancement** (continued)
-- US-001-003: Status Bar Implementation (3 SP, 1-2 days)
+- ⬜ US-001-003: Status Bar Implementation (3 SP, 1-2 days) — Track D (Parallel during integration)
 
-**Total Phase 2**: 30 SP, 11-16 days
+**Total Phase 2**: 30 SP, 11-16 days (Option B: 11-13 days target)
 
 ---
 

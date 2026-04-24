@@ -44,7 +44,7 @@ describe('Achievement Message Protocol', () => {
 
   beforeEach(() => {
     mockEngine = new MockAchievementEngine();
-    handler = new AchievementMessageHandler(mockEngine);
+    handler = new AchievementMessageHandler(mockEngine as any);
   });
 
   describe('Message Type Definitions', () => {
@@ -116,7 +116,7 @@ describe('Achievement Message Protocol', () => {
 
   describe('Message Handler Initialization', () => {
     test('initializes with achievement engine subscription', () => {
-      const handler2 = new AchievementMessageHandler(mockEngine);
+      const handler2 = new AchievementMessageHandler(mockEngine as any);
       expect(handler2).toBeDefined();
     });
 
@@ -345,7 +345,7 @@ describe('useAchievements React Hook', () => {
 
   beforeEach(() => {
     mockEngine = new MockAchievementEngine();
-    handler = new AchievementMessageHandler(mockEngine);
+    handler = new AchievementMessageHandler(mockEngine as any);
   });
 
   describe('Hook Initialization', () => {
@@ -389,7 +389,7 @@ describe('useAchievements React Hook', () => {
     });
 
     test('hook updates achievements list', (done) => {
-      const handler2 = new AchievementMessageHandler(mockEngine);
+      const handler2 = new AchievementMessageHandler(mockEngine as any);
       const state = useAchievements(handler2);
 
       // Verify initial state is empty
@@ -511,7 +511,7 @@ describe('Message Protocol Integration', () => {
 
   beforeEach(() => {
     mockEngine = new MockAchievementEngine();
-    handler = new AchievementMessageHandler(mockEngine);
+    handler = new AchievementMessageHandler(mockEngine as any);
   });
 
   test('end-to-end message flow from engine to hook', (done) => {

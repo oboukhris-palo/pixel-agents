@@ -15,7 +15,7 @@ import {
   type ParsedMetrics,
   getDefaultParsedMetrics,
 } from './documentChangeTypes.js';
-import type { DocumentWatcherService } from './documentWatcherService.js';
+import type { DocumentWatcherService, OutputChannelLike } from './documentWatcherService.js';
 
 // ── Message protocol ──────────────────────────────────────────────────────────
 

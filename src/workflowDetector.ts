@@ -378,11 +378,10 @@ export class WorkflowDetector {
 				}
 			}
 		}
+	}
 
 		return null;
 	}
-}
-
 	/**
 	 * Detect current sprint by parsing /docs/05-implementation/current-sprint.md
 	 */

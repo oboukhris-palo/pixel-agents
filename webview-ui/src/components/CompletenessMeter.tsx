@@ -1,22 +1,52 @@
 /**
- * Completeness Meter Component
+ * Completeness Meter Component - Design System v2.0.0 Alignment
  * Layer 4: UI Component
- * Story: US-002-002 - Completeness Meter with Project Progress Tracking
+ * Story: US-004-004 - CompletenessMeter Milestone Design
  * 
- * Visual progress meter showing project completion with milestone markers.
+ * Visual progress meter showing project completion with:
+ * - DONE label (micro typography)
+ * - Percentage display (36px h1, monospace)
+ * - Progress bar (200×8px) with milestone markers
+ * - Stats grid (2-column, micro typography)
+ * - PRU efficiency display (gold color with lightning emoji)
  */
 
-import React from 'react';
 import { useCompleteness } from '../hooks/useCompleteness';
-import { getMilestoneColor } from '../../../src/completenessTypes';
+
+// CSS module — mocked as identity-obj-proxy in Jest, loaded by Vite in production
+import styles from './CompletenessMeter.module.css';
+
+/**
+ * Build CSS class names for milestone markers with fallbacks for identity-obj-proxy
+ * 
+ * @param reached - Whether milestone has been reached
+ * @param newlyAchieved - Whether milestone was just achieved (not celebrated)
+ * @returns Space-separated class names
+ */
+function getMilestoneClasses(reached: boolean, newlyAchieved: boolean): string {
+	let classes = styles.milestoneMarker || 'milestoneMarker';
+	
+	if (reached) {
+		classes += ` ${styles.milestoneAchieved || 'milestoneAchieved'}`;
+	} else {
+		classes += ` ${styles.milestoneUpcoming || 'milestoneUpcoming'}`;
+	}
+	
+	if (newlyAchieved) {
+		classes += ` ${styles.milestoneBounce || 'milestoneBounce'}`;
+	}
+	
+	return classes;
+}
 
 /**
  * Completeness Meter Component
  * 
  * Displays real-time project completion metrics with:
  * - Progress bar (0-100%)
- * - Milestone markers (25%, 50%, 75%, 100%)
- * - Story/test/coverage breakdown
+ * - Milestone markers (25%, 50%, 75%, 90%, 100%) with bounce animation
+ * - Story/test/coverage breakdown in 2-column grid
+ * - PRU efficiency score with gold color
  * - Color-coded progress stages
  * 
  * @example
@@ -27,22 +57,26 @@ import { getMilestoneColor } from '../../../src/completenessTypes';
 export function CompletenessMeter() {
 	const metrics = useCompleteness();
 
-	const getProgressColorClass = (percentage: number): string => {
-		if (percentage === 100) return 'complete';
-		if (percentage >= 75) return 'high';
-		if (percentage >= 50) return 'medium';
-		if (percentage >= 25) return 'low';
-		return 'very-low';
-	};
-
-	const colorClass = getProgressColorClass(metrics.completionPercentage);
-
 	return (
-		<div className="completeness-meter" data-testid="completeness-meter">
-			{/* Progress Bar */}
-			<div className="progress-container">
+		<div className={styles['completeness-meter'] || 'completeness-meter'} data-testid="completeness-meter">
+			{/* DONE Label (AC1) */}
+			<div className={styles.doneLabel || 'doneLabel'} data-testid="done-label">
+				DONE
+			</div>
+
+			{/* Percentage Display (AC2) */}
+			<div className={styles.percentageValue || 'percentageValue'} data-testid="percentage-value">
+				{metrics.completionPercentage}
+			</div>
+
+			{/* Progress Bar with Milestone Markers (AC3, AC4) */}
+			<div 
+				className={styles.progressContainer || 'progressContainer'}
+				data-testid="progress-container"
+			>
 				<div 
-					className={`progress-bar ${colorClass}`}
+					className={styles.progressFill || 'progressFill'}
+					data-testid="progress-fill"
 					role="progressbar"
 					aria-valuenow={metrics.completionPercentage}
 					aria-valuemin={0}
@@ -51,60 +85,67 @@ export function CompletenessMeter() {
 					style={{ width: `${metrics.completionPercentage}%` }}
 				/>
 				
-				{/* Milestone Markers */}
-				<div className="milestone-markers" data-testid="milestone-markers">
-					{[25, 50, 75, 100].map((threshold) => {
-						const milestone = metrics.milestones.find(m => m.threshold === threshold);
-						const reached = milestone?.reached || metrics.completionPercentage >= threshold;
-						
-						return (
-							<div
-								key={threshold}
-								className={`milestone-marker ${reached ? 'reached' : ''}`}
-								data-testid={`milestone-${threshold}`}
-								style={{
-									left: `${threshold}%`,
-									backgroundColor: reached ? getMilestoneColor(threshold) : '#6b7280'
-								}}
-								title={`${threshold}% milestone ${reached ? '✓' : ''}`}
-							>
-								<span className="milestone-label">{threshold}%</span>
-							</div>
-						);
-					})}
-				</div>
+				{/* Milestone Markers (AC4, AC5, AC6, AC10) */}
+				{[25, 50, 75, 90, 100].map((threshold) => {
+					const milestone = metrics.milestones.find(m => m.threshold === threshold);
+					const reached = milestone?.reached || metrics.completionPercentage >= threshold;
+					const newlyAchieved = !!(milestone?.reached && !milestone?.celebrated);
+					
+					return (
+						<div
+							key={threshold}
+							className={getMilestoneClasses(reached, newlyAchieved)}
+							data-testid={`milestone-${threshold}`}
+							style={{ left: `${threshold}%` }}
+							title={`${threshold}% milestone ${reached ? '✓' : ''}`}
+						/>
+					);
+				})}
 			</div>
 
-			{/* Percentage Display */}
-			<div className="percentage-display">
-				<span className="percentage-value">{metrics.completionPercentage}%</span>
-				<span className="percentage-label">Complete</span>
-			</div>
-
-			{/* Metrics Breakdown */}
-			<div className="metrics-breakdown">
-				<div className="metric-item">
-					<span className="metric-label">Stories</span>
-					<span className="metric-value">
+			{/* Stats Grid (AC7) */}
+			<div className={styles.statsGrid || 'statsGrid'} data-testid="stats-grid">
+				<div>
+					<div className={styles.statLabel || 'statLabel'}>Stories</div>
+					<div className={styles.statValue || 'statValue'}>
 						{metrics.storiesCompleted} / {metrics.storiesTotal} stories
-					</span>
-					<span className="sr-only">
+					</div>
+					<span className={styles['sr-only'] || 'sr-only'}>
 						{metrics.storiesCompleted} of {metrics.storiesTotal} stories completed
 					</span>
 				</div>
 
-				<div className="metric-item">
-					<span className="metric-label">Tests</span>
-					<span className="metric-value">
+				<div>
+					<div className={styles.statLabel || 'statLabel'}>Tests</div>
+					<div className={styles.statValue || 'statValue'}>
 						{metrics.testsPassing} / {metrics.testsTotal} tests
-					</span>
+					</div>
 				</div>
 
-				<div className="metric-item">
-					<span className="metric-label">Coverage</span>
-					<span className="metric-value">{metrics.codeCoverage}%</span>
+				<div>
+					<div className={styles.statLabel || 'statLabel'}>Coverage</div>
+					<div className={styles.statValue || 'statValue'}>
+						{metrics.codeCoverage}%
+					</div>
+				</div>
+
+				<div>
+					<div className={styles.statLabel || 'statLabel'}>LOC</div>
+					<div className={styles.statValue || 'statValue'}>
+						{metrics.linesOfCode.toLocaleString()}
+					</div>
 				</div>
 			</div>
+
+			{/* PRU Efficiency Display (AC8) */}
+			{metrics.pruEfficiency !== undefined && (
+				<div className={styles.pruEfficiency || 'pruEfficiency'} data-testid="pru-efficiency">
+					<span role="img" aria-label="lightning">⚡</span>
+					<span className={styles.pruValue || 'pruValue'} data-testid="pru-value">
+						{metrics.pruEfficiency}%
+					</span>
+				</div>
+			)}
 		</div>
 	);
 }

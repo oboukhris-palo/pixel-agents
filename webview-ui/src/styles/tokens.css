@@ -1,0 +1,242 @@
+/**
+ * Design Token System v2.0.0
+ * Palo IT Branding + VS Code Dark Theme Integration
+ * 
+ * Reference: /docs/02-architecture/design-systems.md v2.0.0
+ * 
+ * Token Categories:
+ * 1. Palo IT Brand Colors
+ * 2. VS Code Dark Theme (15 colors)
+ * 3. TDD Phase Colors (with backgrounds & hover states)
+ * 4. Typography Scale (9 levels: 8px → 24px)
+ * 5. Spacing Scale (11 levels: 0px → 64px)
+ * 6. Border Radius (7 levels)
+ * 7. Shadow System (3 shadows + 5 glow effects)
+ * 8. Agent Colors (12 agents)
+ * 9. Semantic Colors (success, warning, error, info)
+ * 10. Context Window Thresholds
+ * 11. Transitions & Timing
+ * 12. Typography Families
+ */
+
+/* ========================================
+   1. PALO IT BRAND COLORS
+   ======================================== */
+:root {
+  --palo-green: #00C853;
+  --palo-yellow: #FFD600;
+  --palo-orange: #FF6D00;
+  --palo-black: #000000;
+  --palo-white: #FFFFFF;
+  --palo-tech-blue: #0066CC;
+  --palo-gene2-purple: #7B3FF2;
+}
+
+/* ========================================
+   2. VS CODE DARK THEME
+   ======================================== */
+:root {
+  /* Backgrounds */
+  --vscode-bg: #1E1E1E;
+  --vscode-sidebar-bg: #252526;
+  --vscode-header-bg: #2D2D30;
+  --vscode-hover: #2A2D2E;
+  --vscode-selection: #264F78;
+  
+  /* Borders */
+  --vscode-border: #3E3E42;
+  --vscode-border-dim: #2B2B2B;
+  
+  /* Accents */
+  --vscode-accent: #007ACC;
+  --vscode-button: #0078D4;
+  --vscode-statusbar: #007ACC;
+  
+  /* Text Colors */
+  --vscode-foreground: #CCCCCC;
+  --vscode-foreground-dim: #999999;
+  --vscode-foreground-muted: #808080;
+  --vscode-foreground-faint: #666666;
+}
+
+/* ========================================
+   3. TDD PHASE COLORS
+   ======================================== */
+:root {
+  /* RED Phase */
+  --tdd-red: #FF5500;
+  --tdd-red-hover: #E64A00;
+  --tdd-red-bg: #3E1D00;
+  
+  /* GREEN Phase */
+  --tdd-green: #10B981;
+  --tdd-green-hover: #059669;
+  --tdd-green-bg: #052E16;
+  
+  /* REFACTOR Phase */
+  --tdd-refactor: #8B5CF6;
+  --tdd-refactor-hover: #7C3AED;
+  --tdd-refactor-bg: #1E0A3C;
+  
+  /* DOCUMENT Phase */
+  --tdd-document: #06B6D4;
+  --tdd-document-hover: #0891B2;
+  --tdd-document-bg: #0A2530;
+}
+
+/* ========================================
+   4. TYPOGRAPHY SCALE
+   ======================================== */
+:root {
+  --text-h1: 24px;      /* Big metric numbers */
+  --text-h2: 18px;      /* Section headers */
+  --text-h3: 14px;      /* Component titles */
+  --text-body: 13px;    /* Default body text */
+  --text-body-sm: 11px; /* Small text, agent names */
+  --text-code: 12px;    /* Code snippets */
+  --text-caption: 10px; /* Timestamps, sub-labels */
+  --text-micro: 9px;    /* Section headers ("AGENTS", "CTX") */
+  --text-mini: 8px;     /* Canvas labels, zone names */
+}
+
+/* ========================================
+   5. SPACING SCALE (4px base)
+   ======================================== */
+:root {
+  --space-0: 0px;
+  --space-1: 4px;   /* Minimum gap, icon padding */
+  --space-2: 8px;   /* Default inline spacing */
+  --space-3: 12px;  /* Card internal padding */
+  --space-4: 16px;  /* Section padding */
+  --space-5: 20px;  /* Between major components */
+  --space-6: 24px;  /* Panel padding */
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+}
+
+/* ========================================
+   6. BORDER RADIUS
+   ======================================== */
+:root {
+  --radius-none: 0px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-pill: 14px;  /* Phase pills */
+  --radius-full: 9999px;
+}
+
+/* ========================================
+   7. SHADOW SYSTEM
+   ======================================== */
+:root {
+  /* Standard Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  
+  /* Glow Effects (for TDD phases, achievements) */
+  --glow-red: 0 0 12px rgba(255, 85, 0, 0.3);
+  --glow-green: 0 0 12px rgba(16, 185, 129, 0.3);
+  --glow-purple: 0 0 12px rgba(139, 92, 246, 0.3);
+  --glow-blue: 0 0 12px rgba(0, 120, 212, 0.3);
+  --glow-gold: 0 0 12px rgba(245, 158, 11, 0.3);
+}
+
+/* ========================================
+   8. AGENT COLORS (12 agents)
+   ======================================== */
+:root {
+  --agent-dev-tdd-red: #FF5500;
+  --agent-dev-tdd-green: #10B981;
+  --agent-dev-tdd-refactor: #8B5CF6;
+  --agent-dev-lead: #3498DB;
+  --agent-qa: #F39C12;
+  --agent-architect: #E67E22;
+  --agent-ba: #1ABC9C;
+  --agent-po: #E91E63;
+  --agent-ux: #9C27B0;
+  --agent-pm: #00BCD4;
+  --agent-orchestrator: #FF9800;
+  --agent-ai-engineering: #607D8B;
+}
+
+/* ========================================
+   9. SEMANTIC COLORS
+   ======================================== */
+:root {
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+  --color-primary: #0078D4;
+}
+
+/* ========================================
+   10. CONTEXT WINDOW THRESHOLDS
+   ======================================== */
+:root {
+  /* Threshold Colors */
+  --context-safe: #10B981;      /* 0-70% usage */
+  --context-warning: #F59E0B;   /* 71-89% usage */
+  --context-critical: #EF4444;  /* 90%+ usage */
+  
+  /* Segment Colors */
+  --context-github: #3B82F6;    /* .github instructions */
+  --context-project: #10B981;   /* Project code */
+  --context-chat: #F59E0B;      /* Chat history */
+}
+
+/* ========================================
+   11. TRANSITIONS & TIMING
+   ======================================== */
+:root {
+  /* Durations */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --duration-slowest: 800ms;
+  
+  /* Easing Functions */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* Combined Transitions */
+  --transition-fast: all var(--duration-fast) var(--ease-in-out);
+  --transition-normal: all var(--duration-normal) var(--ease-in-out);
+  --transition-slow: all var(--duration-slow) var(--ease-in-out);
+}
+
+/* ========================================
+   12. TYPOGRAPHY FAMILIES
+   ======================================== */
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+}
+
+/* ========================================
+   GLOBAL RESETS & BASE STYLES
+   ======================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  color: var(--vscode-foreground);
+  background-color: var(--vscode-bg);
+  line-height: 1.5;
+}
+
+code, pre {
+  font-family: var(--font-mono);
+}

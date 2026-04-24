@@ -1,20 +1,23 @@
 /**
  * Jest setup file for webview-ui React testing
  * Configures the test environment with necessary globals and test utilities
+ * 
+ * NOTE: This file runs via setupFilesAfterEnv so Jest globals (expect, etc.) are available
  */
 
+// Import jest-dom matchers for better assertions
 require('@testing-library/jest-dom');
-
-// Mock VS Code API if needed in tests
-global.vscode = {
-  postMessage: jest.fn(),
-  setState: jest.fn(),
-  getState: jest.fn(),
-};
 
 // VS Code WebView global — required by vscodeApi.ts which calls acquireVsCodeApi()
 // at module load time. Jest's jsdom environment does not provide this global.
-global.acquireVsCodeApi = () => global.vscode;
+// This must be defined before any imports of vscodeApi.ts
+if (!global.acquireVsCodeApi) {
+  global.acquireVsCodeApi = () => ({
+    postMessage: jest.fn(),
+    getState: jest.fn(),
+    setState: jest.fn()
+  });
+}
 
 // Suppress console warnings in tests unless explicitly needed
 const originalWarn = console.warn;
