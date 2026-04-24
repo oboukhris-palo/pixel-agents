@@ -125,20 +125,12 @@ export class AgentActivityMonitor extends EventEmitter {
         this.extractCodeSnippet(),
       ]);
 
-      const action = this.parseCommitMessage(commitMessage);
+      const state = await this.parseCommitMessage(commitMessage);
 
       this.currentState = {
-        activeAgent: null, // Will be populated below if TDD commit
-        currentAction: action,
+        ...state,
         codeSnippet,
-        status: 'in-progress',
-        timestamp: this.nowISO(),
       };
-      
-      // Infer agent from phase if TDD commit
-      if (action.type !== 'DOCUMENTATION') {
-        this.currentState.activeAgent = await this.inferAgentFromPhase(action.type);
-      }
 
       // Debounced broadcast
       this.scheduleDebouncedBroadcast();
@@ -204,24 +196,36 @@ export class AgentActivityMonitor extends EventEmitter {
   }
 
   /**
-   * Parse a git commit message and extract TDD action context.
-   * Returns DOCUMENTATION action for non-TDD commits.
+   * Parse a git commit message and construct AgentActivityState.
+   * Returns state with DOCUMENTATION action for non-TDD commits.
    */
-  parseCommitMessage(message: string): AgentAction {
+  async parseCommitMessage(message: string): Promise<AgentActivityState> {
+    let action: AgentAction;
+    
     if (!message) {
-      return { type: 'DOCUMENTATION', cycle: 1, description: '' };
+      action = { type: 'DOCUMENTATION', cycle: 1, description: '' };
+    } else {
+      const match = message.match(TDD_COMMIT_RE);
+      if (!match) {
+        action = { type: 'DOCUMENTATION', cycle: 1, description: message.trim() };
+      } else {
+        const phaseRaw = match[1].toUpperCase() as TDDPhase;
+        const cycle = parseInt(match[2], 10);
+        const description = match[3].trim();
+        action = { type: phaseRaw, cycle: Math.max(1, cycle), description };
+      }
     }
 
-    const match = message.match(TDD_COMMIT_RE);
-    if (!match) {
-      return { type: 'DOCUMENTATION', cycle: 1, description: message.trim() };
-    }
+    // Construct full state
+    const state: AgentActivityState = {
+      activeAgent: action.type !== 'DOCUMENTATION' ? await this.inferAgentFromPhase(action.type) : null,
+      currentAction: action,
+      codeSnippet: null, // Will be populated by caller if needed
+      status: 'in-progress',
+      timestamp: this.nowISO(),
+    };
 
-    const phaseRaw = match[1].toUpperCase() as TDDPhase;
-    const cycle = parseInt(match[2], 10);
-    const description = match[3].trim();
-
-    return { type: phaseRaw, cycle: Math.max(1, cycle), description };
+    return state;
   }
 
   /**
@@ -276,14 +280,11 @@ export class AgentActivityMonitor extends EventEmitter {
         this.extractCodeSnippet(),
       ]);
 
-      const action = this.parseCommitMessage(commitMessage);
+      const state = await this.parseCommitMessage(commitMessage);
 
       const payload: AgentActivityState = {
-        activeAgent: null, // Agent metadata resolved separately when VS Code API available
-        currentAction: action,
+        ...state,
         codeSnippet,
-        status: 'in-progress',
-        timestamp: this.nowISO(),
       };
 
       const message: ActionBubbleMessage = {
