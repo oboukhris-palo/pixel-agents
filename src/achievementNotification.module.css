@@ -1,0 +1,160 @@
+/**
+ * Achievement Notification Styling - Design System v2.0.0 Alignment
+ * Story: US-004-005 - Achievement Notifications Design Update
+ * 
+ * Implements Palo IT branding with:
+ * - Badge card dimensions (160×120px, border-radius: 12px)
+ * - Palo IT gold border (2px, #F59E0B @ 60%)
+ * - VS Code dark background (#1E1E1E)
+ * - Emoji icon (32px)
+ * - Title typography (h3, 14px, weight 700, gold color)
+ * - Description typography (caption, 10px, muted)
+ * - Timestamp typography (micro, 9px, darker muted)
+ * - Celebration animation (scale + rotate, 600ms ease-out)
+ * - Toast slide-in (translateX, 300ms ease-out)
+ * - Palo Yellow for 100% milestone
+ */
+
+/* Container (AC9: Toast Slide-In Animation) */
+.notificationContainer {
+  position: fixed;
+  top: var(--space-4);
+  right: var(--space-4);
+  z-index: 1000;
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+.notificationContainer.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.notificationContainer.hidden {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.notificationContainer.reducedMotion {
+  transition: none;
+}
+
+/* Badge Card (AC1, AC2, AC3) */
+.badgeCard {
+  width: 160px; /* AC1: exact width */
+  height: 120px; /* AC1: exact height */
+  border-radius: var(--radius-xl); /* AC1: 12px */
+  border: 2px solid color-mix(in srgb, var(--color-warning) 60%, transparent); /* AC2: Palo IT gold @ 60% */
+  background: var(--vscode-bg, #1e1e1e); /* AC3: VS Code dark bg */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  position: relative;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* AC10: 100% Milestone uses Palo Yellow */
+.badgeCard.trophy {
+  border-color: color-mix(in srgb, var(--palo-yellow, #ffd600) 60%, transparent);
+}
+
+/* AC8: Celebration Animation (scale + rotate, 600ms ease-out) */
+@keyframes celebrate {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.badgeCard.celebrate {
+  animation: celebrate 600ms ease-out;
+}
+
+/* Emoji Icon (AC4) */
+.emoji {
+  font-size: 32px; /* AC4: 32px size */
+  line-height: 1;
+}
+
+/* Title Typography (AC5) */
+.title {
+  font-size: var(--text-h3); /* AC5: 14px */
+  font-weight: 700; /* AC5: weight 700 */
+  color: var(--color-warning, #f59e0b); /* AC5: gold color */
+  text-align: center;
+  margin: 0;
+}
+
+/* AC10: 100% Milestone title uses Palo Yellow */
+.title.trophy {
+  color: var(--palo-yellow, #ffd600);
+}
+
+/* Description Typography (AC6) */
+.description {
+  font-size: var(--text-caption); /* AC6: 10px */
+  color: var(--vscode-foreground-muted, #808080); /* AC6: muted color */
+  text-align: center;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Timestamp Typography (AC7) */
+.timestamp {
+  font-size: var(--text-micro); /* AC7: 9px */
+  color: #666666; /* AC7: darker muted */
+  text-align: center;
+  margin-top: var(--space-1);
+}
+
+/* Rarity Badge */
+.rarityBadge {
+  font-size: var(--text-micro);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: var(--space-1);
+}
+
+/* Dismiss Button */
+.dismissButton {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  background: transparent;
+  border: none;
+  color: var(--vscode-foreground-muted, #808080);
+  cursor: pointer;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  transition: color 150ms ease-out;
+}
+
+.dismissButton:hover {
+  color: var(--vscode-foreground, #ffffff);
+}
+
+.dismissButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-warning);
+}
+
+/* Screen Reader Only */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

@@ -8,6 +8,8 @@ module.exports = {
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
     '^vscode$': '<rootDir>/src/__mocks__/vscode.ts',
+    '\\.module\\.css$': 'identity-obj-proxy',
+    '\\.css$': 'identity-obj-proxy',
   },
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {

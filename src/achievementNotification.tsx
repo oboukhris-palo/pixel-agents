@@ -1,5 +1,5 @@
 /**
- * Achievement Notification & Leaderboard Components
+ * Achievement Notification & Leaderboard Components - Design System v2.0.0
  * Layer 4: User Interface - Achievement notifications and player leaderboard
  *
  * Components:
@@ -16,10 +16,14 @@
  *   - Real-time sorting and filtering
  *   - Virtual scrolling renders only visible rows (<500ms for 100+ players)
  *   - Memoized components and callbacks to prevent unnecessary re-renders
+ *   - Design System v2.0.0 compliant (Palo IT branding)
  */
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Achievement, StreakData, PRUScore } from './achievementTypes';
+
+// CSS module for design system alignment
+import styles from './achievementNotification.module.css';
 
 // ============================================================================
 // Constants
@@ -113,6 +117,77 @@ function getRarityColorClass(rarity: string): string {
  */
 function getRankColorClass(rank: string): string {
   return RANK_COLOR_MAP[rank] || RANK_COLOR_MAP.novice;
+}
+
+/**
+ * Check if achievement is a 100% milestone (trophy variant - AC10)
+ *
+ * @param achievement - Achievement object
+ * @returns True if achievement is 100% milestone, false otherwise
+ *
+ * @example
+ * const isTrophy = isTrophyAchievement(achievement); // true for milestone-100
+ */
+function isTrophyAchievement(achievement: Achievement): boolean {
+  return (
+    achievement.id === 'milestone-100' ||
+    achievement.name.toLowerCase().includes('project victory') ||
+    (achievement.category === 'milestone' && achievement.description.includes('100%'))
+  );
+}
+
+/**
+ * Build CSS class string for notification container (AC9: toast slide-in)
+ *
+ * @param isVisible - Whether notification is visible
+ * @param prefersReducedMotion - Whether user prefers reduced motion
+ * @param className - Additional custom classes
+ * @returns Combined CSS class string
+ */
+function buildContainerClasses(
+  isVisible: boolean,
+  prefersReducedMotion: boolean,
+  className: string
+): string {
+  return `
+    ${styles.notificationContainer || 'notificationContainer'}
+    ${isVisible ? (styles.visible || 'visible') : (styles.hidden || 'hidden')}
+    ${prefersReducedMotion ? (styles.reducedMotion || 'reducedMotion') : ''}
+    ${className}
+  `.trim();
+}
+
+/**
+ * Build CSS class string for badge card (AC1, AC2, AC3, AC8, AC10)
+ *
+ * @param isTrophy - Whether achievement is 100% milestone
+ * @param showCelebration - Whether to show celebration animation
+ * @param prefersReducedMotion - Whether user prefers reduced motion
+ * @returns Combined CSS class string
+ */
+function buildCardClasses(
+  isTrophy: boolean,
+  showCelebration: boolean,
+  prefersReducedMotion: boolean
+): string {
+  return `
+    ${styles.badgeCard || 'badgeCard'}
+    ${isTrophy ? (styles.trophy || 'trophy') : ''}
+    ${showCelebration && !prefersReducedMotion ? (styles.celebrate || 'celebrate') : ''}
+  `.trim();
+}
+
+/**
+ * Build CSS class string for achievement title (AC5, AC10)
+ *
+ * @param isTrophy - Whether achievement is 100% milestone
+ * @returns Combined CSS class string
+ */
+function buildTitleClasses(isTrophy: boolean): string {
+  return `
+    ${styles.title || 'title'}
+    ${isTrophy ? (styles.trophy || 'trophy') : ''}
+  `.trim();
 }
 
 /**
@@ -320,6 +395,10 @@ export function AchievementNotification({
 }: AchievementNotificationProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(true);
+
+  // Check if this is a 100% milestone achievement (trophy variant - AC10)
+  const isTrophy = isTrophyAchievement(achievement);
 
   // Check for prefers-reduced-motion media query (supports accessible animations)
   useEffect(() => {
@@ -330,6 +409,21 @@ export function AchievementNotification({
     mediaQuery.addEventListener('change', handler);
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
+
+  // Celebration animation trigger (AC8: scale + rotate, 600ms ease-out)
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      setShowCelebration(false);
+      return;
+    }
+
+    // Animation plays once on mount, then stops
+    const timer = setTimeout(() => {
+      setShowCelebration(false);
+    }, 600); // Match CSS animation duration
+
+    return () => clearTimeout(timer);
+  }, [prefersReducedMotion]);
 
   // Auto-dismiss timer with animation delay
   useEffect(() => {
@@ -371,62 +465,53 @@ export function AchievementNotification({
 
   return (
     <div
-      className={`
-        fixed top-4 right-4 max-w-sm transition-all duration-300 z-50
-        ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'}
-        ${prefersReducedMotion ? 'transition-none' : ''}
-        ${className}
-      `}
+      className={buildContainerClasses(isVisible, prefersReducedMotion, className)}
       role="status"
       aria-live="polite"
       aria-atomic="true"
     >
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border-l-4 border-amber-500 p-4">
-        {/* Badge Container */}
-        <div className="flex gap-4">
-          {/* Badge Icon - animated with bounce effect (respects prefers-reduced-motion) */}
-          <div
-            className={`
-              flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center
-              ${getBadgeColorClass(achievement.badge.color)} text-xl
-              ${!prefersReducedMotion ? 'animate-bounce' : ''}
-            `}
-            aria-hidden="true"
-          >
-            {achievement.badge.icon}
-          </div>
-
-          {/* Content */}
-          <div className="flex-1">
-            <h3 className="font-bold text-sm dark:text-white">{achievement.name}</h3>
-            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">
-              {achievement.description}
-            </p>
-            <span
-              className={`
-                inline-block text-xs font-semibold mt-2
-                ${getRarityColorClass(achievement.badge.rarity)}
-              `}
-            >
-              {achievement.badge.rarity.toUpperCase()} - {achievement.category}
-            </span>
-          </div>
-
-          {/* Dismiss Button - always focusable */}
-          <button
-            onClick={handleDismiss}
-            className="
-              flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200
-              transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 rounded
-              p-1
-            "
-            aria-label="Dismiss achievement notification"
-            type="button"
-            tabIndex={0}
-          >
-            <span aria-hidden="true">✕</span>
-          </button>
+      <div className={buildCardClasses(isTrophy, showCelebration, prefersReducedMotion)} data-testid="achievement-badge-card">
+        {/* Emoji Icon (AC4: 32px size) */}
+        <div className={styles.emoji || 'emoji'} aria-hidden="true">
+          {achievement.badge.icon}
         </div>
+
+        {/* Title (AC5: h3 typography, 14px, weight 700, gold color) */}
+        <h3 className={buildTitleClasses(isTrophy)} data-testid="achievement-title">
+          {achievement.name}
+        </h3>
+
+        {/* Description (AC6: caption typography, 10px, muted color) */}
+        <p className={styles.description || 'description'} data-testid="achievement-description">
+          {achievement.description}
+        </p>
+
+        {/* Rarity Badge */}
+        <span className={styles.rarityBadge || 'rarityBadge'}>
+          {achievement.badge.rarity.toUpperCase()}
+        </span>
+
+        {/* Timestamp (AC7: micro typography, 9px, darker muted) */}
+        <div className={styles.timestamp || 'timestamp'} data-testid="achievement-timestamp">
+          Just now
+        </div>
+
+        {/* Dismiss Button */}
+        <button
+          onClick={handleDismiss}
+          className={styles.dismissButton || 'dismissButton'}
+          aria-label="Dismiss achievement notification"
+          type="button"
+          tabIndex={0}
+        >
+          <span aria-hidden="true">✕</span>
+        </button>
+
+        {/* Screen reader announcement */}
+        <span className={styles.srOnly || 'srOnly'}>
+          Achievement unlocked: {achievement.name}. {achievement.description}.
+          Rarity: {achievement.badge.rarity}. Category: {achievement.category}.
+        </span>
       </div>
     </div>
   );
@@ -510,7 +595,7 @@ const LeaderboardRow = React.memo(
           transition-colors focus-within:outline focus-within:outline-2 focus-within:outline-amber-500
           ${isCurrentPlayer ? 'bg-amber-50 dark:bg-amber-900/20 font-semibold' : ''}
         `}
-        aria-current={isCurrentPlayer ? 'row' : undefined}
+        aria-current={isCurrentPlayer ? 'location' : undefined}
         role="row"
         tabIndex={isClickable ? 0 : -1}
       >
