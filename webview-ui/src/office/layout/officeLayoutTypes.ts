@@ -76,3 +76,25 @@ export function isValidOfficeLayout(layout: OfficeLayout): boolean {
     layout.zones.every(isValidZone)
   );
 }
+
+// ─── Factory functions ────────────────────────────────────────────────────────
+
+/** Creates a desk furniture item at the given grid position. */
+export function createDesk(id: string, x: number, y: number): FurnitureItem {
+  return { id, type: 'desk', position: { x, y }, width: 48, height: 32, color: '#5D4037', opacity: 0.8 };
+}
+
+/** Creates a conference table furniture item at the given grid position. */
+export function createConferenceTable(id: string, x: number, y: number): FurnitureItem {
+  return { id, type: 'conference_table', position: { x, y }, width: 128, height: 64, color: '#4A148C', opacity: 0.85 };
+}
+
+/** Creates a bookshelf furniture item at the given grid position. */
+export function createBookshelf(id: string, x: number, y: number): FurnitureItem {
+  return { id, type: 'bookshelf', position: { x, y }, width: 32, height: 64, color: '#1B5E20', opacity: 0.9 };
+}
+
+/** Creates a kitchen furniture item at the given grid position. */
+export function createKitchen(id: string, x: number, y: number): FurnitureItem {
+  return { id, type: 'kitchen', position: { x, y }, width: 96, height: 64, color: '#E65100', opacity: 0.85 };
+}

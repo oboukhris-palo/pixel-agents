@@ -6,8 +6,52 @@
 **Estimated Effort**: 3-4 days (24 hours)  
 **Assignee**: dev-tdd (4-layer TDD)  
 **Dependencies**: US-004-001 (design tokens - COMPLETE ✅)  
-**Status**: Ready for Implementation  
-**Phase**: Phase 2 - Track A (Parallel with US-001-002)
+**Status**: 🟢 IN PROGRESS (Started April 27, 2026)  
+**Phase**: Phase 2 - Track A  
+**Prepared by**: Sebastian (Dev-Lead)  
+**Ready for**: TDD Team (RED → GREEN → REFACTOR execution)
+
+---
+
+## 🎯 TDD Handoff Notes (April 27, 2026 - Dev-Lead Preparation)
+
+**Ready for TDD Team Execution**: This implementation plan is fully prepared with:
+
+✅ **Complete Layer Breakdown**: All 4 layers (Types → Engine → Data → Component) with detailed specifications  
+✅ **Test-First Approach**: RED-GREEN-REFACTOR guidance for each layer with ~60+ test cases specified  
+✅ **Performance Requirements**: 60 FPS target, viewport culling strategy, memory constraints  
+✅ **Visual Specifications**: Exact dimensions, colors, opacity values matching design-systems.md v2.0.0  
+✅ **Edge Cases Documented**: Empty layouts, 100+ furniture items, boundary conditions  
+✅ **Integration Points**: Clear handoffs to US-003-002 (sprites) and US-003-003 (zoom controls)
+
+**TDD Team Start Here**:
+1. **Layer 1 (2 hours)**: Begin with `officeLayoutTypes.ts` - write failing tests for type guards
+2. **Layer 2 (10 hours)**: Implement canvas renderer with viewport culling for 60 FPS performance
+3. **Layer 3 (2 hours)**: Create JSON layout with default furniture and zones
+4. **Layer 4 (10 hours)**: React component integration with zoom/pan handlers
+
+**Key Technical Decisions Made**:
+- **Grid System**: 32×32px tiles (matches agent sprite size for future US-003-002)
+- **Viewport Culling**: Implemented in `renderFurniture()` to maintain 60 FPS with 100+ items
+- **devicePixelRatio**: Handled in canvas setup for crisp retina display rendering
+- **Auto-Fit Strategy**: 90% viewport fill with centered layout on initial load
+- **Zoom Limits**: 0.1x to 3.0x (prevents over-zoom and extreme zoom-out)
+
+**Performance Validation Process**:
+- Chrome DevTools Performance Profiler after Layer 2 REFACTOR
+- Benchmark with 100 furniture items (stress test)
+- Verify <16ms frame time for 60 FPS
+- Memory leak detection via heap snapshots
+
+**Blockers & Risks**:
+- ⚠️ **Performance Risk**: If 60 FPS not achieved with 100 items, implement aggressive viewport culling or reduce furniture complexity
+- ⚠️ **Browser Compatibility**: Test on Chrome, Firefox, Safari (requestAnimationFrame behavior may differ)
+- ✅ **Mitigation**: Comprehensive performance tests in Layer 2 catch issues early
+
+**Questions? See**:
+- Design specifications: `/docs/02-architecture/design-systems.md v2.0.0`
+- Canvas patterns: Previous US-001-002 ActionBubble for React + Canvas integration examples
+- Performance targets: Definition of Done section (60 FPS, <50MB memory, <16ms frame time)
 
 ---
 

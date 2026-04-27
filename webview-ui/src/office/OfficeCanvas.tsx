@@ -5,20 +5,46 @@
  * Handles lifecycle management, zoom controls, and pan interactions.
  */
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { CanvasRenderer } from './engine/canvasRenderer';
 import { startGameLoop } from './engine/gameLoop';
 import { loadDefaultLayout } from './layout/layoutLoader';
+import { createAgentSprite } from './sprites/spriteTypes';
+import type { AgentStatus } from './sprites/spriteTypes';
 import styles from './OfficeCanvas.module.css';
+
+/** Agent team layout entry from JSON config. */
+interface AgentAssignment {
+  agentId: string;
+  deskPosition: { x: number; y: number };
+  color: string;
+}
 
 export interface OfficeCanvasProps {
   width?: number;
   height?: number;
+  /** Optional pre-loaded agent assignments (for testability). */
+  agentAssignments?: AgentAssignment[];
 }
 
-export function OfficeCanvas({ width = 960, height = 246 }: OfficeCanvasProps) {
+export function OfficeCanvas({ width = 960, height = 246, agentAssignments = [] }: OfficeCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<CanvasRenderer | null>(null);
+
+  // Initialize sprites from agent assignments
+  const initSprites = useCallback((renderer: CanvasRenderer) => {
+    const engine = renderer.getAnimationEngine();
+    for (const agent of agentAssignments) {
+      const sprite = createAgentSprite(
+        `sprite-${agent.agentId}`,
+        agent.agentId,
+        agent.deskPosition.x,
+        agent.deskPosition.y,
+        agent.color,
+      );
+      engine.addSprite(sprite);
+    }
+  }, [agentAssignments]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -31,25 +57,42 @@ export function OfficeCanvas({ width = 960, height = 246 }: OfficeCanvasProps) {
       renderer.autoFit();
       rendererRef.current = renderer;
 
-      // Start game loop using existing pattern
+      // Initialize agent sprites
+      initSprites(renderer);
+
+      // Start game loop with animation engine update
       const stopLoop = startGameLoop(canvas, {
         update: (_dt: number) => {
-          // Update logic (currently none needed)
+          renderer.getAnimationEngine().update(performance.now());
         },
         render: (_ctx: CanvasRenderingContext2D) => {
-          // Render using our renderer
           renderer.render();
         },
       });
 
       return () => {
-        // Cleanup on unmount
         stopLoop();
         rendererRef.current = null;
       };
     } catch (error) {
       console.error('Failed to initialize office canvas:', error);
     }
+  }, [initSprites]);
+
+  // Listen for agent activity messages from extension
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      const msg = event.data;
+      if (msg?.type !== 'activity-update' || !rendererRef.current) return;
+      const engine = rendererRef.current.getAnimationEngine();
+      const spriteId = `sprite-${msg.agentId}`;
+      const sprite = engine.getSprite(spriteId);
+      if (!sprite) return;
+      engine.applyAgentStatus(spriteId, msg.status as AgentStatus, performance.now(), msg.targetX, msg.targetY);
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
   }, []);
 
   // Handle zoom via scroll wheel

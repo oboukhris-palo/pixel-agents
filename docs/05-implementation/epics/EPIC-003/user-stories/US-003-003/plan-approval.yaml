@@ -1,0 +1,70 @@
+# Implementation Plan Approval Gate
+# US-003-003: Zoom & Pan Controls with Auto-Fit
+
+# Approval status: approved | changes-requested | revoked
+# - approved: TDD execution can proceed
+# - changes-requested: TDD BLOCKED, plan needs revision
+# - revoked: Auto-set when plan modified after approval
+
+status: changes-requested
+
+approver:
+  agent: dev-lead
+  name: Sebastian
+  date: 2026-04-27
+
+plan_version:
+  current: 1.0
+  approved_version: null  # Will be set to 1.0 when approved
+
+review_checklist:
+  - item: Implementation plan follows layer architecture (Types → Renderer → Component → Handlers)
+    status: pending
+    notes: Plan created, awaiting Dev-Lead review
+  
+  - item: BDD scenarios map to implementation layers
+    status: pending
+    notes: Features defined in features/zoom-pan-controls.feature
+  
+  - item: All external dependencies documented
+    status: pending
+    notes: Dependencies on US-003-001 (canvas renderer with viewport)
+  
+  - item: Coordinate transformation math validated (zoom towards cursor)
+    status: pending
+    notes: World ↔ canvas coordinate formulas documented in plan
+  
+  - item: Gesture event compatibility addressed (pinch-to-zoom browser support)
+    status: pending
+    notes: Risk identified, fallback strategy defined
+  
+  - item: Performance requirements achievable (<2ms zoom, 60 FPS maintained)
+    status: pending
+    notes: Performance benchmarks defined in plan
+  
+  - item: Critical business logic addressed (auto-fit, zoom clamping, center pan)
+    status: pending
+    notes: Viewport utilities comprehensively specified
+  
+  - item: Error handling strategy defined (edge cases, boundary conditions)
+    status: pending
+    notes: Zoom clamping (0.1-3.0), pan unlimited, auto-fit 90% fill
+
+revision_history:
+  - version: 1.0
+    date: 2026-04-27
+    author: Sebastian (Dev-Lead)
+    changes: Initial implementation plan created
+    reason: US-003-001 complete, US-003-003 unblocked
+
+blocking_issues: []
+
+comments:
+  - author: Sebastian
+    date: 2026-04-27
+    text: |
+      Comprehensive 4-layer plan created with 115-135 test target.
+      Key complexity: zoom-towards-cursor coordinate transformation.
+      Pinch-to-zoom gesture support limited to WebKit (Safari).
+      Simpler than US-003-002 (3 SP vs 8 SP), 1-2 day estimate.
+      Awaiting review before TDD execution.

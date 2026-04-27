@@ -7,6 +7,10 @@ import {
   isValidFurnitureItem,
   isValidZone,
   isValidOfficeLayout,
+  createDesk,
+  createConferenceTable,
+  createBookshelf,
+  createKitchen,
 } from './officeLayoutTypes';
 
 describe('officeLayoutTypes', () => {
@@ -462,6 +466,78 @@ describe('officeLayoutTypes', () => {
         ],
       };
       expect(isValidOfficeLayout(layout)).toBe(false);
+    });
+  });
+
+  describe('Factory functions', () => {
+    describe('createDesk', () => {
+      it('creates a valid FurnitureItem with type desk', () => {
+        const desk = createDesk('d1', 2, 3);
+        expect(desk.id).toBe('d1');
+        expect(desk.type).toBe('desk');
+        expect(desk.position).toEqual({ x: 2, y: 3 });
+        expect(isValidFurnitureItem(desk)).toBe(true);
+      });
+
+      it('creates desks with positive dimensions', () => {
+        const desk = createDesk('d2', 0, 0);
+        expect(desk.width).toBeGreaterThan(0);
+        expect(desk.height).toBeGreaterThan(0);
+      });
+
+      it('creates desk with valid opacity (0-1)', () => {
+        const desk = createDesk('d3', 0, 0);
+        expect(desk.opacity).toBeGreaterThanOrEqual(0);
+        expect(desk.opacity).toBeLessThanOrEqual(1);
+      });
+    });
+
+    describe('createConferenceTable', () => {
+      it('creates a valid FurnitureItem with type conference_table', () => {
+        const table = createConferenceTable('ct1', 10, 5);
+        expect(table.id).toBe('ct1');
+        expect(table.type).toBe('conference_table');
+        expect(table.position).toEqual({ x: 10, y: 5 });
+        expect(isValidFurnitureItem(table)).toBe(true);
+      });
+
+      it('conference table is wider than a desk', () => {
+        const table = createConferenceTable('ct2', 0, 0);
+        const desk = createDesk('d4', 0, 0);
+        expect(table.width).toBeGreaterThan(desk.width);
+      });
+    });
+
+    describe('createBookshelf', () => {
+      it('creates a valid FurnitureItem with type bookshelf', () => {
+        const shelf = createBookshelf('bs1', 1, 8);
+        expect(shelf.id).toBe('bs1');
+        expect(shelf.type).toBe('bookshelf');
+        expect(shelf.position).toEqual({ x: 1, y: 8 });
+        expect(isValidFurnitureItem(shelf)).toBe(true);
+      });
+    });
+
+    describe('createKitchen', () => {
+      it('creates a valid FurnitureItem with type kitchen', () => {
+        const kitchen = createKitchen('k1', 25, 10);
+        expect(kitchen.id).toBe('k1');
+        expect(kitchen.type).toBe('kitchen');
+        expect(kitchen.position).toEqual({ x: 25, y: 10 });
+        expect(isValidFurnitureItem(kitchen)).toBe(true);
+      });
+    });
+
+    describe('all factory functions', () => {
+      it('each factory produces a layout-compatible item', () => {
+        const items = [
+          createDesk('d', 0, 0),
+          createConferenceTable('ct', 5, 0),
+          createBookshelf('bs', 10, 0),
+          createKitchen('k', 15, 0),
+        ];
+        items.forEach(item => expect(isValidFurnitureItem(item)).toBe(true));
+      });
     });
   });
 });

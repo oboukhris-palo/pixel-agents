@@ -7,6 +7,7 @@
  */
 
 import type { OfficeLayout } from '../layout/officeLayoutTypes';
+import { AnimationEngine } from './animationEngine';
 
 export interface Viewport {
   x: number;
@@ -20,6 +21,7 @@ export class CanvasRenderer {
   private viewport: Viewport;
   private canvasWidth: number;
   private canvasHeight: number;
+  private animationEngine: AnimationEngine;
 
   constructor(canvas: HTMLCanvasElement, layout: OfficeLayout) {
     const context = canvas.getContext('2d');
@@ -31,6 +33,7 @@ export class CanvasRenderer {
     this.viewport = { x: 0, y: 0, zoom: 1 };
     this.canvasWidth = canvas.width;
     this.canvasHeight = canvas.height;
+    this.animationEngine = new AnimationEngine();
     this.setupCanvas(canvas);
   }
 
@@ -48,6 +51,7 @@ export class CanvasRenderer {
     this.renderFloorPattern();
     this.renderZones();
     this.renderFurniture();
+    this.renderSprites();
   }
 
   private clearCanvas() {
@@ -146,5 +150,44 @@ export class CanvasRenderer {
 
   getViewport(): Viewport {
     return { ...this.viewport };
+  }
+
+  getAnimationEngine(): AnimationEngine {
+    return this.animationEngine;
+  }
+
+  private renderSprites() {
+    const sprites = this.animationEngine.getSprites();
+    if (sprites.length === 0) return;
+
+    const { zoom, x: vpX, y: vpY } = this.viewport;
+    const gridSize = this.layout.gridSize;
+
+    for (const sprite of sprites) {
+      const sx = sprite.position.x * gridSize * zoom + vpX;
+      const sy = sprite.position.y * gridSize * zoom + vpY;
+      const sw = sprite.size.width * zoom;
+      const sh = sprite.size.height * zoom;
+
+      // Viewport culling
+      if (sx + sw < 0 || sx > this.canvasWidth ||
+          sy + sh < 0 || sy > this.canvasHeight) {
+        continue;
+      }
+
+      // Rounded rectangle body
+      const radius = 2 * zoom;
+      this.ctx.beginPath();
+      this.ctx.roundRect(sx, sy, sw, sh, radius);
+      this.ctx.fillStyle = sprite.color;
+      this.ctx.fill();
+
+      // White outline at 30% opacity
+      this.ctx.globalAlpha = 0.3;
+      this.ctx.strokeStyle = '#FFFFFF';
+      this.ctx.lineWidth = 2 * zoom;
+      this.ctx.stroke();
+      this.ctx.globalAlpha = 1.0;
+    }
   }
 }
