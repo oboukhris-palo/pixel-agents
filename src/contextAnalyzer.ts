@@ -85,7 +85,7 @@ export class ContextAnalyzer {
    * Skips files larger than MAX_FILE_SIZE_BYTES and non-project extensions.
    */
   private async countTokensInDirectory(dir: string): Promise<number> {
-    if (!fs.existsSync(dir)) return 0;
+    if (!fs.existsSync(dir)) {return 0;}
     let total = 0;
 
     try {
@@ -93,16 +93,16 @@ export class ContextAnalyzer {
       for (const entry of entries) {
         if (entry.isDirectory()) {
           // Skip node_modules and hidden dirs (except .github)
-          if (entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
+          if (entry.name === 'node_modules' || entry.name.startsWith('.')) {continue;}
           total += await this.countTokensInDirectory(path.join(dir, entry.name));
         } else if (entry.isFile()) {
           const ext = path.extname(entry.name);
-          if (!PROJECT_EXTENSIONS.has(ext)) continue;
+          if (!PROJECT_EXTENSIONS.has(ext)) {continue;}
           const filePath = path.join(dir, entry.name);
 
           try {
             const stat = await fs.promises.stat(filePath);
-            if (stat.size > MAX_FILE_SIZE_BYTES) continue; // skip oversized files
+            if (stat.size > MAX_FILE_SIZE_BYTES) {continue;} // skip oversized files
 
             const content = await fs.promises.readFile(filePath, 'utf-8');
             total += Math.floor(content.length / 4);
@@ -125,7 +125,7 @@ export class ContextAnalyzer {
 
   /** Triggers a debounced context analysis and invokes the registered callback. */
   _triggerUpdate(): void {
-    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+    if (this.debounceTimer) {clearTimeout(this.debounceTimer);}
     this.debounceTimer = setTimeout(async () => {
       if (this.monitoringCallback) {
         const usage = await this.analyzeContextWindow();

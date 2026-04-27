@@ -100,7 +100,7 @@ describe('ContextAnalyzer', () => {
 
     it('excludes node_modules from project token calculation', async () => {
       fs.promises.readdir.mockImplementation((dir: string) => {
-        if (dir.includes('node_modules')) return Promise.resolve([]);
+        if (dir.includes('node_modules')) {return Promise.resolve([]);}
         if (dir.includes('src')) {
           return Promise.resolve([
             { name: 'index.ts', isFile: () => true, isDirectory: () => false },

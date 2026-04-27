@@ -110,23 +110,23 @@ export interface TaskProgressionMessage {
  */
 export function isValidTaskInfo(value: unknown): boolean {
 	// Reject non-objects and null
-	if (!value || typeof value !== 'object') return false;
+	if (!value || typeof value !== 'object') {return false;}
 	const obj = value as Record<string, unknown>;
 	
 	// Validate required fields: storyId, title, epic (string)
-	if (typeof obj.storyId !== 'string' || obj.storyId.length === 0) return false;
-	if (typeof obj.title !== 'string') return false;
-	if (typeof obj.epic !== 'string' || obj.epic.length === 0) return false;
+	if (typeof obj.storyId !== 'string' || obj.storyId.length === 0) {return false;}
+	if (typeof obj.title !== 'string') {return false;}
+	if (typeof obj.epic !== 'string' || obj.epic.length === 0) {return false;}
 	
 	// Validate status if present (must be in VALID_TASK_STATUSES)
 	if (obj.status !== undefined) {
 		const validStatuses = VALID_TASK_STATUSES as readonly string[];
-		if (!validStatuses.includes(obj.status as string)) return false;
+		if (!validStatuses.includes(obj.status as string)) {return false;}
 	}
 	
 	// Validate optional fields are strings when present
-	if (obj.layer !== undefined && typeof obj.layer !== 'string') return false;
-	if (obj.cycle !== undefined && typeof obj.cycle !== 'string') return false;
+	if (obj.layer !== undefined && typeof obj.layer !== 'string') {return false;}
+	if (obj.cycle !== undefined && typeof obj.cycle !== 'string') {return false;}
 	
 	return true;
 }

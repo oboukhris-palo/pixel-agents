@@ -51,7 +51,7 @@ export interface TokenUsage {
  * Uses OpenAI approximation: chars / 4 ≈ tokens.
  */
 export function calculateTokenPercentage(used: number, total: number): number {
-  if (total <= 0) return 0;
+  if (total <= 0) {return 0;}
   const clamped = Math.max(0, Math.min(used, total));
   return Math.round((clamped / total) * 100);
 }
@@ -63,8 +63,8 @@ export function calculateTokenPercentage(used: number, total: number): number {
  * - critical: 90-100%
  */
 export function calculateThreshold(percentage: number): TokenThreshold {
-  if (percentage >= 90) return 'critical';
-  if (percentage >= 70) return 'warning';
+  if (percentage >= 90) {return 'critical';}
+  if (percentage >= 70) {return 'warning';}
   return 'safe';
 }
 
@@ -81,7 +81,7 @@ export function getThresholdColor(threshold: TokenThreshold): string {
  */
 export function isValidTokenUsage(usage: TokenUsage): boolean {
   const { used, breakdown } = usage;
-  if (used < 0 || usage.total < 0) return false;
+  if (used < 0 || usage.total < 0) {return false;}
   const breakdownSum =
     breakdown.githubCode + breakdown.projectCode + breakdown.chatHistory;
   return breakdownSum === used;

@@ -240,7 +240,7 @@ export class AgentActivityMonitor extends EventEmitter {
       return null;
     }
 
-    if (!diffOutput.trim()) return null;
+    if (!diffOutput.trim()) {return null;}
 
     // Detect file language from diff header
     const language = this.detectLanguageFromDiff(diffOutput);
@@ -252,7 +252,7 @@ export class AgentActivityMonitor extends EventEmitter {
       .map(line => line.slice(1)) // remove leading '+'
       .filter(line => line.trim().length > 0);
 
-    if (addedLines.length === 0) return null;
+    if (addedLines.length === 0) {return null;}
 
     // Limit to MAX 15 LINES (AC2)
     const limitedLines = addedLines.slice(-15);

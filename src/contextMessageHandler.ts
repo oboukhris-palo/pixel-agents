@@ -20,7 +20,7 @@ export interface ContextWindowMessage {
  * Type guard: checks if an unknown value is a ContextWindowMessage.
  */
 export function isContextWindowMessage(value: unknown): value is ContextWindowMessage {
-  if (!value || typeof value !== 'object') return false;
+  if (!value || typeof value !== 'object') {return false;}
   const msg = value as Record<string, unknown>;
   return msg['type'] === 'context.window.update' && 'data' in msg;
 }

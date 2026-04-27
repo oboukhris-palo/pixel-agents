@@ -113,7 +113,7 @@ export interface ActionBubbleMessage {
 const ISO8601_REGEX = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/;
 
 function isValidISO8601(timestamp: string): boolean {
-  if (!ISO8601_REGEX.test(timestamp)) return false;
+  if (!ISO8601_REGEX.test(timestamp)) {return false;}
   const date = new Date(timestamp);
   return !isNaN(date.getTime());
 }
@@ -131,16 +131,16 @@ const VALID_PHASES = new Set<string>(['RED', 'GREEN', 'REFACTOR', 'DOCUMENTATION
  * Type guard for CodeSnippetInfo
  */
 export function isValidCodeSnippetInfo(value: unknown): value is CodeSnippetInfo {
-  if (!value || typeof value !== 'object') return false;
+  if (!value || typeof value !== 'object') {return false;}
   const obj = value as Record<string, unknown>;
-  if (typeof obj.content !== 'string' || obj.content.length === 0) return false; // Reject empty content
-  if (obj.content.length > CODE_DISPLAY_CONFIG.MAX_CHARS_PER_LINE) return false; // Enforce max chars (AC7)
-  if (!VALID_LANGUAGES.has(obj.language as string)) return false;
+  if (typeof obj.content !== 'string' || obj.content.length === 0) {return false;} // Reject empty content
+  if (obj.content.length > CODE_DISPLAY_CONFIG.MAX_CHARS_PER_LINE) {return false;} // Enforce max chars (AC7)
+  if (!VALID_LANGUAGES.has(obj.language as string)) {return false;}
   
   // lineNumbers optional, but must be array of numbers if present
   if (obj.lineNumbers !== undefined) {
-    if (!Array.isArray(obj.lineNumbers)) return false;
-    if (!obj.lineNumbers.every((n: any) => typeof n === 'number')) return false;
+    if (!Array.isArray(obj.lineNumbers)) {return false;}
+    if (!obj.lineNumbers.every((n: any) => typeof n === 'number')) {return false;}
   }
   
   return true;
@@ -151,11 +151,11 @@ export const isValidCodeSnippet = isValidCodeSnippetInfo; // Alias for test comp
  * Type guard for AgentAction
  */
 function isValidAgentAction(value: unknown): value is AgentAction {
-  if (!value || typeof value !== 'object') return false;
+  if (!value || typeof value !== 'object') {return false;}
   const obj = value as Record<string, unknown>;
-  if (!VALID_PHASES.has(obj.type as string)) return false;
-  if (typeof obj.cycle !== 'number' || obj.cycle < 1) return false;
-  if (typeof obj.description !== 'string' || obj.description.length === 0) return false; // Reject empty description
+  if (!VALID_PHASES.has(obj.type as string)) {return false;}
+  if (typeof obj.cycle !== 'number' || obj.cycle < 1) {return false;}
+  if (typeof obj.description !== 'string' || obj.description.length === 0) {return false;} // Reject empty description
   return true;
 }
 
@@ -163,43 +163,43 @@ function isValidAgentAction(value: unknown): value is AgentAction {
  * Type guard for AgentActivityState
  */
 export function isValidAgentActivityState(value: unknown): value is AgentActivityState {
-  if (!value || typeof value !== 'object') return false;
+  if (!value || typeof value !== 'object') {return false;}
   const obj = value as Record<string, unknown>;
 
   // activeAgent: null or object
   if (obj.activeAgent !== null && obj.activeAgent !== undefined) {
-    if (typeof obj.activeAgent !== 'object') return false;
+    if (typeof obj.activeAgent !== 'object') {return false;}
   }
 
   // currentAction required
-  if (!isValidAgentAction(obj.currentAction)) return false;
+  if (!isValidAgentAction(obj.currentAction)) {return false;}
 
   // codeSnippet: null or valid snippet
   if (obj.codeSnippet !== null && obj.codeSnippet !== undefined) {
-    if (!isValidCodeSnippetInfo(obj.codeSnippet)) return false;
+    if (!isValidCodeSnippetInfo(obj.codeSnippet)) {return false;}
   }
 
   // status required
-  if (!VALID_STATUSES.has(obj.status as string)) return false;
+  if (!VALID_STATUSES.has(obj.status as string)) {return false;}
 
   // timestamp required and ISO8601
-  if (typeof obj.timestamp !== 'string' || !isValidISO8601(obj.timestamp)) return false;
+  if (typeof obj.timestamp !== 'string' || !isValidISO8601(obj.timestamp)) {return false;}
   
   // historySnapshots optional, but must be valid array with max length (AC8)
   if (obj.historySnapshots !== undefined) {
-    if (!Array.isArray(obj.historySnapshots)) return false;
-    if (obj.historySnapshots.length > CODE_DISPLAY_CONFIG.MAX_HISTORY_SNAPSHOTS) return false;
+    if (!Array.isArray(obj.historySnapshots)) {return false;}
+    if (obj.historySnapshots.length > CODE_DISPLAY_CONFIG.MAX_HISTORY_SNAPSHOTS) {return false;}
     
     // Validate each snapshot (simpler validation to avoid recursion)
     for (const snapshot of obj.historySnapshots) {
-      if (!snapshot || typeof snapshot !== 'object') return false;
+      if (!snapshot || typeof snapshot !== 'object') {return false;}
       const snap = snapshot as Record<string, unknown>;
-      if (!isValidAgentAction(snap.action)) return false;
+      if (!isValidAgentAction(snap.action)) {return false;}
       if (snap.codeSnippet !== null && snap.codeSnippet !== undefined) {
-        if (!isValidCodeSnippetInfo(snap.codeSnippet)) return false;
+        if (!isValidCodeSnippetInfo(snap.codeSnippet)) {return false;}
       }
-      if (!VALID_STATUSES.has(snap.status as string)) return false;
-      if (typeof snap.timestamp !== 'string' || !isValidISO8601(snap.timestamp)) return false;
+      if (!VALID_STATUSES.has(snap.status as string)) {return false;}
+      if (typeof snap.timestamp !== 'string' || !isValidISO8601(snap.timestamp)) {return false;}
     }
   }
 
@@ -211,10 +211,10 @@ export const isValidActivityState = isValidAgentActivityState; // Alias for test
  * Type guard for ActionBubbleMessage
  */
 export function isValidActionBubbleMessage(value: unknown): value is ActionBubbleMessage {
-  if (!value || typeof value !== 'object') return false;
+  if (!value || typeof value !== 'object') {return false;}
   const obj = value as Record<string, unknown>;
-  if (obj.type !== 'agent-activity-update') return false;
-  if (!isValidAgentActivityState(obj.payload)) return false;
+  if (obj.type !== 'agent-activity-update') {return false;}
+  if (!isValidAgentActivityState(obj.payload)) {return false;}
   return true;
 }
 

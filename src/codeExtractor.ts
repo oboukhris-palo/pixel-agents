@@ -57,7 +57,7 @@ export function detectLanguageFromFilePath(filePath: string): CodeLanguage {
  * @returns Truncated content with ... for long lines
  */
 export function truncateLongLines(content: string): string {
-  if (!content) return '';
+  if (!content) {return '';}
   
   const lines = content.split('\n');
   const truncatedLines = lines.map(line => {
