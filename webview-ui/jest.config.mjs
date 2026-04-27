@@ -36,7 +36,7 @@ const config = {
     '!src/**/__tests__/**',
     '!src/main.tsx',
   ],
-  setupFiles: [],
+  setupFiles: ['<rootDir>/jest.setup.preenv.js'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
 };
 
