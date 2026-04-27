@@ -13,12 +13,13 @@ schema_version: "1.0.0"
 
 **Story Key**: US-002-001  
 **Epic**: EPIC-002 (Context & Task Management)  
-**Status**: Not Started  
+**Status**: ✅ **COMPLETE** (QA Approved)  
 **Priority**: P1 (MUST)  
 **Story Points**: 5  
 **Sprint**: Sprint 2 (2026-05-07 to 2026-05-20)  
-**Assignee**: TBD  
+**Assignee**: TDD Team  
 **GitHub Issue**: #TBD  
+**Completion Date**: 2026-04-23  
 
 ---
 
@@ -38,13 +39,16 @@ So that I can optimize prompts and prevent token overflow.
 **Validated By**: Product Owner  
 **Validation Date**: 2026-04-23  
 
-- [ ] Context Window Bar visible on left side of dashboard
-- [ ] Displays 0-100% token usage with visual progress indicator
-- [ ] Color-coded warnings: 🟢 green (0-70%), 🟡 yellow (71-89%), 🔴 red (90%+)
-- [ ] Breakdown shows: .github code (blue), project code (green), chat history (yellow)
+- [ ] Context Window Bar visible on left side of right metrics panel (60px width, full height)
+- [ ] "CTX" label at top: 9px text, #F59E0B (Palo Yellow variant), weight 600, uppercase
+- [ ] Vertical progress bar: 30×180px, background #1E1E1E, border: 1px #3E3E42 @ 50%, border-radius: 4px
+- [ ] Displays 0-100% token usage with visual stacked segments (bottom-to-top)
+- [ ] Color-coded warnings: 🟢 green #10B981 (0-70%), 🟡 yellow #F59E0B (71-89%), 🔴 red #EF4444 (90%+)
+- [ ] Segment breakdown with opacity: .github (#3B82F6 @ 70%), project code (#10B981 @ 60%), chat history (#F59E0B @ 70%)
 - [ ] Updates within 100ms of Copilot Chat activity
-- [ ] Tooltip shows exact token counts and breakdown percentages
-- [ ] Warning notifications at 70% and 90% thresholds
+- [ ] Legend below bar: 8px text, segment color with label (e.g., ".github 26%", "project 45%", "chat 16%")
+- [ ] Tooltip shows exact token counts: "Context: 174,000 / 200,000 tokens (87%)" with breakdown
+- [ ] Warning notifications at 70% and 90% thresholds (toast notifications)
 
 ---
 
@@ -86,13 +90,18 @@ So that I can optimize prompts and prevent token overflow.
 - **Code Quality**: ESLint, Prettier, TypeScript strict mode
 - **Accessibility**: WCAG 2.1 AA compliance for all UI elements
 
-**From**: `/docs/02-architecture/design-systems.md`
+**From**: `/docs/02-architecture/design-systems.md` v2.0.0 (Palo IT Branding)
 
-- **Color Scheme**: Traffic light colors (green: #28a745, yellow: #ffc107, red: #dc3545)
-- **Typography**: VS Code theme fonts (Consolas, Monaco, monospace)
-- **Spacing**: 8px grid system for consistent spacing
-- **Icons**: Codicons icon library (VS Code standard)
-- **Animations**: Smooth progress bar transitions
+- **Layout**: Right metrics panel, left column (60px width × 246px height)
+- **Bar Container**: 30×180px vertical bar, bg: #1E1E1E, border: 1px #3E3E42 @ 50%, border-radius: 4px
+- **CTX Label**: 9px text (#F59E0B), weight 600, uppercase, positioned above bar
+- **Segment Colors**: .github (#3B82F6 @ 70%), project (#10B981 @ 60%), chat (#F59E0B @ 70%) — stacked bottom-to-top
+- **Threshold Colors**: Safe (0-70%: #10B981), Warning (71-89%: #F59E0B with ⚠️), Critical (90%+: #EF4444 with 🔴)
+- **Legend Items**: 8px text, left-aligned below bar, format: "[segment name] [percentage]%"
+- **Palo IT Brand**: Yellow #FFD600 used in CTX label variant, Green #00C853 for safe state celebrations
+- **Typography**: 9-level scale (--text-micro 9px for CTX, --text-mini 8px for legend)
+- **Spacing**: 4px base scale (--space-1 for legend gaps, --space-2 for label padding)
+- **Animations**: CSS transition 500ms cubic-bezier(0.4, 0, 0.2, 1) for progress bar fill
 
 ---
 

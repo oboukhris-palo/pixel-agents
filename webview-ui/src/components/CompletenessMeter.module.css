@@ -1,0 +1,162 @@
+/**
+ * Completeness Meter Styling - Design System v2.0.0 Alignment
+ * Story: US-004-004 - CompletenessMeter Milestone Design
+ * 
+ * Implements Palo IT branding with:
+ * - DONE label (micro typography)
+ * - Percentage display (36px h1, monospace)
+ * - Progress bar (200×8px exact dimensions)
+ * - Milestone markers (6px circles at 25%, 50%, 75%, 90%, 100%)
+ * - Stats grid (2-column, micro typography)
+ * - PRU efficiency (gold color with lightning emoji)
+ * - Smooth transitions and bounce animations
+ */
+
+/* Main Container */
+.completeness-meter {
+  position: fixed;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 280px;
+  background: var(--vscode-sideBar-background, #1e1e1e);
+  border: 2px solid var(--vscode-panel-border, #454545);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  z-index: 100;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* DONE Label (AC1) */
+.doneLabel {
+  font-size: var(--text-micro); /* 9px */
+  color: var(--vscode-foreground-muted, #808080);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+/* Percentage Display (AC2) */
+.percentageValue {
+  font-size: 36px; /* Custom h1 size (--text-h1 is 24px) */
+  font-weight: 700;
+  color: var(--vscode-foreground, #ffffff);
+  font-family: var(--font-mono);
+  text-align: center;
+  line-height: 1;
+}
+
+/* Progress Container (AC3) */
+.progressContainer {
+  width: 200px;
+  height: 8px;
+  background: var(--vscode-border, #3e3e42);
+  border-radius: var(--radius-sm); /* 4px */
+  position: relative;
+  margin: 0 auto;
+  overflow: visible; /* Allow milestone markers to overflow */
+}
+
+/* Progress Fill (AC3, AC9) */
+.progressFill {
+  height: 100%;
+  background: var(--color-success, #10b981);
+  border-radius: var(--radius-sm);
+  transition: width 500ms cubic-bezier(0.4, 0, 0.2, 1); /* AC9: smooth transition */
+}
+
+/* Milestone Marker Base (AC4) */
+.milestoneMarker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px; /* AC4: 6px circles */
+  height: 6px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--vscode-bg, #1e1e1e); /* AC5/AC6: background border */
+  pointer-events: auto;
+  cursor: help;
+}
+
+/* Achieved Milestone (AC5) */
+.milestoneAchieved {
+  background: var(--color-success, #10b981); /* AC5: success green */
+}
+
+/* Upcoming Milestone (AC6) */
+.milestoneUpcoming {
+  background: var(--vscode-border, #3e3e42); /* AC6: muted fill */
+}
+
+/* Milestone Bounce Animation (AC10) */
+@keyframes bounce {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -60%) scale(1.2); /* Bounce up 10% */
+  }
+}
+
+.milestoneBounce {
+  animation: bounce 400ms ease-out; /* AC10: 400ms ease-out */
+}
+
+/* Stats Grid (AC7) */
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* AC7: 2-column grid */
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.statLabel {
+  font-size: var(--text-micro); /* AC7: 9px */
+  color: var(--vscode-foreground-muted, #808080); /* AC7: muted color */
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-1);
+}
+
+.statValue {
+  font-size: var(--text-micro); /* AC7: 9px */
+  color: var(--vscode-foreground, #ffffff); /* AC7: white */
+  font-weight: 600; /* AC7: weight 600 */
+  font-family: var(--font-mono);
+}
+
+/* PRU Efficiency Display (AC8) */
+.pruEfficiency {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+  padding: var(--space-2);
+  background: rgba(255, 214, 0, 0.1); /* Palo Yellow with 10% opacity */
+  border-radius: var(--radius-sm);
+}
+
+.pruValue {
+  font-size: var(--text-body);
+  color: var(--color-warning, #ffd600); /* AC8: gold color (Palo Yellow) */
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+/* Screen Reader Only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

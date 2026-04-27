@@ -38,12 +38,14 @@ So that I can understand my workflow context and plan ahead.
 **Validated By**: Product Owner  
 **Validation Date**: 2026-04-22  
 
-- [ ] Task Progression Bar visible at top of dashboard
-- [ ] Displays 3 sections: Previous (✅ completed), Current (🔄 active), Next (⏭️ upcoming)
+- [ ] Task Progression Bar visible at top of dashboard (36px height, full width)
+- [ ] Displays Phase Pill (80×24px, border-radius: 12px) showing current PDLC phase
+- [ ] Displays 3 task cards: Previous (240×24px, completed ✅), Current (300×24px, active 🔄), Next (240×24px, upcoming ⏭️)
 - [ ] Updates within 1 second of workflow state changes
-- [ ] Color-coded by PDLC phase (RED, GREEN, REFACTOR, DOCUMENT)
+- [ ] Color-coded by TDD phase: RED (#FF5500, bg #3E1D00), GREEN (#10B981, bg #052E16), REFACTOR (#8B5CF6, bg #1E0A3C), DOCUMENT (#06B6D4, bg #0A2530)
 - [ ] Clicking tasks navigates to corresponding implementation files
 - [ ] Handles empty/unavailable task states gracefully
+- [ ] Compact metrics (CTX % + Done %) displayed right-aligned in task bar (10px text)
 
 ---
 
@@ -85,19 +87,23 @@ So that I can understand my workflow context and plan ahead.
 - **Code Quality**: ESLint, Prettier, TypeScript strict mode
 - **Accessibility**: WCAG 2.1 AA compliance for all UI elements
 
-**From**: `/docs/02-architecture/design-systems.md`
+**From**: `/docs/02-architecture/design-systems.md` v2.0.0 (Palo IT Branding)
 
-- **Color Scheme**: PDLC phase colors defined in design tokens
-- **Typography**: VS Code theme fonts (Consolas, Monaco, monospace)
-- **Spacing**: 8px grid system for consistent spacing
-- **Icons**: Codicons icon library (VS Code standard)
-- **Animations**: CSS transitions for smooth state changes
+- **Layout**: VS Code bottom panel, 36px height task bar, Phase Pill + 3 task cards + compact metrics
+- **Phase Pill**: 80×24px, border-radius: 12px, border: TDD phase color, bg: phase color @ 15%
+- **Task Cards**: Previous (240×24px), Current (300×24px), Next (240×24px), bg: #252526, borders with phase colors
+- **TDD Phase Colors**: RED #FF5500 (bg #3E1D00), GREEN #10B981 (bg #052E16), REFACTOR #8B5CF6 (bg #1E0A3C), DOCUMENT #06B6D4 (bg #0A2530)
+- **Palo IT Brand Colors**: Green #00C853, Yellow #FFD600, Orange #FF6D00 (used in celebrations and highlights)
+- **Typography**: 9-level scale (--text-mini 8px through --text-h1 24px), system fonts only (-apple-system, BlinkMacSystemFont, Segoe UI)
+- **Spacing**: 4px base scale (--space-1: 4px through --space-16: 64px)
+- **Icons**: Codicons icon library + emoji indicators (✅ ✓ 🔄 ⏭️)
+- **Animations**: CSS transitions 150ms fast, 250ms base, 350ms slow for state changes
 
 ---
 
 ## Dependencies
 
-- **Technical**: VS Code Extension API, TypeScript 5.x, React 18.x
+- **Technical**: VS Code Extension API, TypeScript 5.x, React 19.x, Tailwind CSS (80%+ utility styling), CSS Modules for component-specific styles
 - **Infrastructure**: Webview messaging protocol must be established
 - **Data**: /docs/05-implementation/user-stories.md must exist and be readable
 - **Prior Stories**: None (first story in epic)

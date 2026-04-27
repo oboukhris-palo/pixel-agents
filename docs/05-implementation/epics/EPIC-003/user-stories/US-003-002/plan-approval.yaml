@@ -1,0 +1,67 @@
+# Implementation Plan Approval Gate
+# US-003-002: Agent Sprite Animation Engine
+
+# Approval status: approved | changes-requested | revoked
+# - approved: TDD execution can proceed
+# - changes-requested: TDD BLOCKED, plan needs revision
+# - revoked: Auto-set when plan modified after approval
+
+status: approved
+
+approver:
+  agent: dev-lead
+  name: Sebastian
+  date: 2026-04-27
+  approval_time: 2026-04-27T15:45:00Z
+
+plan_version:
+  current: 1.0
+  approved_version: 1.0
+
+review_checklist:
+  - item: Implementation plan follows layer architecture (Types → Engine → Renderer → Component)
+    status: passed
+    notes: Comprehensive 4-layer plan with clear separation. Layer 1 (spriteTypes.ts), Layer 2 (animationEngine.ts + easingFunctions.ts), Layer 3 (renderer integration), Layer 4 (React + metadata)
+  
+  - item: BDD scenarios map to implementation layers
+    status: passed
+    notes: All 11 acceptance criteria mapped to feature files. Each layer's BDD coverage section clearly identifies which assertions will pass
+  
+  - item: All external dependencies documented
+    status: passed
+    notes: Dependencies clearly stated: US-003-001 (canvas ✅ complete), US-001-002 (activity monitor ✅ complete), agent metadata from .github/agents/
+  
+  - item: Animation logic validates (easing functions mathematically correct)
+    status: passed
+    notes: Easing functions follow standard formulas (easings.net reference). Mathematical correctness testable via unit tests. Move animation uses linear interpolation.
+  
+  - item: Performance requirements achievable (<16ms frame time with 16 sprites)
+    status: passed
+    notes: Performance benchmarks realistic. 16 sprites × (2 drawing ops + 1 animation update) = ~48 operations < 16ms threshold. Optimization strategies documented (culling, caching).
+  
+  - item: Critical business logic addressed (sprite positioning, animation state machine)
+    status: passed
+    notes: AnimationEngine state machine clearly defined. Agent status → animation type mapping specified. Coordinate transformations (world → viewport) documented.
+  
+  - item: Error handling strategy defined (sprite not found, invalid animation params)
+    status: passed
+    notes: Error handling strategy appropriate: throw TypeError for programmer mistakes (invalid params), graceful defaults for runtime issues (agent metadata not found)
+
+revision_history:
+  - version: 1.0
+    date: 2026-04-27
+    author: Sebastian (Dev-Lead)
+    changes: Initial implementation plan created
+    reason: US-003-001 complete, US-003-002 unblocked
+
+blocking_issues: []
+
+comments:
+  - author: Sebastian
+    date: 2026-04-27
+    text: |
+      Comprehensive 4-layer plan created with 130-160 test target.
+      AnimationEngine is core complexity (Layer 2, 10 hours estimated).
+      Agent metadata loading strategy defined (hardcoded → parse .agent.md).
+      Performance critical: must maintain 60 FPS with 16 sprites.
+      Awaiting review before TDD execution.

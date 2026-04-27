@@ -5,14 +5,13 @@
  * React hook for consuming completeness metrics from backend.
  */
 
-import { useState, useEffect } from 'react';
-import { ProjectMetrics, getDefaultProjectMetrics } from '../../../src/completenessTypes';
-import { useExtensionMessages } from './useExtensionMessages';
+import { useState, useEffect, useCallback } from 'react';
+import type { ProjectMetrics } from '../../../src/completenessTypes';
+import { getDefaultProjectMetrics } from '../../../src/completenessTypes';
 
-interface CompletenessMetricsMessage {
-	type: 'CompletenessMetricsMessage';
+interface CompletenessUpdateMessage {
+	type: 'completeness.update';
 	metrics: ProjectMetrics;
-	timestamp: string;
 }
 
 /**
@@ -37,12 +36,18 @@ interface CompletenessMetricsMessage {
 export function useCompleteness(): ProjectMetrics {
 	const [metrics, setMetrics] = useState<ProjectMetrics>(getDefaultProjectMetrics());
 
-	// Subscribe to backend messages
-	useExtensionMessages<CompletenessMetricsMessage>((message) => {
-		if (message.type === 'CompletenessMetricsMessage') {
-			setMetrics(message.metrics);
+	const handleMessage = useCallback((event: MessageEvent) => {
+		const message = event.data;
+		if (message.type === 'completeness.update') {
+			const msg = message as CompletenessUpdateMessage;
+			setMetrics(msg.metrics);
 		}
-	});
+	}, []);
+
+	useEffect(() => {
+		window.addEventListener('message', handleMessage);
+		return () => window.removeEventListener('message', handleMessage);
+	}, [handleMessage]);
 
 	return metrics;
 }

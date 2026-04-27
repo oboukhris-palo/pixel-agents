@@ -5,6 +5,8 @@ const config = {
   roots: ['<rootDir>/src'],
   testMatch: ['**/__tests__/**/*.test.ts?(x)', '**/?(*.)+(spec|test).ts?(x)'],
   moduleNameMapper: {
+    // CSS modules must come before general CSS pattern
+    '\\.module\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     // Strip .js extension from relative imports so Jest resolves TypeScript
     // source files when the codebase uses ESM-style ".js" import paths.
@@ -16,8 +18,16 @@ const config = {
         jsx: 'react-jsx',
         esModuleInterop: true,
         allowSyntheticDefaultImports: true,
+        moduleResolution: 'node',
+        types: ['node', 'jest'],
+        skipLibCheck: false,
       },
     }],
+  },
+  globals: {
+    'ts-jest': {
+      isolatedModules: true,
+    },
   },
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
@@ -26,6 +36,7 @@ const config = {
     '!src/**/__tests__/**',
     '!src/main.tsx',
   ],
+  setupFiles: [],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
 };
 

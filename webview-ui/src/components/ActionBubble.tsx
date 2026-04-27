@@ -6,7 +6,7 @@
  * BDD Mapping: All AC1–AC10 scenarios
  */
 
-import React, { memo, useState, useCallback } from 'react';
+import { memo, useState, useCallback } from 'react';
 import { useAgentActivity } from '../hooks/useAgentActivity.js';
 import type { AgentActivityState, AgentActivityStatus, TDDPhase } from '../hooks/useExtensionMessages.js';
 // Styles applied via Tailwind CSS and inline styles
@@ -26,12 +26,12 @@ const STATUS_LABELS: Record<AgentActivityStatus, string> = {
   'idle': 'Idle',
 };
 
-// ── Phase color lookup ───────────────────────────────────────────────────────
+// ── Phase color lookup (design-systems.md v2.0.0 - Palo IT branding) ─────────
 const PHASE_COLORS: Record<TDDPhase, string> = {
-  RED: '#E81C3F',
-  GREEN: '#107C10',
-  REFACTOR: '#8661C5',
-  DOCUMENTATION: '#0078D4',
+  RED: '#FF5500',          // TDD RED Phase - Test Writing
+  GREEN: '#10B981',        // TDD GREEN Phase - Implementation
+  REFACTOR: '#8B5CF6',     // TDD REFACTOR Phase - Code Cleanup
+  DOCUMENTATION: '#06B6D4', // Documentation Phase
 };
 
 // ── Sub-components ────────────────────────────────────────────────────────────

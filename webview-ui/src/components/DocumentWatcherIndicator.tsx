@@ -11,7 +11,7 @@
  *   - AC10: Non-breaking addition — existing components unaffected
  */
 
-import React, { memo } from 'react';
+import { memo } from 'react';
 import type { DocumentWatcherState } from '../hooks/useExtensionMessages.js';
 
 // ── Color constants ────────────────────────────────────────────────────────────

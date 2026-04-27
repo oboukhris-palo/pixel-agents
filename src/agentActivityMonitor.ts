@@ -19,8 +19,8 @@ import {
   CodeLanguage,
   TDDPhase,
   getDefaultAgentActivityState,
+  CODE_DISPLAY_CONFIG,
 } from './agentActivityTypes.js';
-import { CODE_DISPLAY_CONFIG } from './constants.js';
 
 // ── TDD commit message pattern ────────────────────────────────────────────────
 // Matches: TDD-EPIC-XXX-US-XXX-RED-01: description
@@ -55,6 +55,9 @@ export class AgentActivityMonitor extends EventEmitter {
   private readonly workspaceFolder: string;
   private readonly vsCodeContext: vscode.ExtensionContext | undefined;
   private readonly gitAdapter: GitAdapter;
+  private monitoring: boolean = false;
+  private currentState: AgentActivityState;
+  private debounceTimer: NodeJS.Timeout | null = null;
 
   constructor(
     workspaceFolder: string,
@@ -65,29 +68,164 @@ export class AgentActivityMonitor extends EventEmitter {
     this.workspaceFolder = workspaceFolder;
     this.vsCodeContext = vsCodeContext;
     this.gitAdapter = gitAdapter ?? this.createDefaultGitAdapter();
+    this.currentState = getDefaultAgentActivityState();
   }
 
   // ── Public API ──────────────────────────────────────────────────────────────
 
   /**
-   * Parse a git commit message and extract TDD action context.
-   * Returns DOCUMENTATION action for non-TDD commits.
+   * Start monitoring git commits
    */
-  parseCommitMessage(message: string): AgentAction {
+  async startMonitoring(): Promise<void> {
+    this.monitoring = true;
+    // Note: Actual polling implementation would use setInterval
+    // For now, manual trigger via triggerUpdate()
+  }
+  
+  /**
+   * Check if monitoring is active
+   */
+  isMonitoring(): boolean {
+    return this.monitoring;
+  }
+  
+  /**
+   * Stop monitoring and cleanup
+   */
+  dispose(): void {
+    this.monitoring = false;
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = null;
+    }
+    this.removeAllListeners();
+  }
+  
+  /**
+   * Get current activity state
+   */
+  getCurrentState(): AgentActivityState {
+    return { ...this.currentState };
+  }
+  
+  /**
+   * Get debounce duration in ms
+   */
+  getDebounceMs(): number {
+    return CODE_DISPLAY_CONFIG.DEBOUNCE_MS;
+  }
+  
+  /**
+   * Manual trigger for testing (simulates git commit detection)
+   */
+  async triggerUpdate(): Promise<void> {
+    try {
+      const [commitMessage, codeSnippet] = await Promise.all([
+        this.gitAdapter.getLatestCommitMessage().catch(() => ''),
+        this.extractCodeSnippet(),
+      ]);
+
+      const state = await this.parseCommitMessage(commitMessage);
+
+      this.currentState = {
+        ...state,
+        codeSnippet,
+      };
+
+      // Debounced broadcast
+      this.scheduleDebouncedBroadcast();
+    } catch (error) {
+      this.emit('error', error);
+    }
+  }
+  
+  /**
+   * Query agent metadata from .github/agents/<name>.agent.md
+   */
+  async getAgentMetadata(agentName: string): Promise<any | null> {
+    try {
+      const fs = require('fs') as typeof import('fs');
+      const path = require('path') as typeof import('path');
+      
+      const agentFilePath = path.join(this.workspaceFolder, '.github', 'agents', `${agentName}.agent.md`);
+      
+      if (!fs.existsSync(agentFilePath)) {
+        return null;
+      }
+      
+      const content = fs.readFileSync(agentFilePath, 'utf-8');
+      
+      // Extract YAML frontmatter
+      const yamlMatch = content.match(/^---\n([\s\S]+?)\n---/);
+      if (!yamlMatch) {
+        return null;
+      }
+      
+      const yaml = yamlMatch[1];
+      
+      // Parse YAML manually (simple key: value pairs)
+      const nameMatch = yaml.match(/name:\s*(.+)/);
+      const roleMatch = yaml.match(/role:\s*(.+)/);
+      const colorMatch = yaml.match(/spriteColor:\s*['"]*([#\w]+)['"]*/)
+
+;
+      const iconMatch = yaml.match(/icon:\s*['"]*(.+?)['"]*$/m);
+      
+      if (!nameMatch || !roleMatch) {
+        return null;
+      }
+      
+      return {
+        id: agentName,
+        name: nameMatch[1].trim().replace(/['"]/g, ''),
+        description: roleMatch[1].trim().replace(/['"]/g, ''),
+        role: roleMatch[1].trim().replace(/['"]/g, ''),
+        spriteColor: colorMatch ? colorMatch[1].trim() : undefined,
+        icon: iconMatch ? iconMatch[1].trim() : undefined,
+      };
+    } catch (error) {
+      return null;
+    }
+  }
+  
+  /**
+   * Alias for extractCodeSnippet (test compatibility)
+   */
+  async extractLatestCodeSnippet(): Promise<CodeSnippetInfo | null> {
+    return this.extractCodeSnippet();
+  }
+
+  /**
+   * Parse a git commit message and construct AgentActivityState.
+   * Returns state with DOCUMENTATION action for non-TDD commits.
+   */
+  async parseCommitMessage(message: string): Promise<AgentActivityState> {
+    let action: AgentAction;
+    
     if (!message) {
-      return { type: 'DOCUMENTATION', cycle: 1, description: '' };
+      action = { type: 'DOCUMENTATION', cycle: 1, description: '' };
+    } else {
+      const match = message.match(TDD_COMMIT_RE);
+      if (!match) {
+        action = { type: 'DOCUMENTATION', cycle: 1, description: message.trim() };
+      } else {
+        const phaseRaw = match[1].toUpperCase() as TDDPhase;
+        const cycle = parseInt(match[2], 10);
+        const description = match[3].trim();
+        action = { type: phaseRaw, cycle: Math.max(1, cycle), description };
+      }
     }
 
-    const match = message.match(TDD_COMMIT_RE);
-    if (!match) {
-      return { type: 'DOCUMENTATION', cycle: 1, description: message.trim() };
-    }
+    // Construct full state
+    const state: AgentActivityState = {
+      activeAgent: action.type !== 'DOCUMENTATION' ? await this.inferAgentFromPhase(action.type) : null,
+      currentAction: action,
+      codeSnippet: null, // Will be populated by caller if needed
+      status: 'in-progress',
+      timestamp: this.nowISO(),
+    };
 
-    const phaseRaw = match[1].toUpperCase() as TDDPhase;
-    const cycle = parseInt(match[2], 10);
-    const description = match[3].trim();
-
-    return { type: phaseRaw, cycle: Math.max(1, cycle), description };
+    return state;
   }
 
   /**
@@ -116,13 +254,13 @@ export class AgentActivityMonitor extends EventEmitter {
 
     if (addedLines.length === 0) return null;
 
-    // Limit to MAX_LINES
-    const limitedLines = addedLines.slice(-CODE_DISPLAY_CONFIG.MAX_LINES);
+    // Limit to MAX 15 LINES (AC2)
+    const limitedLines = addedLines.slice(-15);
 
     // Truncate long lines
     const processedLines = limitedLines.map(line =>
       line.length > CODE_DISPLAY_CONFIG.MAX_CHARS_PER_LINE
-        ? line.slice(0, CODE_DISPLAY_CONFIG.MAX_CHARS_PER_LINE) + CODE_DISPLAY_CONFIG.TRUNCATION_SUFFIX
+        ? line.slice(0, CODE_DISPLAY_CONFIG.MAX_CHARS_PER_LINE) + CODE_DISPLAY_CONFIG.TRUNCATION_INDICATOR
         : line,
     );
 
@@ -142,14 +280,11 @@ export class AgentActivityMonitor extends EventEmitter {
         this.extractCodeSnippet(),
       ]);
 
-      const action = this.parseCommitMessage(commitMessage);
+      const state = await this.parseCommitMessage(commitMessage);
 
       const payload: AgentActivityState = {
-        activeAgent: null, // Agent metadata resolved separately when VS Code API available
-        currentAction: action,
+        ...state,
         codeSnippet,
-        status: 'in-progress',
-        timestamp: this.nowISO(),
       };
 
       const message: ActionBubbleMessage = {
@@ -170,6 +305,39 @@ export class AgentActivityMonitor extends EventEmitter {
   }
 
   // ── Private helpers ─────────────────────────────────────────────────────────
+
+  /**
+   * Infer active agent from TDD phase
+   */
+  private async inferAgentFromPhase(phase: TDDPhase): Promise<any | null> {
+    const agentMap: Record<string, string> = {
+      'RED': 'dev-tdd-red',
+      'GREEN': 'dev-tdd-green',
+      'REFACTOR': 'dev-tdd-refactor',
+      'DOCUMENTATION': 'dev-lead',
+    };
+    
+    const agentName = agentMap[phase];
+    return this.getAgentMetadata(agentName);
+  }
+  
+  /**
+   * Schedule debounced broadcast (300ms)
+   */
+  private scheduleDebouncedBroadcast(): void {
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+    }
+    
+    this.debounceTimer = setTimeout(() => {
+      const message: ActionBubbleMessage = {
+        type: 'agent-activity-update',
+        payload: this.currentState,
+      };
+      
+      this.emit('activity-update', message);
+    }, CODE_DISPLAY_CONFIG.DEBOUNCE_MS);
+  }
 
   private detectLanguageFromDiff(diff: string): CodeLanguage {
     const headerMatch = diff.match(/diff --git a\/.+\.(\w+) b\//);

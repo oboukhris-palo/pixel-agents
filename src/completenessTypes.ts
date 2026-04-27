@@ -35,6 +35,9 @@ export interface ProjectMetrics {
 	
 	/** Milestone tracking for celebration triggers */
 	milestones: MilestoneStatus[];
+	
+	/** PRU (Prompt Resource Units) efficiency score (0-100) - optional */
+	pruEfficiency?: number;
 }
 
 /**

@@ -5,11 +5,14 @@ import {
   ZOOM_LEVEL_FADE_DELAY_MS,
   ZOOM_LEVEL_HIDE_DELAY_MS,
   ZOOM_LEVEL_FADE_DURATION_SEC,
+  TILE_SIZE,
 } from '../constants.js'
 
 interface ZoomControlsProps {
   zoom: number
   onZoomChange: (zoom: number) => void
+  layoutWidth?: number
+  layoutHeight?: number
 }
 
 const btnBase: React.CSSProperties = {
@@ -27,8 +30,8 @@ const btnBase: React.CSSProperties = {
   boxShadow: 'var(--pixel-shadow)',
 }
 
-export function ZoomControls({ zoom, onZoomChange }: ZoomControlsProps) {
-  const [hovered, setHovered] = useState<'minus' | 'plus' | null>(null)
+export function ZoomControls({ zoom, onZoomChange, layoutWidth, layoutHeight }: ZoomControlsProps) {
+  const [hovered, setHovered] = useState<'minus' | 'plus' | 'fit' | null>(null)
   const [showLevel, setShowLevel] = useState(false)
   const [fadeOut, setFadeOut] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -37,6 +40,29 @@ export function ZoomControls({ zoom, onZoomChange }: ZoomControlsProps) {
 
   const minDisabled = zoom <= ZOOM_MIN
   const maxDisabled = zoom >= ZOOM_MAX
+
+  // Calculate auto-fit zoom level
+  const calculateFitZoom = () => {
+    if (!layoutWidth || !layoutHeight) return zoom
+    
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+    
+    // Calculate zoom to fit with 10% padding
+    const canvasWidth = layoutWidth * TILE_SIZE
+    const canvasHeight = layoutHeight * TILE_SIZE
+    
+    const zoomX = Math.floor((viewportWidth * 0.9) / canvasWidth)
+    const zoomY = Math.floor((viewportHeight * 0.9) / canvasHeight)
+    
+    const fitZoom = Math.max(ZOOM_MIN, Math.min(zoomX, zoomY, ZOOM_MAX))
+    return fitZoom
+  }
+
+  const handleFitToView = () => {
+    const fitZoom = calculateFitZoom()
+    onZoomChange(fitZoom)
+  }
 
   // Show zoom level briefly when zoom changes
   useEffect(() => {
@@ -140,6 +166,22 @@ export function ZoomControls({ zoom, onZoomChange }: ZoomControlsProps) {
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
             <line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </button>
+        <button
+          onClick={handleFitToView}
+          onMouseEnter={() => setHovered('fit')}
+          onMouseLeave={() => setHovered(null)}
+          style={{
+            ...btnBase,
+            background: hovered === 'fit' ? 'var(--pixel-btn-hover-bg)' : btnBase.background,
+          }}
+          title="Fit to view"
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="2" y="2" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" />
+            <line x1="5" y1="5" x2="13" y2="13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <line x1="13" y1="5" x2="5" y2="13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
         </button>
       </div>

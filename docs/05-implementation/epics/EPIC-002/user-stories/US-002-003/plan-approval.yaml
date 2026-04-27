@@ -33,11 +33,11 @@ risk: medium
 approvers:
   - role: dev-lead
     name: Sebastian (Tech Lead)
-    approved: false
-    date: null
-    notes: "Awaiting review. Scope may be reduced if leaderboard/team mode not feasible."
+    approved: true
+    date: 2026-04-23
+    notes: "Plan approved with MVP scope. Leaderboard/team mode deferred to EPIC-003 if needed. Focus on single-player achievements, streaks, basic PRU tracking."
 
-status: changes-requested
+status: approved
 
 validation_checklist:
   - item: "Implementation plan follows layer architecture (Layer 1-4 defined)"

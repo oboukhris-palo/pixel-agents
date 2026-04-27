@@ -28,15 +28,25 @@ As a developer watching Pixel Agents execute TDD cycles, I want to see real-time
 
 ## Acceptance Criteria
 
-**AC1**: Display active agent's name and role icon (from `.github/agents/<agent-name>.agent.md` metadata)
-- Example: "🔴 dev-tdd-red" (with RED phase color) or "🟢 dev-tdd-green" (with GREEN phase color)
-- Icon reflects agent type from agent metadata
+**AC1**: Display Agent Sidebar (180px width × 246px height) with agent list and status indicators
+- Sidebar background: #252526 (VS Code sidebar), right border: 1px #3E3E42
+- "AGENTS" header: 10px text, #808080, weight 600, uppercase
+- Agent rows: 28px height, virtual scrolling for 10+ agents (ROW_HEIGHT = 28px)
+- Status dots: 8×8px circles at x:12 position
+  - Active: #2ECC71 (green) with subtle pulse animation (opacity 0.7→1.0, 2s loop)
+  - Thinking: #F39C12 (orange) with blink animation (opacity 0.3→1.0, 1s loop)
+  - Idle: #6B7280 (gray) no animation
+  - Error: #E74C3C (red) fast blink (0.5s loop)
+- Agent names: 10px text, weight 400 (600 if active), color varies by status
+- Active bar: 3×16px colored strip on left edge for active agent only
 
-**AC2**: Display real-time code snippet being written (last 5-15 lines of code in current edit)
-- Code appears in syntax-highlighted code block (TypeScript/JavaScript default)
+**AC2**: Display Action Bubble (80×18px) above active agent in Office Canvas
+- Background: #1E1E1E @ 90% opacity, border: 1px agent color @ 50%, border-radius: 4px
+- Text: 8px, agent color @ 80%, content: "✍️ writing..." or current file name
+- Code snippet: Last 5-15 lines in syntax-highlighted code block below bubble
 - Scrolls to show latest code (auto-scroll on new content)
 - Maximum 200 characters per line with truncation indicator (...)
-- Copy-to-clipboard button on code block header
+- Copy-to-clipboard button on code block header (12px, hover reveals)
 
 **AC3**: Show action type and timestamp for clarity
 - Format: "[RED-01] Implement validation" @ 09:45:33Z
@@ -53,11 +63,12 @@ As a developer watching Pixel Agents execute TDD cycles, I want to see real-time
 - Not disruptive to other dashboard elements
 - Positions above TaskProgressionBar
 
-**AC6**: Display agent status indicators (✅ Success / 🔄 In Progress / ❌ Failed)
-- Green checkmark when code compiles/tests pass
-- Yellow spinner during implementation
-- Red X if agent reports error or tests fail
-- Status updates from agent.activity.ts broadcaster
+**AC6**: Display agent status indicators in sidebar and Action Bubble
+- ✅ Success (green #10B981): checkmark when code compiles/tests pass
+- 🔄 In Progress (yellow #F59E0B): spinner during implementation
+- ❌ Failed (red #EF4444): X if agent reports error or tests fail
+- Status updates from agentActivityMonitor.ts broadcaster
+- Indicator appears next to agent name in sidebar (12px icon)
 
 **AC7**: Handle edge cases gracefully
 - Empty/null code snippets → show "Waiting for code..." placeholder
@@ -75,10 +86,10 @@ As a developer watching Pixel Agents execute TDD cycles, I want to see real-time
 
 ## BDD Scenarios
 
-1. **Display Active Agent Metadata**
-   - Given: AgentActivityMonitor mounted and agent.activity.ts has active agent
-   - When: Agent name is "dev-tdd-red" 
-   - Then: Component displays "🔴 dev-tdd-red" with RED phase color
+5. **Display Agent Sidebar with Status Dots**
+   - Given: AgentActivityMonitor mounted with multiple agents
+   - When: Agent "dev-tdd-red" is active
+   - Then: Sidebar displays agent list with green status dot next to dev-tdd-red, 3px left accent bar in RED phase color (#FF5500)
 
 2. **Display Code Snippet with Syntax Highlighting**
    - Given: Component has received ActionBubbleMessage with code snippet

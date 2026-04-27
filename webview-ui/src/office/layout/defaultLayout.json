@@ -1,0 +1,72 @@
+{
+  "gridSize": 32,
+  "cols": 30,
+  "rows": 15,
+  "furniture": [
+    {
+      "id": "desk-red",
+      "type": "desk",
+      "position": { "x": 2, "y": 3 },
+      "width": 48,
+      "height": 32,
+      "color": "#5D4037",
+      "opacity": 0.8
+    },
+    {
+      "id": "desk-green",
+      "type": "desk",
+      "position": { "x": 5, "y": 3 },
+      "width": 48,
+      "height": 32,
+      "color": "#5D4037",
+      "opacity": 0.8
+    },
+    {
+      "id": "desk-refactor",
+      "type": "desk",
+      "position": { "x": 8, "y": 3 },
+      "width": 48,
+      "height": 32,
+      "color": "#5D4037",
+      "opacity": 0.8
+    },
+    {
+      "id": "conf-table",
+      "type": "conference_table",
+      "position": { "x": 15, "y": 2 },
+      "width": 120,
+      "height": 60,
+      "color": "#4E342E",
+      "opacity": 0.6
+    },
+    {
+      "id": "bookshelf-1",
+      "type": "bookshelf",
+      "position": { "x": 1, "y": 8 },
+      "width": 16,
+      "height": 48,
+      "color": "#6D4C41",
+      "opacity": 1.0
+    },
+    {
+      "id": "kitchen",
+      "type": "kitchen",
+      "position": { "x": 25, "y": 10 },
+      "width": 80,
+      "height": 60,
+      "color": "#37474F",
+      "opacity": 0.2
+    }
+  ],
+  "zones": [
+    {
+      "id": "meeting-room",
+      "name": "Meeting Room",
+      "position": { "x": 14, "y": 1 },
+      "width": 240,
+      "height": 180,
+      "backgroundColor": "rgba(0, 102, 204, 0.06)",
+      "borderColor": "rgba(0, 102, 204, 0.15)"
+    }
+  ]
+}

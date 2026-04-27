@@ -1,3 +1,6 @@
+// Design Token System v2.0.0 - Palo IT Branding
+import './styles/tokens.css'
+
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { OfficeState } from './office/engine/officeState.js'
 import { OfficeCanvas } from './office/components/OfficeCanvas.js'
@@ -11,13 +14,14 @@ import { useExtensionMessages } from './hooks/useExtensionMessages.js'
 import { PULSE_ANIMATION_DURATION_SEC } from './constants.js'
 import { useEditorActions } from './hooks/useEditorActions.js'
 import { useEditorKeyboard } from './hooks/useEditorKeyboard.js'
-import { ZoomControls } from './components/ZoomControls.js'
-import { BottomToolbar } from './components/BottomToolbar.js'
+// import { ZoomControls } from './components/ZoomControls.js' // Hidden per user request
 import { DebugView } from './components/DebugView.js'
-import { AgentRegistry } from './components/AgentRegistry.js'
 import { WorkflowStatusBar } from './components/WorkflowStatusBar.js'
 import { TaskProgressionBar } from './components/TaskProgressionBar.js'
 import { DocumentWatcherIndicator } from './components/DocumentWatcherIndicator.js'
+import { ContextWindowBar } from './components/ContextWindowBar.js'
+import { CompletenessMeter } from './components/CompletenessMeter.js'
+import { useContextWindow } from './hooks/useContextWindow.js'
 import { spawnPlaceholderAgents } from './office/engine/placeholderAgents.js'
 
 // Game state lives outside React — updated imperatively by message handlers
@@ -126,11 +130,14 @@ function App() {
 
   const isEditDirty = useCallback(() => editor.isEditMode && editor.isDirty, [editor.isEditMode, editor.isDirty])
 
-  const { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, workspaceFolders, agentMetadata, githubFileAccess, workflowState, taskProgression, documentWatcherState } = useExtensionMessages(getOfficeState, editor.setLastSavedLayout, isEditDirty)
+  const { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, agentMetadata, workflowState, taskProgression, documentWatcherState } = useExtensionMessages(getOfficeState, editor.setLastSavedLayout, isEditDirty)
 
-  const [isDebugMode, setIsDebugMode] = useState(false)
+  // Context Window tracking (US-002-001)
+  const { tokenUsage } = useContextWindow()
 
-  const handleToggleDebugMode = useCallback(() => setIsDebugMode((prev) => !prev), [])
+  const [isDebugMode] = useState(false)
+
+  // const handleToggleDebugMode = useCallback(() => setIsDebugMode((prev) => !prev), [])
 
   const handleSelectAgent = useCallback((id: number) => {
     vscode.postMessage({ type: 'focusAgent', id })
@@ -201,7 +208,15 @@ function App() {
   }
 
   return (
-    <div ref={containerRef} style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
+    <div ref={containerRef} style={{ 
+      width: '100%', 
+      height: '100%', 
+      position: 'relative', 
+      overflow: 'hidden',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
       <style>{`
         @keyframes pixel-agents-pulse {
           0%, 100% { opacity: 1; }
@@ -210,6 +225,7 @@ function App() {
         .pixel-agents-pulse { animation: pixel-agents-pulse ${PULSE_ANIMATION_DURATION_SEC}s ease-in-out infinite; }
       `}</style>
 
+      {/* Main canvas - centered */}
       <OfficeCanvas
         officeState={officeState}
         onClick={handleClick}
@@ -238,10 +254,22 @@ function App() {
 
       <DocumentWatcherIndicator watcherState={documentWatcherState} />
 
-      <ZoomControls zoom={editor.zoom} onZoomChange={editor.handleZoomChange} />
+      {/* Context Window Bar (left side) - US-002-001 */}
+      <ContextWindowBar tokenUsage={tokenUsage} />
 
-      {/* Vignette overlay */}
-      <div
+      {/* Completeness Meter (right side) - US-002-002 */}
+      <CompletenessMeter />
+
+      {/* Zoom Controls - Hidden per user request for simplicity */}
+      {/* <ZoomControls 
+        zoom={editor.zoom} 
+        onZoomChange={editor.handleZoomChange}
+        layoutWidth={officeState.getLayout().cols}
+        layoutHeight={officeState.getLayout().rows}
+      /> */}
+
+      {/* Vignette overlay - Removed for simplicity */}
+      {/* <div
         style={{
           position: 'absolute',
           inset: 0,
@@ -249,16 +277,7 @@ function App() {
           pointerEvents: 'none',
           zIndex: 40,
         }}
-      />
-
-      <BottomToolbar
-        isEditMode={editor.isEditMode}
-        onOpenAgent={editor.handleOpenAgent}
-        onToggleEditMode={editor.handleToggleEditMode}
-        isDebugMode={isDebugMode}
-        onToggleDebugMode={handleToggleDebugMode}
-        workspaceFolders={workspaceFolders}
-      />
+      /> */}
 
       {editor.isEditMode && editor.isDirty && (
         <EditActionBar editor={editor} editorState={editorState} />
@@ -334,16 +353,6 @@ function App() {
           onSelectAgent={handleSelectAgent}
         />
       )}
-
-      {/* Always show agent registry (can be collapsed) */}
-      <AgentRegistry
-        agents={agents}
-        agentMetadata={agentMetadata}
-        agentStatuses={agentStatuses}
-        githubFileAccess={githubFileAccess}
-        onSelectAgent={handleSelectAgent}
-        selectedAgent={selectedAgent}
-      />
     </div>
   )
 }

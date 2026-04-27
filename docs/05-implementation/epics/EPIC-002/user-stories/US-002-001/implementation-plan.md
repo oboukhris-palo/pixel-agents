@@ -26,13 +26,21 @@
 
 ---
 
-## Architecture Overview
+## Architecture Overview (design-systems.md v2.0.0)
 
 **4-Layer Implementation** (Foundation → Communication → Presentation):
 1. **Layer 1**: Token types and calculation utilities (domain model)
 2. **Layer 2**: Context analyzer service (backend integration)
 3. **Layer 3**: Message protocol and React hook (communication)
 4. **Layer 4**: Context Window Bar component (UI)
+
+**Design System Specifications**:
+- **Bar Container**: 30×180px vertical bar, bg: #1E1E1E, border: 1px #3E3E42 @ 50%, border-radius: 4px
+- **CTX Label**: 9px text (#F59E0B Palo Yellow variant), weight 600, uppercase
+- **Segment Colors**: .github (#3B82F6 @ 70%), project (#10B981 @ 60%), chat (#F59E0B @ 70%)
+- **Threshold Colors**: Safe (0-70%: #10B981), Warning (71-89%: #F59E0B), Critical (90%+: #EF4444)
+- **Typography**: --text-micro 9px (CTX), --text-mini 8px (legend), --text-h3 14px (percentage)
+- **Spacing**: 4px base scale (--space-1, --space-2, --space-3)
 
 **Dependencies**:
 - US-001-003 (Document Watcher) ✅ Complete

@@ -40,7 +40,7 @@ const mockActivity: AgentActivityState = {
     id: 'dev-tdd-red',
     name: 'TDD RED Phase Agent',
     description: 'Writes failing tests',
-    spriteColor: '#E81C3F',
+    spriteColor: '#FF5500', // RED phase color (design-systems.md v2.0.0)
     icon: '🔴',
   },
   currentAction: {

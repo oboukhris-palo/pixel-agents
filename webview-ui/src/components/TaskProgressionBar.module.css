@@ -1,0 +1,189 @@
+/**
+ * TaskProgressionBar - Design System v2.0.0 aligned
+ * Following Palo IT branding and exact dimensions from design-systems.md
+ * 
+ * Component Specification:
+ * - Previous card: 240px width
+ * - Current card: 300px width  
+ * - Next card: 240px width
+ * - Phase pill: 80×24px
+ * - Container height: 36px
+ * - Arrow separators between cards
+ * - Compact metrics in top-right corner
+ */
+
+/* ───────────────────────────────────────────────────────────────────────── */
+/* Container */
+/* ───────────────────────────────────────────────────────────────────────── */
+
+.container {
+  display: flex;
+  gap: var(--space-1); /* 4px between elements */
+  align-items: center;
+  height: 36px;
+  background: var(--vscode-bg);
+  padding: var(--space-2) var(--space-4); /* 8px vertical, 16px horizontal */
+  border-bottom: 1px solid var(--vscode-border);
+}
+
+/* ───────────────────────────────────────────────────────────────────────── */
+/* Task Cards (Previous | Current | Next) */
+/* ───────────────────────────────────────────────────────────────────────── */
+
+.taskCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1); /* 4px vertical gap */
+  padding: var(--space-2); /* 8px padding */
+  border-radius: var(--radius-md); /* 8px */
+  cursor: pointer;
+  transition: var(--transition-fast); /* 150ms */
+  border: 1px solid transparent;
+}
+
+.taskCard:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-md);
+}
+
+.taskCard:focus {
+  outline: 2px solid var(--vscode-accent);
+  outline-offset: 2px;
+}
+
+/* Previous Card (240px width, completed state) */
+.taskCardPrevious {
+  composes: taskCard;
+  width: 240px;
+  background: var(--vscode-sidebar-bg);
+  border-color: color-mix(in srgb, var(--color-success) 30%, transparent);
+  color: var(--vscode-foreground-dim);
+}
+
+/* Current Card (300px width, dynamic phase background) */
+.taskCardCurrent {
+  composes: taskCard;
+  width: 300px;
+  font-weight: 600;
+  /* Background, border, color, box-shadow set via inline style (dynamic phase) */
+}
+
+/* Next Card (240px width, upcoming state) */
+.taskCardNext {
+  composes: taskCard;
+  width: 240px;
+  background: var(--vscode-sidebar-bg);
+  border-color: color-mix(in srgb, var(--vscode-border) 30%, transparent);
+  color: var(--vscode-foreground-muted);
+}
+
+/* ───────────────────────────────────────────────────────────────────────── */
+/* Phase Pill (80×24px) */
+/* ───────────────────────────────────────────────────────────────────────── */
+
+.phasePill {
+  width: 80px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill); /* 14px */
+  font-size: var(--text-body-sm); /* 11px */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  /* Border, background, color set via inline style (dynamic phase color) */
+}
+
+/* ───────────────────────────────────────────────────────────────────────── */
+/* Arrow Separator */
+/* ───────────────────────────────────────────────────────────────────────── */
+
+.arrowSeparator {
+  color: var(--vscode-foreground-faint); /* #666666 */
+  font-size: var(--text-caption); /* 10px */
+  margin: 0 var(--space-1); /* 4px horizontal margin */
+  user-select: none;
+  opacity: 0.5;
+}
+
+/* ───────────────────────────────────────────────────────────────────────── */
+/* Compact Metrics (top-right corner) */
+/* ───────────────────────────────────────────────────────────────────────── */
+
+.compactMetrics {
+  display: flex;
+  gap: var(--space-2); /* 8px between metrics */
+  font-size: var(--text-caption); /* 10px */
+  color: var(--vscode-foreground-dim);
+  margin-left: auto; /* Push to right */
+  font-weight: 500;
+  font-family: var(--font-mono);
+}
+
+.compactMetrics .metric {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.compactMetrics .warning {
+  color: var(--color-warning);
+}
+
+.compactMetrics .critical {
+  color: var(--color-error);
+  font-weight: 700;
+}
+
+.compactMetrics .separator {
+  color: var(--vscode-border);
+  opacity: 0.5;
+}
+
+/* ───────────────────────────────────────────────────────────────────────── */
+/* Task Content Typography */
+/* ───────────────────────────────────────────────────────────────────────── */
+
+.sectionHeader {
+  font-size: var(--text-micro); /* 9px */
+  color: var(--vscode-foreground-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-bottom: var(--space-1);
+}
+
+.statusIcon {
+  font-size: var(--text-body); /* 13px */
+  margin-right: var(--space-1);
+}
+
+.storyId {
+  font-size: var(--text-h3); /* 14px */
+  font-weight: 700;
+  color: var(--vscode-foreground);
+}
+
+.title {
+  font-size: var(--text-body-sm); /* 11px */
+  color: var(--vscode-foreground);
+  line-height: 1.3;
+}
+
+.layer,
+.cycle {
+  font-size: var(--text-caption); /* 10px */
+  color: var(--vscode-foreground-muted);
+}
+
+.emptyState {
+  font-size: var(--text-body-sm); /* 11px */
+  color: var(--vscode-foreground-faint);
+  font-style: italic;
+}
+
+.emptyStateDetail {
+  font-size: var(--text-caption); /* 10px */
+  color: var(--vscode-foreground-faint);
+}

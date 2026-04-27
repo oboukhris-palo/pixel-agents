@@ -72,7 +72,7 @@ All 9 scenarios currently failing (not yet implemented):
 2. Previous section shows completed task with ✅ icon
 3. Current section shows active task with story ID, title, layer, cycle, 🔄 icon
 4. Next section shows upcoming task with story ID, title, ⏭️ icon
-5. Color scheme reflects PDLC phase (Blue/Red/Green/Purple)
+1. Color scheme reflects PDLC phase (TDD phase colors: RED #FF5500, GREEN #10B981, REFACTOR #8B5CF6, DOCUMENT #06B6D4)
 6. Clicking task opens implementation-plan.md in editor
 7. Empty states show "N/A" or "Unknown" without errors
 8. Updates complete within 500ms of file system changes
@@ -269,7 +269,7 @@ All 9 scenarios currently failing (not yet implemented):
 | Show current task with layer/cycle | Layer 2, 4 | [ ] extractLayerAndCycle() | `taskProgressionTracker.ts`, `TaskSection.tsx` | Current section shows US-001-001, Layer 1, RED-01 |
 | Show next task prediction | Layer 2, 4 | [ ] findNextTask() | `taskProgressionTracker.ts`, `TaskSection.tsx` | Next section shows US-001-002 with ⏭️ |
 | Update within 1 second | Layer 2, 3 | [ ] File watcher + debouncing | `extension.ts`, `PixelAgentsViewProvider.ts` | Dashboard updates within 500ms |
-| Color-code by PDLC phase | Layer 2, 4 | [ ] getPhaseColor() | `workflowDetector.ts`, `TaskSection.tsx` | Colors match phase (Blue/Red/Green/Purple) |
+| Color-code by PDLC phase | Layer 2, 4 | [ ] getPhaseColor() | `workflowDetector.ts`, `TaskSection.tsx` | Colors match TDD phases (RED #FF5500, GREEN #10B981, REFACTOR #8B5CF6, DOCUMENT #06B6D4) |
 | Navigate to story by clicking | Layer 4 | [ ] onClick handler + VS Code command | `TaskProgressionBar.tsx`, `extension.ts` | Editor opens implementation-plan.md |
 | Handle empty/incomplete states | Layer 1, 2, 4 | [ ] Default states + error handling | `constants.ts`, `taskProgressionTracker.ts`, `TaskSection.tsx` | Shows "N/A" without errors |
 | Show parallel tasks (TDD zones) | Layer 2, 4 | [ ] Parallel work detection | `taskProgressionTracker.ts`, `TaskProgressionBar.tsx` | Indicates multiple active zones |

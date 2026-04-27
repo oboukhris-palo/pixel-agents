@@ -1,0 +1,37 @@
+{
+	"servers": {
+		"TalkToFigma": {
+			"command": "npx",
+			"args": [
+				"ai-figma-mcp@latest"
+			],
+			"type": "stdio"
+		},
+		"github": {
+			"type": "http",
+			"url": "https://api.githubcopilot.com/mcp/"
+		}
+		, "gene2": {
+            "url": "https://gene2.mcp.paloitcloud.com.sg",
+            "type": "http"
+        }, 
+		"penpot": {
+			"type": "http",
+			"url": "http://localhost:4401/mcp?userToken=eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMjU2R0NNIn0.wjxVapnCwRh5WBHxQ3PiAC0JTrgeJ9VhtgoDhFusrxc_u_FC5twSeA.Eki0ESzJzTJiRJFP.egu5BSkKZD0In60kPrZJQbCqCpPhNFV_13Ogxc3NXNnvxfGncS0zFbNNtptBT76432EBaqYCkQFb47BY3alOs2IU7qiit65p5LWU0JtqaYTM29zmcuy-EbQhcyGXeBZSiXPZTOEH3gL44hpDvCmN2MQgkQ1spXRCfS_cS2nJNTksx0FjtTng4vPBfWH3J71_LrufFtcqybEj.qjd_hYy-WM5frqJElg4LYA"
+		}
+	},
+	"inputs": [
+		{
+			"id": "github_token",
+			"type": "promptString",
+			"description": "GitHub Personal Access Token",
+			"password": true
+		},
+		{
+			"id": "pat_penpot",
+			"type": "promptString",
+			"description": "Penpot Personal Access Token",
+			"password": true
+		}
+	]
+}
