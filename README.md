@@ -4,8 +4,6 @@ A VS Code extension that turns your AI coding agents into animated pixel art cha
 
 Each GitHub Copilot agent you launch spawns a character that walks around, sits at desks, and visually reflects what the agent is doing — typing when writing code, reading when searching files, waiting when it needs your attention.
 
-![Pixel Agents Screenshot](webview-ui/public/Screenshot.jpg)
-
 ## Features
 
 - **One agent, one character** — every GitHub Copilot agent gets its own animated character
@@ -23,10 +21,6 @@ Each GitHub Copilot agent you launch spawns a character that walks around, sits 
 - **Accessibility compliance** — WCAG 2.1 AA compliant with full keyboard navigation, screen reader support, and high-contrast design token system
 - **Persistent layouts** — your office design is saved and shared across VS Code windows
 - **Diverse characters** — 6 built-in character sprites (character assets based on JIK-A-4 Metro City). Note: For projects with 10+ agents, additional character sprites will be needed.
-
-<p align="center">
-  <img src="webview-ui/public/characters.png" alt="Pixel Agents characters" width="320" height="72" style="image-rendering: pixelated;">
-</p>
 
 ## Requirements
 
@@ -273,7 +267,3 @@ In progress / future:
 - **Support for other agentic frameworks** — integrate with additional AI coding assistants and agentic frameworks beyond GitHub Copilot
 - **Activity history** — show recent files and activities for each agent
 - **Custom office layout templates** — pre-built layouts based on team structure
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
