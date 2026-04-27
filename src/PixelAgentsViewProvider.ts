@@ -25,8 +25,7 @@ import { ContextMessageHandler } from './contextMessageHandler.js';
 import { CompletenessCalculator } from './completenessCalculator.js';
 import { AchievementEngine } from './achievementEngine.js';
 import { AchievementMessageHandler } from './achievementMessageHandler.js';
-import { AgentActivityMonitor } from './agentActivityMonitor.js';
-import type { WorkflowState } from './types.js';
+import { AgentActivityMonitor } from './agentActivityMonitor.js';import { SoundService } from './soundService.js'import type { WorkflowState } from './types.js';
 
 export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 	nextAgentId = { current: 1 };
@@ -69,6 +68,9 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 	// Agent Activity Monitor (US-001-002)
 	agentActivityMonitor: AgentActivityMonitor | null = null;
 	agentActivityOutputChannel: vscode.OutputChannel | null = null;
+
+	// Sound Service (US-002-005)
+	soundService: SoundService | null = null;
 
 	// Agent metadata from .github/agents/
 	agentMetadata = new Map<string, AgentMetadata>();
@@ -371,7 +373,22 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 									});
 								}
 							});
+						// Initialize sound service (US-002-005)
+						if (!this.achievementOutputChannel) {
+							this.achievementOutputChannel = vscode.window.createOutputChannel('Pixel Agents: Achievements');
+						}
+						if (!this.soundService) {
+							this.soundService = new SoundService(this.context, this.achievementOutputChannel);
+						}
 
+						// Subscribe achievements to sound (AC8: after visual starts, 500ms delay)
+						this.achievementMessageHandler?.on('achievement.unlocked', (achievement: { milestone?: number }) => {
+							if (achievement.milestone !== undefined) {
+								setTimeout(() => {
+									this.soundService?.playMilestoneSound(achievement.milestone as number);
+								}, 500);
+							}
+						});
 							// Initialize agent activity monitor (US-001-002)
 							console.log('[Extension] 👷 Initializing agent activity monitor...');
 							if (!this.agentActivityOutputChannel) {
@@ -547,6 +564,10 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 		this.agentActivityMonitor = null;
 		this.agentActivityOutputChannel?.dispose();
 		this.agentActivityOutputChannel = null;
+
+		// Dispose sound service (US-002-005)
+		this.soundService?.dispose();
+		this.soundService = null;
 		
 		for (const id of [...this.agents.keys()]) {
 			removeAgent(
