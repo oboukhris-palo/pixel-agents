@@ -214,8 +214,8 @@ function App() {
       position: 'relative', 
       overflow: 'hidden',
       display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+      flexDirection: 'column',
+      background: 'var(--vscode-bg)',
     }}>
       <style>{`
         @keyframes pixel-agents-pulse {
@@ -225,24 +225,7 @@ function App() {
         .pixel-agents-pulse { animation: pixel-agents-pulse ${PULSE_ANIMATION_DURATION_SEC}s ease-in-out infinite; }
       `}</style>
 
-      {/* Main canvas - centered */}
-      <OfficeCanvas
-        officeState={officeState}
-        onClick={handleClick}
-        isEditMode={editor.isEditMode}
-        editorState={editorState}
-        onEditorTileAction={editor.handleEditorTileAction}
-        onEditorEraseAction={editor.handleEditorEraseAction}
-        onEditorSelectionChange={editor.handleEditorSelectionChange}
-        onDeleteSelected={editor.handleDeleteSelected}
-        onRotateSelected={editor.handleRotateSelected}
-        onDragMove={editor.handleDragMove}
-        editorTick={editor.editorTick}
-        zoom={editor.zoom}
-        onZoomChange={editor.handleZoomChange}
-        panRef={editor.panRef}
-      />
-
+      {/* Task Progression Bar (36px) - Top */}
       {taskProgression && (
         <TaskProgressionBar
           taskProgression={taskProgression}
@@ -250,15 +233,64 @@ function App() {
         />
       )}
 
+      {/* Content Area (flex) - Middle: Sidebar + Canvas + Metrics */}
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        gap: '1px',
+        overflow: 'hidden',
+        position: 'relative',
+      }}>
+        {/* Main canvas with metrics overlaid */}
+        <div style={{
+          flex: 1,
+          position: 'relative',
+          overflow: 'hidden',
+        }}>
+          <OfficeCanvas
+            officeState={officeState}
+            onClick={handleClick}
+            isEditMode={editor.isEditMode}
+            editorState={editorState}
+            onEditorTileAction={editor.handleEditorTileAction}
+            onEditorEraseAction={editor.handleEditorEraseAction}
+            onEditorSelectionChange={editor.handleEditorSelectionChange}
+            onDeleteSelected={editor.handleDeleteSelected}
+            onRotateSelected={editor.handleRotateSelected}
+            onDragMove={editor.handleDragMove}
+            editorTick={editor.editorTick}
+            zoom={editor.zoom}
+            onZoomChange={editor.handleZoomChange}
+            panRef={editor.panRef}
+          />
+
+          {/* Context Window Bar (left side) - US-002-001 */}
+          <div style={{
+            position: 'absolute',
+            left: '8px',
+            top: '8px',
+            zIndex: 30,
+          }}>
+            <ContextWindowBar tokenUsage={tokenUsage} />
+          </div>
+
+          {/* Completeness Meter (right side) - US-002-002 */}
+          <div style={{
+            position: 'absolute',
+            right: '8px',
+            top: '8px',
+            zIndex: 30,
+          }}>
+            <CompletenessMeter />
+          </div>
+        </div>
+      </div>
+
+      {/* Status Bar (28px) - Bottom */}
       <WorkflowStatusBar workflowState={workflowState} />
 
+      {/* Document Watcher Indicator - Overlay */}
       <DocumentWatcherIndicator watcherState={documentWatcherState} />
-
-      {/* Context Window Bar (left side) - US-002-001 */}
-      <ContextWindowBar tokenUsage={tokenUsage} />
-
-      {/* Completeness Meter (right side) - US-002-002 */}
-      <CompletenessMeter />
 
       {/* Zoom Controls - Hidden per user request for simplicity */}
       {/* <ZoomControls 
