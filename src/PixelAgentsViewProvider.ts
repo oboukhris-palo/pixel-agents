@@ -25,7 +25,9 @@ import { ContextMessageHandler } from './contextMessageHandler.js';
 import { CompletenessCalculator } from './completenessCalculator.js';
 import { AchievementEngine } from './achievementEngine.js';
 import { AchievementMessageHandler } from './achievementMessageHandler.js';
-import { AgentActivityMonitor } from './agentActivityMonitor.js';import { SoundService } from './soundService.js'import type { WorkflowState } from './types.js';
+import { AgentActivityMonitor } from './agentActivityMonitor.js';
+import { SoundService } from './soundService.js';
+import type { WorkflowState } from './types.js';
 
 export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 	nextAgentId = { current: 1 };

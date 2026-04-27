@@ -6,7 +6,7 @@
  */
 
 import * as vscode from 'vscode';
-import { PerformanceMonitor } from './performanceMonitor';
+import { PerformanceMonitor, PerformanceThresholds } from './performanceMonitor';
 
 jest.mock('vscode');
 
@@ -14,7 +14,7 @@ const mockOutputChannel = {
   appendLine: jest.fn(),
 } as unknown as vscode.OutputChannel;
 
-function createMonitor(thresholds?: Parameters<typeof PerformanceMonitor>[1]) {
+function createMonitor(thresholds?: Partial<PerformanceThresholds>) {
   return new PerformanceMonitor(mockOutputChannel, thresholds);
 }
 

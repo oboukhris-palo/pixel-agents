@@ -4,25 +4,25 @@ A VS Code extension that turns your AI coding agents into animated pixel art cha
 
 Each GitHub Copilot agent you launch spawns a character that walks around, sits at desks, and visually reflects what the agent is doing — typing when writing code, reading when searching files, waiting when it needs your attention.
 
-This is the source code for the free [Pixel Agents extension for VS Code](https://marketplace.visualstudio.com/items?itemName=pablodelucca.pixel-agents) — you can install it directly from the marketplace with the full furniture catalog included.
-
-
-![Pixel Agents screenshot](webview-ui/public/Screenshot.jpg)
+![Pixel Agents Screenshot](webview-ui/public/Screenshot.jpg)
 
 ## Features
 
 - **One agent, one character** — every GitHub Copilot agent gets its own animated character
 - **Live activity tracking** — characters animate based on what the agent is actually doing (writing, reading, running commands)
 - **Workflow detection** — automatically detects PDLC stages, implementation phases, and TDD cycles from structured documents in `/docs/`, displaying real-time progress in the status bar
+- **Milestone celebrations** — particle effects (confetti, star bursts, fireworks) trigger automatically at 25%, 50%, 75%, and 100% project completion with visual feedback and sound cues
 - **Agent Registry** — collapsible panel showing all available agents from `.github/agents/` with real-time status, descriptions, and capabilities
 - **GitHub directory highlighting** — automatically highlights when agents access `.github/` configuration files
 - **Agent roles and metadata** — displays agent names, descriptions, and capabilities from `.agent.md` definitions
 - **Multi-agent handoff animation** — when one agent completes a task and hands off to another, watch directional arrows, animated path lines, and hear a notification chime
 - **Office layout editor** — design your office with floors, walls, and furniture using a built-in editor
 - **Speech bubbles** — visual indicators when an agent is waiting for input or needs permission
-- **Sound notifications** — optional chime when an agent finishes its turn or during handoff transitions
+- **Sound notifications** — VS Code notification API integration with milestone-specific sounds (info, warning, celebration), error/success/warning audio cues, and optional chimes for agent handoff transitions
+- **Performance monitoring** — real-time FPS tracking, render time monitoring, and memory usage tracking to ensure smooth 60 FPS animation with threshold warnings
+- **Accessibility compliance** — WCAG 2.1 AA compliant with full keyboard navigation, screen reader support, and high-contrast design token system
 - **Persistent layouts** — your office design is saved and shared across VS Code windows
-- **Diverse characters** — 6 diverse characters. These are based on the amazing work of [JIK-A-4, Metro City](https://jik-a-4.itch.io/metrocity-free-topdown-character-pack).
+- **Diverse characters** — 6 built-in character sprites (character assets based on JIK-A-4 Metro City). Note: For projects with 10+ agents, additional character sprites will be needed.
 
 <p align="center">
   <img src="webview-ui/public/characters.png" alt="Pixel Agents characters" width="320" height="72" style="image-rendering: pixelated;">
@@ -35,12 +35,10 @@ This is the source code for the free [Pixel Agents extension for VS Code](https:
 
 ## Getting Started
 
-If you just want to use Pixel Agents, the easiest way is to download the [VS Code extension](https://marketplace.visualstudio.com/items?itemName=pablodelucca.pixel-agents). If you want to play with the code, develop, or contribute, then:
-
 ### Install from source
 
 ```bash
-git clone https://github.com/pablodelucca/pixel-agents.git
+git clone <repository-url>
 cd pixel-agents
 npm install
 cd webview-ui && npm install && cd ..
@@ -175,10 +173,37 @@ Character animations are driven by activity events:
 
 The webview runs a lightweight game loop with canvas rendering, BFS pathfinding, and a character state machine (idle → walk → type/read). Everything is pixel-perfect at integer zoom levels.
 
+### Milestone Celebrations
+
+The extension tracks project completion across multiple dimensions:
+- **Stories completed** — tracks user story implementation progress from `/docs/05-implementation/user-stories.md`
+- **Test coverage** — monitors test suite growth and coverage percentages
+- **Code coverage** — tracks overall code coverage metrics
+- **PRU efficiency** — measures prompt resource unit usage efficiency
+
+When milestones are reached (25%, 50%, 75%, 100%), the extension triggers:
+- **Particle effects** — physics-based confetti (25%, 50%), star bursts (75%), and fireworks (100%) using Palo IT brand colors
+- **Sound notifications** — VS Code notification API plays milestone-specific sounds with different severity levels for audio variety
+- **Visual feedback** — milestone markers on the completeness meter bounce with animations
+- **Agent celebrations** — all agent characters perform celebration animations at 100% completion
+
+### Performance Optimization
+
+The extension includes comprehensive performance monitoring:
+- **FPS tracking** — real-time frames-per-second calculation (target: 60 FPS)
+- **Render time monitoring** — tracks frame render time (threshold: <17ms for 60 FPS)
+- **Memory usage tracking** — monitors memory consumption (threshold: <100MB)
+- **Component render counting** — tracks React component re-render frequency
+- **Threshold warnings** — logs performance warnings to VS Code OutputChannel when thresholds are exceeded
+- **Viewport culling** — only renders objects within the visible canvas area (AABB collision detection)
+
 ## Tech Stack
 
 - **Extension**: TypeScript, VS Code Webview API, esbuild
 - **Webview**: React 19, TypeScript, Vite, Canvas 2D
+- **Testing**: Jest, React Testing Library, jest-axe (accessibility), ts-jest
+- **Design System**: CSS custom properties with 200+ design tokens (Palo IT branding, VS Code dark theme)
+- **Performance**: 60 FPS game loop with viewport culling, physics-based particle system
 
 ## Known Limitations
 
@@ -230,6 +255,11 @@ Completed:
 - ✅ **Workflow status bar** — real-time PDLC stage and TDD phase detection from `/docs/` with progress tracking
 - ✅ **Multi-agent display** — show all agents in office layout with automatic desk assignment
 - ✅ **Multi-agent handoff animation** — directional arrows, path lines, and sound effects on agent handoff
+- ✅ **Milestone celebration animations** — particle effects (confetti, star bursts, fireworks) at completion milestones
+- ✅ **Sound integration** — VS Code notification API for milestone sounds, error/success/warning audio cues
+- ✅ **Performance monitoring** — real-time FPS, render time, memory usage tracking with threshold warnings
+- ✅ **Accessibility compliance** — WCAG 2.1 AA with full keyboard navigation and screen reader support
+- ✅ **Design system alignment** — 200+ CSS custom properties with Palo IT branding and VS Code dark theme integration
 
 In progress / future:
 - **Workflow dashboard** — clickable status bar that opens detailed workflow visualization with timeline and task breakdown
@@ -243,23 +273,6 @@ In progress / future:
 - **Support for other agentic frameworks** — integrate with additional AI coding assistants and agentic frameworks beyond GitHub Copilot
 - **Activity history** — show recent files and activities for each agent
 - **Custom office layout templates** — pre-built layouts based on team structure
-
-## Contributions
-
-See [CONTRIBUTORS.md](CONTRIBUTORS.md) for instructions on how to contribute to this project.
-
-Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before participating.
-
-## Supporting the Project
-
-If you find Pixel Agents useful, consider supporting its development:
-
-<a href="https://github.com/sponsors/pablodelucca">
-  <img src="https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?logo=github" alt="GitHub Sponsors">
-</a>
-<a href="https://ko-fi.com/pablodelucca">
-  <img src="https://img.shields.io/badge/Support-Ko--fi-ff5e5b?logo=ko-fi" alt="Ko-fi">
-</a>
 
 ## License
 
