@@ -2,6 +2,8 @@ export { createCharacter, updateCharacter, getCharacterSprite, isReadingTool } f
 export { OfficeState } from './officeState.js'
 export { startGameLoop } from './gameLoop.js'
 export type { GameLoopCallbacks } from './gameLoop.js'
+export { ParticleSystem } from './particleSystem.js'
+export type { Particle } from './particleSystem.js'
 export {
   renderFrame,
   renderTileGrid,

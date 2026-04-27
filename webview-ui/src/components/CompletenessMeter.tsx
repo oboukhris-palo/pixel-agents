@@ -11,7 +11,9 @@
  * - PRU efficiency display (gold color with lightning emoji)
  */
 
+import { useRef, useEffect } from 'react';
 import { useCompleteness } from '../hooks/useCompleteness';
+import { ParticleSystem } from '../office/engine/particleSystem';
 
 // CSS module — mocked as identity-obj-proxy in Jest, loaded by Vite in production
 import styles from './CompletenessMeter.module.css';
@@ -56,6 +58,29 @@ function getMilestoneClasses(reached: boolean, newlyAchieved: boolean): string {
  */
 export function CompletenessMeter() {
 	const metrics = useCompleteness();
+	const particleSystemRef = useRef<ParticleSystem>(new ParticleSystem());
+	const prevCompletionRef = useRef(0);
+
+	// Trigger milestone celebration particle effects (US-002-004)
+	useEffect(() => {
+		const prev = Math.floor(prevCompletionRef.current / 25);
+		const curr = Math.floor(metrics.completionPercentage / 25);
+		if (curr > prev && metrics.completionPercentage > 0) {
+			const milestone = curr * 25;
+			const centerX = 480;
+			const centerY = 320;
+			if (milestone === 25) {
+				particleSystemRef.current.emitConfetti(centerX, centerY, 50);
+			} else if (milestone === 50) {
+				particleSystemRef.current.emitConfetti(centerX, centerY, 75);
+			} else if (milestone === 75) {
+				particleSystemRef.current.emitStarBurst(centerX, centerY, 100);
+			} else if (milestone >= 100) {
+				particleSystemRef.current.emitFireworks(centerX, centerY, 200);
+			}
+		}
+		prevCompletionRef.current = metrics.completionPercentage;
+	}, [metrics.completionPercentage]);
 
 	return (
 		<div className={styles['completeness-meter'] || 'completeness-meter'} data-testid="completeness-meter">
