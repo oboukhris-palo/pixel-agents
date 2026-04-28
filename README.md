@@ -4,6 +4,12 @@ A VS Code extension that turns your AI coding agents into animated pixel art cha
 
 Each GitHub Copilot agent you launch spawns a character that walks around, sits at desks, and visually reflects what the agent is doing — typing when writing code, reading when searching files, waiting when it needs your attention.
 
+## Screenshot
+
+![Pixel Agents Dashboard](webview-ui/public/Screenshot.png)
+
+*Note: Screenshot coming soon. The dashboard shows animated agent characters in a 2D office layout with real-time workflow status, agent sidebar, context usage bar, and project completion meter.*
+
 ## Features
 
 - **One agent, one character** — every GitHub Copilot agent gets its own animated character
@@ -15,12 +21,14 @@ Each GitHub Copilot agent you launch spawns a character that walks around, sits 
 - **Agent roles and metadata** — displays agent names, descriptions, and capabilities from `.agent.md` definitions
 - **Multi-agent handoff animation** — when one agent completes a task and hands off to another, watch directional arrows, animated path lines, and hear a notification chime
 - **Office layout editor** — design your office with floors, walls, and furniture using a built-in editor
-- **Speech bubbles** — visual indicators when an agent is waiting for input or needs permission
+- **Action bubbles with captions** — click any agent to see speech bubbles with real-time activity text ("Idle", "Working...", etc.)
+- **Agent selection sync** — clicking an agent in the sidebar highlights the character in the office, and vice versa
+- **Workflow footer bar** — displays PDLC stage, current sprint, active story, and progress with Palo IT brand colors
 - **Sound notifications** — VS Code notification API integration with milestone-specific sounds (info, warning, celebration), error/success/warning audio cues, and optional chimes for agent handoff transitions
-- **Performance monitoring** — real-time FPS tracking, render time monitoring, and memory usage tracking to ensure smooth 60 FPS animation with threshold warnings
+- **Performance monitoring** — real-time FPS tracking, render time monitoring, and memory usage tracking with frame throttling (12 FPS) to prevent IDE crashes
 - **Accessibility compliance** — WCAG 2.1 AA compliant with full keyboard navigation, screen reader support, and high-contrast design token system
-- **Persistent layouts** — your office design is saved and shared across VS Code windows
-- **Diverse characters** — 6 built-in character sprites (character assets based on JIK-A-4 Metro City). Note: For projects with 10+ agents, additional character sprites will be needed.
+- **Persistent layouts** — your office design is saved and shared across VS Code windows (~/.pixel-agents/layout.json)
+- **Diverse characters** — 6 built-in character sprites supporting 11+ agents (orchestrator, ai-eng, architect, ba, ux, qa, pm, po, dev-lead, tdd-orchestrator, meeting-assistant)
 
 ## Requirements
 
@@ -82,14 +90,16 @@ When an agent reads, edits, or creates files in the `.github/` directory:
 - The **last accessed file** is shown in the activity status
 - This helps visualize when agents are accessing configuration, workflows, or prompt definitions
 
-## Workflow Status Bar
+## Workflow Footer Bar
 
-A status bar at the top of the office displays the current development workflow:
+A status bar at the bottom of the office displays the current development workflow with Palo IT brand colors:
 
-- **Workflow Type** — Shows PDLC, Implementation, CI/CD, or None
-- **Stage/Phase** — Color-coded badges (PDLC stages 1-8, TDD phases: RED/GREEN/REFACTOR)
-- **Active User Story** — Displays the current story being worked on (e.g., "US-001")
+- **Workflow Type** — Shows PDLC, Implementation, CI/CD, or None (green #00C853)
+- **Stage/Phase** — Color-coded display ("Stage X/8" in blue #3B82F6, TDD phases in RED/GREEN/REFACTOR colors)
+- **Active User Story** — Displays the current story being worked on (yellow #FFD600)
+- **Current Sprint** — Shows active sprint number
 - **Progress Tracking** — Visual progress bar with percentage completion
+- **PRD Maturity** — Expandable checklist showing document completion status (PDLC workflow only)
 - **Real-time Updates** — Automatically updates when documents in `/docs/` change
 
 Workflow detection parses:
@@ -183,9 +193,10 @@ When milestones are reached (25%, 50%, 75%, 100%), the extension triggers:
 
 ### Performance Optimization
 
-The extension includes comprehensive performance monitoring:
-- **FPS tracking** — real-time frames-per-second calculation (target: 60 FPS)
-- **Render time monitoring** — tracks frame render time (threshold: <17ms for 60 FPS)
+The extension includes comprehensive performance monitoring with intelligent frame throttling:
+- **Frame throttling** — game loop runs at 12 FPS (FRAME_SKIP = 4) to prevent CPU burn and IDE crashes while maintaining smooth animations
+- **FPS tracking** — real-time frames-per-second calculation with performance metrics logging
+- **Render time monitoring** — tracks frame render time with threshold warnings
 - **Memory usage tracking** — monitors memory consumption (threshold: <100MB)
 - **Component render counting** — tracks React component re-render frequency
 - **Threshold warnings** — logs performance warnings to VS Code OutputChannel when thresholds are exceeded
@@ -195,9 +206,10 @@ The extension includes comprehensive performance monitoring:
 
 - **Extension**: TypeScript, VS Code Webview API, esbuild
 - **Webview**: React 19, TypeScript, Vite, Canvas 2D
-- **Testing**: Jest, React Testing Library, jest-axe (accessibility), ts-jest
-- **Design System**: CSS custom properties with 200+ design tokens (Palo IT branding, VS Code dark theme)
-- **Performance**: 60 FPS game loop with viewport culling, physics-based particle system
+- **Testing**: Jest, React Testing Library, jest-axe (accessibility), ts-jest (>80% coverage)
+- **Design System**: CSS custom properties with 200+ design tokens (Palo IT branding v2.0.0, VS Code dark theme)
+- **Performance**: 12 FPS game loop (throttled) with viewport culling, physics-based particle system
+- **Build**: VSIX packaging via @vscode/vsce (~1.03 MB, 104 files)
 
 ## Known Limitations
 
@@ -239,6 +251,26 @@ Expected behavior:
 │ └────────────────────────────┘   │
 └──────────────────────────────────┘
 ```
+
+## Recent Improvements (v1.0.4, April 2026)
+
+**Visual Enhancements**:
+- Action bubbles now display text captions ("Idle", "Working...") with semi-transparent backgrounds
+- Agent selection syncs bidirectionally between sidebar and office canvas
+- Workflow footer bar redesigned with Palo IT brand colors (#00C853 green, #FFD600 yellow, #3B82F6 blue)
+- All 11 agents visible in office (QA and UX agents added with proper desk mappings)
+- TDD sub-agents (red/green/refactor) hidden from UI, showing only orchestrator
+
+**Performance & Stability**:
+- Frame throttling implemented (12 FPS) to prevent IDE crashes from CPU burn
+- Game loop optimized with FRAME_SKIP = 4 for smooth animations without performance impact
+- Backend service initialization patterns standardized across all monitors
+
+**Bug Fixes**:
+- Fixed character spawning for QA/UX agents (desk mapping fallbacks)
+- Fixed agent selection highlighting in sidebar when clicking canvas characters
+- Fixed footer text overflow into sidebar with proper container constraints
+- Fixed bubble timer lifecycle to properly clear bubbleText on expiry
 
 ## Roadmap
 
