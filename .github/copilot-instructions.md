@@ -538,7 +538,8 @@ When verifying framework completeness, follow evidence-based approach per `.gith
 ❌ Forget to dispose services/watchers (causes memory leaks)  
 ❌ Modify character spawning logic without filtering TDD sub-agents  
 ❌ Set action bubbles without proper timer lifecycle management  
-❌ Use fixed widths in footer components (use maxWidth + overflow:hidden)
+❌ Use fixed widths in footer components (use maxWidth + overflow:hidden)  
+❌ Forget to include `agentActivity` in callback dependencies when using real-time activity
 
 **Build & Package**:
 - Development: `npm run watch` (auto-compile on file changes)
@@ -633,9 +634,9 @@ When context is tight:
 2. **Agent desk mapping requires explicit ID entries** - Function `getAgentDeskMapping()` must include all agent IDs (e.g., `'ux': 'ux-desk'`, `'qa': 'meeting-desk'`); missing mappings result in agents without characters
 3. **Layout migration handles legacy types** - Use `LEGACY_FURNITURE_TYPE_MAP` to translate old types (CHAIR_FRONT → chair) during deserialization; fallback prevents crashes
 4. **TDD sub-agents can be hidden via filtering** - Filter metadata array before spawning to remove `dev-tdd-red`, `dev-tdd-green`, `dev-tdd-refactor`; show only `tdd-orchestrator`
-5. **Action bubbles with text captions** - Character interface needs `bubbleText: string | null` field; set on click with `'Idle'` or `'Working...'`; renderer draws text with semi-transparent background; clear on timer expiry
+5. **Action bubbles show real-time activity** - Use `useAgentActivity()` hook to get current agent state; check if clicked agent matches `activeAgent.id`; show actual `currentAction.description` for active agents, 'Working...' for busy but non-reporting agents, 'Idle' for inactive; include `agentActivity` in callback dependency array
 6. **Agent selection must sync canvas ↔ sidebar** - Use React state `selectedAgentIdForSidebar` to trigger re-renders; update in both `handleClick` (canvas) and `onAgentClick` (sidebar); map `isCurrent` dynamically based on character's agentRole
-7. **Footer with Palo IT colors uses inline styles** - WorkflowStatusBar shows PDLC/Stage/Sprint with color constants (#00C853 green, #FFD600 yellow, #3B82F6 blue); inline styles prevent Tailwind purge issues; maxWidth + overflow for wrapping prevention
+7. **Footer shows workflow status only** - Removed "gene2 v2.0.0" branding; WorkflowStatusBar displays PDLC/Stage/Sprint with Palo IT colors (#00C853 green, #FFD600 yellow, #3B82F6 blue); inline styles prevent Tailwind purge issues
 
 **Character Desk Mapping Pattern**:
 ```typescript
@@ -651,7 +652,8 @@ const knownMappings: Record<string, string> = {
 ```
 
 **Bubble Animation Lifecycle**:
-- User clicks character → set `bubbleType = 'waiting'`, `bubbleTimer = 2-3s`, `bubbleText = 'Idle'` or `'Working...'`
+- User clicks character → set `bubbleType = 'waiting'`, `bubbleTimer = 3s`
+- **Get real-time activity**: Check if `agentActivity.activeAgent?.id === char.agentRole` → show `currentAction.description`, else show 'Working...' or 'Idle'
 - Render loop: `bubbleTimer -= deltaTime`
 - Renderer: Draw sprite, then draw text with semi-transparent black background for readability
 - Renderer checks: `if (bubbleTimer < BUBBLE_FADE_DURATION_SEC)` → fade opacity
@@ -661,13 +663,22 @@ const knownMappings: Record<string, string> = {
 ```typescript
 // App.tsx - Add React state for selection tracking
 const [selectedAgentIdForSidebar, setSelectedAgentIdForSidebar] = useState<number | null>(null)
+const agentActivity = useAgentActivity() // Real-time activity hook
 
 // Canvas click handler
 const handleClick = useCallback((agentId: number) => {
   os.selectedAgentId = agentId
   setSelectedAgentIdForSidebar(agentId) // Trigger sidebar re-render
-  char.bubbleText = char.isActive ? 'Working...' : 'Idle'
-}, [])
+  
+  // Show real-time activity in bubble
+  if (agentActivity && agentActivity.activeAgent?.id === char.agentRole) {
+    char.bubbleText = agentActivity.currentAction.description || 'Working...'
+  } else if (char.isActive) {
+    char.bubbleText = 'Working...'
+  } else {
+    char.bubbleText = 'Idle'
+  }
+}, [agentActivity]) // Include dependency for fresh data
 
 // Sidebar agents mapping - dynamic isCurrent
 agents={agentMetadata.map(meta => {
@@ -690,14 +701,13 @@ const filteredMetadata = agentMetadata.filter(m => !hiddenAgents.includes(m.id))
 // WorkflowStatusBar.tsx - Use inline styles with Palo IT palette
 const PALO_GREEN = '#00C853'
 const PALO_YELLOW = '#FFD600'
-const PALO_ORANGE = '#FF6D00'
 const PALO_BLUE = '#3B82F6'
 
-// Display: workflow label, stage, sprint, story, progress bar
+// Display: workflow label, stage, sprint, story (no branding text)
 <span style={{ fontSize: '11px', color: PALO_GREEN, fontWeight: 600 }}>{workflow}</span>
 <span style={{ fontSize: '11px', color: stageColor }}>{stageText}</span>
 <span style={{ fontSize: '11px', color: PALO_YELLOW }}>{activeUserStory}</span>
-// maxWidth: '100%', overflow: 'hidden' prevents text wrapping into sidebar
+// maxWidth: '100%', overflow: 'hidden' prevents text wrapping
 ```
 
 ---

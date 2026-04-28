@@ -37,17 +37,40 @@ Each GitHub Copilot agent you launch spawns a character that walks around, sits 
 
 ## Getting Started
 
-### Install from source
+### Install from source (for development)
+
+For active development and testing:
 
 ```bash
 git clone <repository-url>
 cd pixel-agents
 npm install
 cd webview-ui && npm install && cd ..
-npm run build
 ```
 
-Then press **F5** in VS Code to launch the Extension Development Host.
+Then open the project in VS Code and press **F5** to launch the Extension Development Host (a separate VS Code window for testing).
+
+### Build and install as VSIX
+
+To build and install the extension in your VS Code:
+
+```bash
+npm run package
+```
+
+This creates `pixel-agents-1.0.4.vsix` in the project root. To install it:
+
+**Option 1: Via Command Palette**
+1. Open VS Code
+2. Press `Cmd+Shift+P` (Mac) or `Ctrl+Shift+P` (Windows/Linux)
+3. Type "Extensions: Install from VSIX"
+4. Select the `pixel-agents-1.0.4.vsix` file
+
+**Option 2: Via Extensions View**
+1. Open the Extensions view (`Cmd+Shift+X` / `Ctrl+Shift+X`)
+2. Click the `...` menu at the top
+3. Select "Install from VSIX..."
+4. Choose the `pixel-agents-1.0.4.vsix` file
 
 ### Usage
 
@@ -221,36 +244,23 @@ The extension includes comprehensive performance monitoring with intelligent fra
 
 To test the Agent Registry and `.github` file access highlighting:
 
-1. **Install from source** and build the extension (see Getting Started above)
-2. Press **F5** to launch Extension Development Host
-3. Open the **Pixel Agents** panel (View → Open View → "Pixel Agents")
-4. Observe **Agent Registry** in top-right corner showing available agents
-5. Click **+ Agent** to launch an active agent
-6. **Open or edit any file in `.github/` directory** — the active agent should show:
-   - Red border + glow effect in the registry
-   - File name in the activity status
-   - Visual confirmation that agent is accessing configuration files
+1. **Install the extension** (see "Build and install as VSIX" above)
+2. Open the **Pixel Agents** panel (it appears in the Activity Bar on the left, or via View → Open View → "Pixel Agents")
+3. The **Agent Registry** displays in the webview showing available agents from `.github/agents/`
+4. When you use GitHub Copilot Chat and invoke an agent (e.g., `@workspace` or `@ai-engineering`):
+   - The agent appears as a character in the office canvas
+   - Real-time status updates show in the sidebar ("Idle", "Reading", "Writing")
+5. **Open or edit any file in `.github/` directory** — the active agent's character should show:
+   - Activity bubble displaying the action
+   - Status update in the agent sidebar
 
-Expected behavior:
-```
-┌──────────────────────────────────┐
-│ AI Agents                    ▼   │
-├──────────────────────────────────┤
-│ Active (1)                       │
-│ ┌────────────────────────────┐   │ ← Red border (accessing .github)
-│ │ Agent #1 [.github]         │   │
-│ │ AI Engineering Agent       │   │
-│ │ ✓ Reading → copilot-...    │   │
-│ └────────────────────────────┘   │
-│                                  │
-│ Available (5)                    │
-│ ┌────────────────────────────┐   │
-│ │ Business Analyst           │   │
-│ │ Create specs, BDD tests    │   │
-│ │ [Click to launch]          │   │
-│ └────────────────────────────┘   │
-└──────────────────────────────────┘
-```
+**Expected Features:**
+- **Agent Sidebar** (left, 180px) — Lists all agents with status dots (green = active, gray = idle)
+- **Office Canvas** (center) — Shows animated agent characters at desks with action bubbles
+- **Context Window Bar** (left overlay) — Token usage visualization
+- **Completeness Meter** (right overlay) — Project progress with milestone markers
+- **Workflow Status Bar** (bottom) — PDLC stage, sprint, and active user story
+- **Task Progression Bar** (top) — Previous | Current | Next task workflow context
 
 ## Recent Improvements (v1.0.4, April 2026)
 
