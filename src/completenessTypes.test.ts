@@ -23,6 +23,7 @@ describe('completenessTypes - Domain Model', () => {
 				testsTotal: 500,
 				testsPassing: 485,
 				codeCoverage: 92,
+			bddCoverage: 0,
 				linesOfCode: 8500,
 				milestones: []
 			};
@@ -42,6 +43,7 @@ describe('completenessTypes - Domain Model', () => {
 				testsTotal: 0,
 				testsPassing: 0,
 				codeCoverage: 0,
+			bddCoverage: 0,
 				linesOfCode: 0,
 				milestones: []
 			};
@@ -58,6 +60,7 @@ describe('completenessTypes - Domain Model', () => {
 				testsTotal: 0,
 				testsPassing: 0,
 				codeCoverage: 0,
+			bddCoverage: 0,
 				linesOfCode: 0,
 				milestones: []
 			};
@@ -74,6 +77,7 @@ describe('completenessTypes - Domain Model', () => {
 				testsTotal: 0,
 				testsPassing: 0,
 				codeCoverage: 0,
+			bddCoverage: 0,
 				linesOfCode: 0,
 				milestones: []
 			};
@@ -90,6 +94,7 @@ describe('completenessTypes - Domain Model', () => {
 				testsTotal: 0,
 				testsPassing: 0,
 				codeCoverage: 0,
+			bddCoverage: 0,
 				linesOfCode: 0,
 				milestones: []
 			};
@@ -106,6 +111,7 @@ describe('completenessTypes - Domain Model', () => {
 				testsTotal: 0,
 				testsPassing: 0,
 				codeCoverage: 0,
+			bddCoverage: 0,
 				linesOfCode: 0,
 				milestones: []
 			};
@@ -122,6 +128,7 @@ describe('completenessTypes - Domain Model', () => {
 				testsTotal: 0,
 				testsPassing: 0,
 				codeCoverage: 0,
+			bddCoverage: 0,
 				linesOfCode: 0,
 				milestones: []
 			};
@@ -138,6 +145,7 @@ describe('completenessTypes - Domain Model', () => {
 				testsTotal: 0,
 				testsPassing: 0,
 				codeCoverage: 0,
+			bddCoverage: 0,
 				linesOfCode: 0,
 				milestones: []
 			};

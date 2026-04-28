@@ -30,6 +30,9 @@ export interface ProjectMetrics {
 	/** Code coverage percentage (0-100) */
 	codeCoverage: number;
 	
+	/** BDD feature coverage percentage (0-100) - features with tests implemented */
+	bddCoverage: number;
+	
 	/** Total lines of code in the project */
 	linesOfCode: number;
 	
@@ -175,6 +178,7 @@ export function getDefaultProjectMetrics(): ProjectMetrics {
 		testsTotal: 0,
 		testsPassing: 0,
 		codeCoverage: 0,
+		bddCoverage: 0,
 		linesOfCode: 0,
 		milestones: []
 	};

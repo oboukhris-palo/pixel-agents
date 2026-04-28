@@ -2,21 +2,9 @@
 <!-- Source: .gene2-core/.github/copilot-instructions.md -->
 <!-- Do NOT edit manually — re-run init-client-repo.mjs to refresh. -->
 
-# AI Agent Instructions: PDLC Orchestration Framework
+# AI Agent Instructions: Pixel Agents Extension Development
 
 > 📋 **PHASE NAMING CONVENTION**: All PDLC phases use strict numbering: `00-assessment`, `01-requirements`, `02-architecture`, `03-testing`, `04-planning`, `05-implementation`. See `.github/instructions/framework-standards.instructions.md` for complete naming and terminology standards.
-
-## ⚡ CRITICAL: This is a Reusable Template Framework
-
-**You are working in a META-FRAMEWORK**, not a specific project. All identifiers (US-XXX, US-001, PAYMENT-001) are EXAMPLES showing patterns for future projects. This `.github/` folder gets copied into any project to orchestrate AI agents through PDLC workflows.
-
-### Framework Repo vs Client Repo
-**This is the framework repository** (`gene2-core`). The `/docs/` folder intentionally does NOT exist here—it's created dynamically in **client projects** during Phase 0 Assessment. When verifying framework completeness:
-- ✅ Check `.github/`, templates, workflows, agents, scripts in `.github/scripts/` (incl. `.github/scripts/hooks/`)
-- ❌ Do NOT expect `/docs/` to exist (it's created in clients)
-- ✅ Reference path patterns in workflows/instructions for client execution
-
----
 
 ## 🎮 Project Context: Pixel Agents Dashboard
 
@@ -47,11 +35,27 @@
    - Color-coded by PDLC phase (using getPhaseColor() utility)
    - 100+ test cases covering rendering, interactions, accessibility, edge cases
    - Custom hook: useTaskProgression() for state management
-2. **ContextWindowBar** (Left) — Real-time token usage visualization (.github vs project code)
-3. **CompletenessMeter** (Right) — Project completion meter (0-100%) with gamification
-4. **ActionBubble** (Above Agents) — Live code snippets being written
-5. **OfficeCanvas** (Center) — 2D office layout with animated agent characters
-6. **GameLoop** (Engine) — 60 FPS animation with agent movement and zones
+   - ✅ **Data Source**: TaskProgressionTracker backend service via `task.progression` messages
+2. **AgentSidebar** (Left 180px) — Shows all agent roles with click-to-select
+   - Status dots: Green (active), Gray (idle)
+   - Clicking agent selects character in canvas + shows action bubble
+   - Filters out TDD sub-agents (red/green/refactor), shows only orchestrator
+3. **ContextWindowBar** (Left overlaid) — Real-time token usage visualization (.github vs project code)
+   - ✅ **Data Source**: ContextAnalyzer backend service via `context.window.update` messages
+   - Segmented breakdown: .github (blue), project (green), chat (yellow)
+   - Warnings at 70%+ (yellow) and 90%+ (red) thresholds
+4. **CompletenessMeter** (Right overlaid) — Project completion meter (0-100%) with gamification
+   - ✅ **Data Source**: CompletenessCalculator backend service via `completeness.update` messages
+   - Milestone markers with celebration particle effects (confetti/fireworks)
+   - Stats: story count, test count, coverage percentage, PRU efficiency
+5. **ActionBubble** (Above Agents) — Shows "idle" status when clicked
+   - Triggered by clicking character in canvas or agent in sidebar
+   - Shows for 2-3 seconds with fade-out animation
+   - Bubble sprite renders above character head
+6. **OfficeCanvas** (Center) — 2D office layout with animated agent characters
+7. **GameLoop** (Engine) — ✅ **Fixed**: Frame skipping throttle (FRAME_SKIP = 4 = ~12 FPS)
+   - Prevents IDE crash from continuous 60 FPS CPU burn
+   - Maintains animation smoothness while protecting system resources
 
 ### 📊 Key Visualizations
 
@@ -85,14 +89,10 @@
 5. Celebrate as completeness bar fills
 6. Unlock next task automatically
 
-**Engagement Features**:
-- ✅ Character animations (nervous RED typing, confident GREEN, thoughtful REFACTOR)
-- ✅ Milestone celebrations at 25%, 50%, 75%, 90%, 100%
-- ✅ Achievement badges ("TDD Master", "Project Victory", etc.)
-- ✅ Sound cues (notification chimes, fanfares)
-- ✅ Streak counter ("3 tasks completed in a row!")
-- ✅ PRU scoring (efficiency points)
-- ✅ Context pressure (real consequence at 90%+)
+**Engagement Features** (v1.0.4 Status):
+- ✅ Character animations (office layout, sprite rendering)
+- ✅ Context pressure visualization (token usage bar at 70%/90% thresholds)
+- ✅ Completeness met� Project workspace visualization complete with all 11 agents visible
 
 **Win Condition**: 🏆 Reach 100% project completion with all metrics optimized
 
@@ -502,214 +502,62 @@ When verifying framework completeness, follow evidence-based approach per `.gith
 **What intentionally does NOT exist in framework repo**:
 - `/docs/` folder (created in client repos during Phase 0 only)
 - Client-specific configurations  
-- Project artifacts or PRD outputs (templates only)
+- P📚 Pixel Agents Code Standards
 
-## 🆕 Framework 2.0.0: Enhanced Features (March 2026)
-
-### 🏷️ Agent Versioning System
-
-**All agents now track versions** with metadata in YAML frontmatter:
-
-```yaml
----
-name: Agent Name
-version: 1.0.0
-last_updated: 2026-03-17
-breaking_changes: false
-compatible_with:
-  min: "framework-2.0.0"
-  max: "framework-3.x"
----
-```
-
-**Version Changelog**: `.github/agents/CHANGELOG.md` tracks all agent updates with migration notes
-
-**Git Tags**: `agent/{agent_name}@{version}` (e.g., `agent/dev-tdd-green@1.2.0`)
-
-**Breaking Changes**:
-- Orchestrator prompts for confirmation with diff summary
-- Migration notes required in CHANGELOG
-
-### 📋 Action Tracing & Agent Logs
-
-**Agent actions are logged to immutable daily files** for audit trails and debugging:
-
-**TDD Agents** (per-story):
-- Location: `/logs/05-implementation/epics/<EPIC-REF>/user-stories/<US-REF>/agent-{agent_name}-YYYYMMDD.md`
-- Examples: `agent-dev-tdd-red-20260317.md`, `agent-dev-tdd-green-20260317.md`
-
-**Other Agents** (root-level):
-- Location: `/logs/agent-{agent_name}-YYYYMMDD.md`
-- Examples: `agent-orchestrator-20260317.md`, `agent-dev-lead-20260317.md`
-
-**Log Entry Format** (ISO8601 timestamps, append-only):
-```markdown
-## 2026-03-17T09:45:33Z | Phase: RED | Cycle: 001
-
-- **Status**: success
-- **Layer**: Layer 1 (Database & Domain Model)
-- **Files touched**: [file1.cs, file2.sql]
-- **Progress tracking**: Checkboxes in implementation-plan.md marked [x] as tasks complete
-- **Rationale**: Created failing test for tier sync validation
-- **Next step**: awaiting → dev-tdd-green
-```
-
-**Use Cases**:
-- Debugging TDD failures
-- Audit trail for compliance
-- Process improvement analysis
-- Knowledge transfer for onboarding
-
-### ✅ Implementation Plan Approval Gate
-
-**Human validation required before TDD execution** via `plan-approval.yaml`:
-
-**Location**: `/docs/05-implementation/epics/<EPIC-REF>/user-stories/<US-REF>/plan-approval.yaml`
-
-**Workflow**:
-1. **Dev-Lead creates plan** → Creates `plan-approval.yaml` with `status: changes-requested`
-2. **Dev-Lead reviews checklist** → Validates architecture, dependencies, BDD mapping
-3. **Dev-Lead approves** → Sets `status: approved`
-4. **Orchestrator validates** → Checks approval before launching TDD execution
-5. **Plan modified** → Auto-revokes approval, requires re-review
-
-**Status Values**:
-- `approved`: TDD execution can proceed
-- `changes-requested`: TDD BLOCKED, plan needs revision
-- `revoked`: Auto-set when plan modified after approval
-
-**Approval Checklist** (validated in `plan-approval.yaml`):
-- [ ] Implementation plan follows layer architecture (DB → Service → API → UI)
-- [ ] BDD scenarios map to implementation layers
-- [ ] All external dependencies documented
-- [ ] Database migration order correct
-- [ ] Critical business logic addressed
-- [ ] Error handling strategy defined
-
-**Plan Versioning**:
-- `implementation-plan.md` = CURRENT version (always latest)
+- **TypeScript**: Strict mode, explicit types for public APIs, no implicit `any`
+- **React**: Functional components, hooks, `changeDetection: OnPush` patterns
+- **Testing**: Jest + React Testing Library, >80% coverage, accessibility checks (jest-axe)
+- **Performance**: Frame skipping in gameLoop (FRAME_SKIP = 4 = ~12 FPS), debounced file watchers (300-500ms)
+- **Documentation**: JSDoc for public functions, inline comments for non-obvious logic, no separate markdown docs
 - `implementation-plan-v1.md`, `v2.md` = IMMUTABLE snapshots (historical)
-- When plan modified: Create snapshot, update current, auto-revoke approval
+- When plan modified: Create snapsh — DEPRECATED
 
-### ⚡ YOLO Mode (Rapid Prototyping)
-
-**Skip approval gate for low-risk stories** with explicit risk acknowledgment:
-
-**Activation**: `@orchestrator YOLO mode for <US-REF> (I acknowledge the risks)`
-
-**Pre-flight Checks** (Auto-executed):
-- ✅ All BDD tests written and failing
-- ✅ Git working tree clean
-- ✅ Implementation plan exists and complete
-- ✅ No open blockers
-
-**Safety Rails**:
-- **Single-cycle lock**: Only ONE TDD cycle allowed
-- **Auto-abort on regression**: Stops if ANY existing test fails
-- **Mandatory review after cycle**: Human review required before continuing
-
-**After YOLO Cycle**:
-- Auto-create `plan-approval.yaml` with `status: changes-requested`
-- Require normal approval for subsequent cycles
-
-**Use Cases**:
-- Rapid prototyping
-- Low-risk bug fixes
+**Note**: YOLO mode was designed for traditional PDLC workflows. Not applicable to Pixel Agents extension development. Use standard git workflow instead.
 - Experimental features with isolated scope
 - Learning/training scenarios
 
 ---
 
-## 🗂️ Key Files & Their Purpose
+## � Reference Documentation
 
-| File | Purpose | Update Pattern |
-|------|---------|----------------|
-| `.github/agents/*.agent.md` | Agent system prompts with version metadata | Read-only (defines your behavior) |
-| `.github/agents/CHANGELOG.md` | Agent version history and migration notes | Updated when agents change |
-| `.github/templates/*.template.md` | Document templates | Reference for structure |
-| `.github/templates/plan-approval-tmpl.yaml` | Human validation gate template | Reference for approval files |
-| `.github/workflows/*.workflows.md` | PDLC/Implementation/CI-CD flows | Read-only (workflow definitions) |
-| `.github/checkpoint.yaml` | ⭐ Current PDLC position tracking (context recovery for agents) | Updated on each commit |
-| `.github/instructions/git-workflow.instructions.md` | 🔴 **CRITICAL**: Branch naming, commit formats, commit frequency, PR workflow, merge strategy | Reference for all git operations; centralized source of truth |
-| `.github/scripts/setup-git-hooks.mjs` | Auto-install script for git hooks (validate-agent-logs.mjs, validate-metadata-frontmatter.mjs) | Run on: `npm install` or manual: `node .github/scripts/setup-git-hooks.mjs` |
-| `.github/scripts/hooks/` | Git hook validators: agent log compliance, metadata frontmatter validation | Auto-invoked by git hooks; maintained by setup-git-hooks.mjs |
-| `.github/workflows/00-assessment.workflows.md` | **Phase 0**: Client assessment, prerequisites, AI readiness | Reference for discovery phase |
-| `.github/workflows/01-requirements.workflows.md` | **Phases 1-2**: Requirements gathering, epics, user stories | Reference for requirements phase |
-| `.github/workflows/02-architecture.workflows.md` | **Phases 3-4**: Architecture design, technical specifications | Reference for architecture phase |
-| `.github/workflows/03-testing.workflows.md` | **Phase 5**: Testing strategy, BDD scenarios | Reference for testing phase |
-| `.github/workflows/04-planning.workflows.md` | **Phases 6-7**: Deployment planning, sprint planning | Reference for planning phase |
-| `.github/workflows/05-implementation.workflows.md` | **Phase 8**: TDD-driven development with approval gates | Reference for implementation phase |
-| `docs/00-assessment/` | Assessment phase outputs (prerequisites, AI readiness report) | Generated during Phase 0 |
-| `docs/inputs/` | Client-provided materials (epics, docs, interviews, code) | Input source for Phase 0 assessment |
-| `logs/agent-{agent}-YYYYMMDD.md` | Root-level agent action logs (non-TDD agents) | Append-only daily logs |
-| `docs/01-requirements/` | Requirements phase documents (requirements, personas, user-stories, business-case) | Generated during Phase 1-2 |
-| `docs/02-architecture/` | Architecture phase documents (architecture-design, tech-spec, design-systems) | Generated during Phase 3-4 |
-| `docs/03-testing/` | Testing phase documents (test-strategies) | Generated during Phase 5 |
-| `docs/04-planning/` | Planning phase documents (iteration-planning, deployment-plan) | Generated during Phase 6-7 |
-| `docs/01-requirements/user-stories.md` | PRD user stories catalog | Generated during documentation phase |
-| `docs/05-implementation/user-stories.md` | ⭐ Implementation status tracking (SSOT) | Update as stories progress |
-| `docs/05-implementation/epics/<EPIC-REF>/user-stories/<US-REF>/implementation-plan.md` | Layer-by-layer architecture (CURRENT version) | Frozen after approval |
-| `docs/05-implementation/epics/<EPIC-REF>/user-stories/<US-REF>/implementation-plan-v{N}.md` | IMMUTABLE plan snapshots (historical) | Created when plan modified |
-| `docs/05-implementation/epics/<EPIC-REF>/user-stories/<US-REF>/plan-approval.yaml` | Human validation gate for TDD execution | Created by dev-lead, updated on changes |
-| `logs/05-implementation/epics/<EPIC-REF>/user-stories/<US-REF>/agent-{agent}-YYYYMMDD.md` | Per-story TDD agent action logs | Append-only daily logs |
-| `docs/05-implementation/epics/<EPIC-REF>/user-stories/<US-REF>/implementation-plan.md` | Implementation plan with checkboxes | Update checkboxes as work completes |
-| `.github/agents/CHANGELOG.md` | Agent versioning and migration history (Framework 2.0.0+) | Reference for breaking changes |
+**Extension-specific**:
+- README.md - Project overview and screenshots
+- src/README.md - Backend implementation guide
 
-## 🚀 PDLC Workflow Sequence
-
-**Complete PDLC Flow:**
-1. **Phase 0**: Assessment & Discovery (`.github/workflows/00-assessment.workflows.md`)
-   - Client input assessment and maturity classification
-   - Prerequisites request generation
-   - AI readiness report creation
-   - Handoff to documentation phase
-
-2. **Phases 1-7**: Documentation & Development
-   - **Phase 1-2**: Requirements (`.github/workflows/01-requirements.workflows.md`)
-   - **Phase 3-4**: Architecture (`.github/workflows/02-architecture.workflows.md`)
-   - **Phase 5**: Testing (`.github/workflows/03-testing.workflows.md`)
-   - **Phase 6-7**: Planning (`.github/workflows/04-planning.workflows.md`)
-   - Route selection reference: See routing framework in `00-assessment.workflows.md`
-
-3. **Phase 8**: Implementation (`.github/workflows/05-implementation.workflows.md`)
-   - TDD-driven development
-   - Layer-by-layer implementation
-   - Quality gates and code review
-
-## 🚀 Starting Work Commands
-
-**New project assessment**: `@orchestrator Assess project status for [PROJECT_NAME]`  
-→ Triggers Phase 0 (00-assessment.workflows.md) to determine client maturity and routing
-
-**After assessment complete**: `@orchestrator Route documents workflow for [PROJECT_NAME]`  
-→ Executes Phases 1-7 (phase-specific workflows: 01-requirements → 02-architecture → 03-testing → 04-planning)
-
-**Implementation**: Copy prompt from `.github/tasks/start-implementation.prompts.md`  
-**User story planning**: Copy prompt from `.github/tasks/plan-us.prompts.md`
-
-## 🎨 Code Standards (From `.github/instructions/`)
-
-- **coding.instructions.md**: SOLID principles, cyclomatic complexity <10, test coverage >80%, 13-point code review checklist
-- **documentation.instructions.md**: ✅ Code documentation (JSDoc, inline comments); ❌ Project docs (no new markdown files)
-- **api-design.instructions.md**: OpenAPI mandatory in `/api/openapi.yaml` (Architect generates in Stage 4)
+**Framework-related** (reference only, not core to extension):
+- `.github/instructions/agent-logging.instructions.md` - For agent log formats
+- `.github/instructions/framework-standards.instructions.md` - Naming conventions
+- `.github/instructions/documentation.instructions.md` - Doc standards
 
 ## ⚠️ Anti-Patterns (Never Do This)
 
-❌ Skip Phase 0 assessment - wrong routing leads to rework  
-❌ Force Traditional (Route A) when documentation is poor  
-❌ Mix multiple routes without clear strategy  
-❌ Run multiple TDD cycles in parallel  
-❌ Work on multiple stories simultaneously  
-❌ Skip quality gates or bypass BDD validation  
-❌ Make decisions for PO (always present 3 options)  
-❌ Modify workflows directly (use orchestrator)  
-❌ Create new project documentation (only follow templates)  
-❌ Speculate about framework completeness without checking actual files  
-❌ Assume `/docs/` folder exists in framework repo (it's created in clients only)
+❌ Hardcode hex colors instead of referencing design-systems.md  
+❌ Skip layout migration compatibility (breaks saved user layouts)  
+❌ Assume all agent metadata is immediately available (handle fallbacks)  
+❌ Create file watchers without debouncing (triggers update storms)  
+❌ Forget to dispose services/watchers (causes memory leaks)  
+❌ Modify character spawning logic without filtering TDD sub-agents  
+❌ Set action bubbles without proper timer lifecycle management  
+❌ Use fixed widths in footer components (use maxWidth + overflow:hidden)
 
-## � Workflow Enforcement
+**Build & Package**:
+- Development: `npm run watch` (auto-compile on file changes)
+- Production build: `npm run compile` (TypeScript + Vite)
+- Package VSIX: `npm run package` (creates installable .vsix file)
 
-**CRITICAL: Auto-activated validation system ensures proper workflow usage** 
+**Testing**:
+- Unit tests: `npm test` (Jest + React Testing Library)
+- Type check: `npm run check-types`
+- Lint: `npm run lint` (ESLint)
+
+**Key Development Files**:
+- Backend: `src/*.ts` (TypeScript, VS Code APIs, file monitoring)
+- Frontend: `webview-ui/src/**/*.tsx` (React 19, canvas rendering, UI components)
+- Layout: `webview-ui/src/office/**` (office state, furniture catalog, character system)
+
+**Version Tracking**:
+- Current: v1.0.4 (April 28, 2026)
+- VSIX location: `pixel-agents-1.0.4.vsix` (1.0 MB, 104 files
 
 ### Before Any Action
 1. **Check enforcement status**: System validates workflow sequences automatically
@@ -777,20 +625,206 @@ When context is tight:
 
 ---
 
-## ⚡ Design System Alignment: Key Takeaways (April 2026)
+## ⚡ Agent Character Spawning & Layout Patterns (April 2026)
 
-**Learnings from comprehensive v2.0.0 Palo IT branding alignment**:
+**Critical Learnings from v1.0.4 character placement fixes**:
 
-1. **Establish design system BEFORE implementation** - Retrofitting color palettes and component specs costs 2-3x effort
-2. **Centralize all design tokens** - CSS custom properties (--color-*, --text-*, --space-*) vs. hardcoded hex values enables organization-wide consistency
-3. **Use explicit version references** - Always specify `design-systems.md v2.0.0`, never just `design-systems.md`
-4. **Include exact dimensions in component specs** - Use `240×24px`, not `small card`; use `8px opacity`, not `light`
-5. **Test against design tokens** - Validate test assertions against centralized color palette, not hardcoded hex values
-6. **Sync color references across layers** - Component source + test files + documentation must all reference same design-systems.md v2.0.0
-7. **Document color migration patterns** - When colors change, update PHASE_COLORS constants, test assertions, and implementation plans simultaneously
+1. **Saved layout overrides programmatic defaults** - Layout.json persists furniture UIDs, types, and seat assignments; must handle legacy furniture types via migration
+2. **Agent desk mapping requires explicit ID entries** - Function `getAgentDeskMapping()` must include all agent IDs (e.g., `'ux': 'ux-desk'`, `'qa': 'meeting-desk'`); missing mappings result in agents without characters
+3. **Layout migration handles legacy types** - Use `LEGACY_FURNITURE_TYPE_MAP` to translate old types (CHAIR_FRONT → chair) during deserialization; fallback prevents crashes
+4. **TDD sub-agents can be hidden via filtering** - Filter metadata array before spawning to remove `dev-tdd-red`, `dev-tdd-green`, `dev-tdd-refactor`; show only `tdd-orchestrator`
+5. **Action bubbles with text captions** - Character interface needs `bubbleText: string | null` field; set on click with `'Idle'` or `'Working...'`; renderer draws text with semi-transparent background; clear on timer expiry
+6. **Agent selection must sync canvas ↔ sidebar** - Use React state `selectedAgentIdForSidebar` to trigger re-renders; update in both `handleClick` (canvas) and `onAgentClick` (sidebar); map `isCurrent` dynamically based on character's agentRole
+7. **Footer with Palo IT colors uses inline styles** - WorkflowStatusBar shows PDLC/Stage/Sprint with color constants (#00C853 green, #FFD600 yellow, #3B82F6 blue); inline styles prevent Tailwind purge issues; maxWidth + overflow for wrapping prevention
 
-**Pattern Applied Successfully**:
-- Updated 5 EPIC user stories with v2.0.0 specs
-- Migrated 4 component source files to new Palo IT palette
-- Updated test color assertions for new TDD phase colors (#FF5500, #10B981, #8B5CF6, #06B6D4)
-- Achieved 100% design system alignment across all components
+**Character Desk Mapping Pattern**:
+```typescript
+const knownMappings: Record<string, string> = {
+  'orchestrator': 'orchestrator-desk',
+  'ai-eng': 'ai-eng-desk',
+  'architect': 'architect-desk',
+  'ux': 'ux-desk',           // Must include all agent IDs
+  'qa': 'meeting-desk',      // Fallback seat if dedicated chair missing
+  'tdd-orchestrator': 'tdd-orch-desk',
+  // ... rest of mappings
+}
+```
+
+**Bubble Animation Lifecycle**:
+- User clicks character → set `bubbleType = 'waiting'`, `bubbleTimer = 2-3s`, `bubbleText = 'Idle'` or `'Working...'`
+- Render loop: `bubbleTimer -= deltaTime`
+- Renderer: Draw sprite, then draw text with semi-transparent black background for readability
+- Renderer checks: `if (bubbleTimer < BUBBLE_FADE_DURATION_SEC)` → fade opacity
+- Timer reaches 0 → clear `bubbleType = null`, `bubbleTimer = 0`, `bubbleText = null`
+
+**Selection Sync Pattern** (Canvas ↔ Sidebar):
+```typescript
+// App.tsx - Add React state for selection tracking
+const [selectedAgentIdForSidebar, setSelectedAgentIdForSidebar] = useState<number | null>(null)
+
+// Canvas click handler
+const handleClick = useCallback((agentId: number) => {
+  os.selectedAgentId = agentId
+  setSelectedAgentIdForSidebar(agentId) // Trigger sidebar re-render
+  char.bubbleText = char.isActive ? 'Working...' : 'Idle'
+}, [])
+
+// Sidebar agents mapping - dynamic isCurrent
+agents={agentMetadata.map(meta => {
+  const selectedChar = selectedAgentIdForSidebar !== null 
+    ? officeState.characters.get(selectedAgentIdForSidebar) 
+    : null
+  return { name: meta.id, isCurrent: selectedChar?.agentRole === meta.id }
+})}
+```
+
+**Agent Filtering for TDD Team**:
+```typescript
+const hiddenAgents = ['dev-tdd-red', 'dev-tdd-green', 'dev-tdd-refactor']
+const filteredMetadata = agentMetadata.filter(m => !hiddenAgents.includes(m.id))
+// Spawn only filtered agents; TDD sub-agents hidden from UI
+```
+
+**Footer with Workflow Context** (Palo IT Colors):
+```typescript
+// WorkflowStatusBar.tsx - Use inline styles with Palo IT palette
+const PALO_GREEN = '#00C853'
+const PALO_YELLOW = '#FFD600'
+const PALO_ORANGE = '#FF6D00'
+const PALO_BLUE = '#3B82F6'
+
+// Display: workflow label, stage, sprint, story, progress bar
+<span style={{ fontSize: '11px', color: PALO_GREEN, fontWeight: 600 }}>{workflow}</span>
+<span style={{ fontSize: '11px', color: stageColor }}>{stageText}</span>
+<span style={{ fontSize: '11px', color: PALO_YELLOW }}>{activeUserStory}</span>
+// maxWidth: '100%', overflow: 'hidden' prevents text wrapping into sidebar
+```
+
+---
+
+## 🔧 Extension Stability & Data Flow Patterns (April 2026)
+
+**Critical Fixes for Production Stability**:
+
+### Performance: IDE Crash Fix (60 FPS → 12 FPS)
+- **Problem**: Continuous 60 FPS requestAnimationFrame caused CPU burn, IDE freeze on install
+- **Solution**: Frame skipping in gameLoop.ts (`FRAME_SKIP = 4` = render every 4 frames)
+- **Result**: ~12 FPS rendering, normal CPU usage, IDE remains responsive
+- **Implementation**: Check `frameCount % FRAME_SKIP === 0` before calling render callbacks
+
+### Backend Service Initialization Pattern
+All backend services (ContextAnalyzer, CompletenessCalculator, TaskProgressionTracker, AgentActivityMonitor) follow this pattern:
+
+1. **Create service instance** with workspaceRoot + outputChannel
+2. **Calculate initial state** immediately (async if needed)
+3. **Send initial message** to webview: `postMessage({ type: 'message-type', data })`
+4. **Initialize file watchers** in `startMonitoring(callback)`
+   - Use `vscode.workspace.createFileSystemWatcher(pattern)` with RelativePattern
+   - Debounce updates (300ms) to prevent update storms
+   - Trigger callback on file change/create/delete
+5. **Dispose properly** in extension `dispose()`: Clear timers, dispose watchers, nullify references
+
+### Data Flow Debugging Checklist
+**If components show zeros/no data**:
+1. ✅ Backend service imported in PixelAgentsViewProvider.ts?
+2. ✅ Service initialized in `resolveWebviewView()` after workspaceRoot available?
+3. ✅ Initial state sent immediately (`postMessage` before watchers)?
+4. ✅ Message type matches frontend listener? (e.g., `context.window.update` not `contextUpdated`)
+5. ✅ File watchers created in `startMonitoring()`? (not just callback assignment)
+6. ✅ Frontend hook listening for message? (check `addEventListener('message', handler)`)
+7. ✅ Webview connected? (check `if (this.webview)` before `postMessage`)
+
+### Missing Component: AgentSidebar
+- **Issue**: Component completely missing from UI despite being in Penpot design
+- **Fix**: Created `AgentSidebar.tsx` + `AgentSidebar.module.css`
+- **Key**: Map agent IDs to characters via `officeState.characters.get(agentId)`
+- **Status Mapping**: `CharacterState.TYPE` = active, `char.isActive` = busy, else idle
+- **Width**: 180px fixed, header "AGENTS" with 8px status dots
+
+### Message Protocol Types (Must Match Frontend)
+- `task.progression`: `{ type: 'task.progression', progression: TaskProgressionState }`
+- `context.window.update`: `{ type: 'context.window.update', data: { tokenUsage, timestamp, warnings } }`
+- `completeness.update`: `{ type: 'completeness.update', metrics: ProjectMetrics }`
+- `activity-update`: `{ type: 'activity-update', payload: AgentActivityState }`
+
+### Build & Package Quality
+- ✅ 0 errors, 0 warnings required before VSIX creation
+- ✅ ESLint fixes: Auto-add curly braces to single-statement ifs
+- ✅ TypeScript checks: Use proper event typing (`MessageEvent`)
+- ✅ CSS imports: Mocked as identity-obj-proxy in Jest, loaded by Vite in production
+- ✅ Final VSIX: ~1.02 MB with 104 files (assets, webview, dist, docs)
+
+---
+
+## 🔍 Critical Learnings: Completeness & Display (April 2026)
+
+### Completeness Calculation Gotchas
+
+**Regex emoji mismatch** (CRITICAL BUG FIXED v1.0.4):
+- File format: `**Status**: ✅ Delivered` or `**Status**: 🔵 Not Started`
+- Broken regex: `/\*\*Status\*\*:\s*(Not Started|In Progress|Implemented|Delivered)/`
+  - Fails because emoji prefix blocks capture group
+- **Fixed regex**: `/\*\*Status\*\*:\s*[^a-zA-Z]*(Not Started|In Progress|Implemented|Delivered)/`
+  - Skips any non-letter characters (includes emoji) before status keyword
+
+**Coverage data reading from lcov.info**:
+- Read `LF:` (lines found) and `LH:` (lines hit) pairs per file
+- Calculate: `coverage % = (totalHit / totalFound) × 100`
+- Missing file returns `{ coverage: 0, totalLines: 0 }` gracefully
+
+**Test counting pattern**:
+- Use `vscode.workspace.findFiles('**/*.test.{ts,tsx}', '**/node_modules/**')`
+- Handles both src/ and webview-ui/src/ simultaneously
+- Returns count (not file list) for performance
+
+### Agent Display Best Practices
+
+**AgentSidebar naming strategy** (v1.0.4):
+- Display: Short agent ID only (e.g., `architect`, `ba`, `dev-lead`)
+- Tooltip (title attribute): Full name + description (e.g., "Solution Architect: Design system architecture...")
+- Storage: `AgentInfo` interface has both `name` (short) and optional `description` fields
+- Prevents truncation, keeps sidebar clean, hover reveals full context
+
+**Agent metadata source** (`agentMetadata` from extension):
+- Loaded from `.github/agents/*.agent.md` YAML frontmatter
+- Has: `id` (short), `name` (full), `description`, `argumentHint`
+- Fallback: `PLACEHOLDER_AGENTS` (8 agents) if no real metadata found
+
+### Layout Management Patterns
+
+**Right panel width reduction** (280px → 220px, v1.0.4):
+- Trade-off: 80px gained for canvas = 27% wider office layout
+- Context bar stays fixed 58px; Completeness flexes to fill remaining space
+- Container hierarchy: App.tsx defines panel width; child components adapt with `width: 100%`
+
+**CompletenessMeter CSS strategy**:
+- Parent container: `flex: 1; overflow: hidden` (parent determines width)
+- Component itself: `width: 100%; height: 100%` (fills parent, no fixed pixel width)
+- Transparency: Background set transparent so parent color shows through
+- Scrollable: `overflow-y: auto` for stats when space constrained
+
+### Message Type Matching (Backend → Frontend)
+
+**Protocol consistency critical** (prevents data loss):
+- Backend sends: `type: 'completeness.update'` with `metrics: ProjectMetrics`
+- Frontend listens: Message type must match exactly (case-sensitive)
+- Hook pattern: `useCompleteness()` → listens for `'completeness.update'`
+- PixelAgentsViewProvider sends: `postMessage({ type: 'completeness.update', metrics })`
+
+**Similar pattern for all backend services**:
+- ContextAnalyzer → `'context.window.update'` (token usage)
+- TaskProgressionTracker → `'task.progression'` (previous | current | next)
+- AgentActivityMonitor → `'activity-update'` (action bubble data)
+- AchievementEngine → `'achievement.unlocked'` + `'achievement.state'`
+
+### Backend Service Initialization Checklist
+
+1. ✅ Instantiate service in `PixelAgentsViewProvider.resolveWebviewView()`
+2. ✅ Calculate initial state immediately (before watchers)
+3. ✅ Send initial message to webview: `postMessage({ type: '...', data })`
+4. ✅ Create file watcher with `vscode.workspace.createFileSystemWatcher()`
+5. ✅ Implement debouncing (300-500ms) in watcher callback
+6. ✅ Dispose in `dispose()`: Clear timers, dispose watchers, nullify references
+7. ✅ Verify message type matches frontend listener (case-sensitive)
+
+**Common miss**: Service initialized but initial state never sent → webview shows zeros until file change detected

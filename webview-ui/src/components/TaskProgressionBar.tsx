@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import type { TaskInfo, TaskProgressionState } from '../hooks/useExtensionMessages';
-import { extractPhaseFromCycle, PHASE_COLORS, PHASE_BG_COLORS, PHASE_GLOW } from '../hooks/taskProgressionUtils';
+import { extractPhaseFromCycle } from '../hooks/taskProgressionUtils';
 import styles from './TaskProgressionBar.module.css';
 
 // ── Section configuration lookup ─────────────────────────────────────────────
@@ -24,19 +24,19 @@ const SECTION_CONFIG: Readonly<Record<SectionType, SectionConfig>> = {
   previous: {
     icon: '✅',
     iconTestId: 'icon-completed',
-    fallbackText: 'No previous task',
+    fallbackText: 'No previous activity',
     showPhaseBadge: false,
   },
   current: {
     icon: '🔄',
     iconTestId: 'icon-in-progress',
-    fallbackText: 'No current task',
+    fallbackText: 'Ready - Use Copilot Chat to start',
     showPhaseBadge: true,
   },
   next: {
     icon: '⏭️',
     iconTestId: 'icon-next',
-    fallbackText: 'No upcoming task',
+    fallbackText: 'No planned tasks',
     showPhaseBadge: false,
   },
 } as const;
@@ -47,33 +47,25 @@ const SECTION_CONFIG: Readonly<Record<SectionType, SectionConfig>> = {
 
 interface TaskContentProps {
   task: TaskInfo;
-  showPhaseBadge: boolean;
 }
 
 /** Renders the populated content of a section when a task is available. */
-function TaskContent({ task, showPhaseBadge }: TaskContentProps) {
-  const phase = showPhaseBadge ? extractPhaseFromCycle(task.cycle) : null;
-
+function TaskContent({ task }: TaskContentProps) {
+  // In the compact design, we don't show individual phase badges - the main phase pill shows the current phase
+  // Task content is just: icon + storyId + · + layer/title
+  
   return (
-    <>
-      <div className={styles.storyId}>{task.storyId}</div>
-      <div className={styles.title}>{task.title}</div>
-      {task.layer && <div className={styles.layer}>{task.layer}</div>}
-      {task.cycle && <div className={styles.cycle}>{task.cycle}</div>}
-      {phase && (
-        <span
-          data-testid="phase-badge"
-          className={styles.phasePill}
-          style={{
-            border: `2px solid ${PHASE_COLORS[phase]}`,
-            background: `color-mix(in srgb, ${PHASE_COLORS[phase]} 15%, transparent)`,
-            color: PHASE_COLORS[phase],
-          }}
-        >
-          {phase}
-        </span>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1, minWidth: 0 }}>
+      <span className={styles.storyId}>{task.storyId}</span>
+      <span style={{ color: 'inherit', opacity: 0.7 }}>·</span>
+      <span className={styles.title}>{task.layer || task.title}</span>
+      {task.cycle && (
+        <>
+          <span style={{ color: 'inherit', opacity: 0.7 }}>·</span>
+          <span className={styles.cycle}>{task.cycle}</span>
+        </>
       )}
-    </>
+    </div>
   );
 }
 
@@ -84,10 +76,9 @@ interface EmptyTaskContentProps {
 /** Renders the fallback content of a section when no task is available. */
 function EmptyTaskContent({ fallbackText }: EmptyTaskContentProps) {
   return (
-    <>
-      <div className={styles.emptyState}>N/A</div>
-      <div className={styles.emptyStateDetail}>{fallbackText}</div>
-    </>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
+      <span className={styles.emptyState}>{fallbackText}</span>
+    </div>
   );
 }
 
@@ -108,7 +99,7 @@ interface TaskSectionProps {
  *   Phase badge path is handled in TaskContent with its own budget (≤ 3).
  */
 function TaskSection({ sectionType, task, label, onTaskClick }: TaskSectionProps) {
-  const { icon, iconTestId, fallbackText, showPhaseBadge } = SECTION_CONFIG[sectionType];
+  const { icon, iconTestId, fallbackText } = SECTION_CONFIG[sectionType];
 
   // Determine CSS module class based on section type
   const cardClass =
@@ -118,17 +109,8 @@ function TaskSection({ sectionType, task, label, onTaskClick }: TaskSectionProps
       ? styles.taskCardCurrent
       : styles.taskCardNext;
 
-  // Apply dynamic phase styling for current card
+  // No dynamic styling - colors are set in CSS to match Penpot design exactly
   const cardStyle: React.CSSProperties = {};
-  if (sectionType === 'current' && task && showPhaseBadge) {
-    const phase = extractPhaseFromCycle(task.cycle);
-    cardStyle.background = PHASE_BG_COLORS[phase];
-    cardStyle.borderColor = PHASE_COLORS[phase];
-    cardStyle.color = PHASE_COLORS[phase];
-    cardStyle.boxShadow = PHASE_GLOW[phase];
-    cardStyle.borderWidth = '2px';
-    cardStyle.borderStyle = 'solid';
-  }
 
   const titleAttr = task ? `${task.storyId}: ${task.title}` : label;
 
@@ -151,12 +133,11 @@ function TaskSection({ sectionType, task, label, onTaskClick }: TaskSectionProps
       onClick={handleClick}
       onKeyDown={handleKeyDown}
     >
-      <div className={styles.sectionHeader}>{label}</div>
       <span className={styles.statusIcon} data-testid={iconTestId}>
         {icon}
       </span>
       {task ? (
-        <TaskContent task={task} showPhaseBadge={showPhaseBadge} />
+        <TaskContent task={task} />
       ) : (
         <EmptyTaskContent fallbackText={fallbackText} />
       )}
@@ -215,6 +196,9 @@ export const TaskProgressionBar = memo(function TaskProgressionBar({
 }: TaskProgressionBarProps) {
   const { previous, current, next } = taskProgression;
 
+  // Extract current phase for the phase pill (shown for all tasks, not just current)
+  const currentPhase = current ? extractPhaseFromCycle(current.cycle) : null;
+
   // Determine context usage status for styling
   const contextStatus =
     contextUsage !== undefined
@@ -232,6 +216,35 @@ export const TaskProgressionBar = memo(function TaskProgressionBar({
       role="region"
       aria-label="Task progression"
     >
+      {/* Palo IT Logo - aligned with phase pill */}
+      {(() => {
+        // Fix #1: Use webview URI injected by backend (asWebviewUri)
+        // VS Code webview security blocks /palo-it-logo.png paths
+        const logoUri = (typeof window !== 'undefined' && 
+          (window as Window & { __pixelAgentsVars?: { logoUri?: string } }).__pixelAgentsVars?.logoUri);
+        
+        return logoUri ? (
+          <img 
+            src={logoUri} 
+            alt="Palo IT" 
+            className={styles.logo}
+            style={{ height: '24px', width: 'auto', opacity: 0.95 }}
+            onError={(e) => {
+              console.error('[TaskProgressionBar] Logo failed to load:', e);
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+        ) : null;
+      })()}
+
+      {/* Phase Pill - 80×24px pill showing current phase */}
+      <span className={styles.phasePill} data-testid="phase-pill">
+        {currentPhase ? `8 ${currentPhase}` : '8 Impl'}
+      </span>
+
+      {/* Separator line - 1×20px vertical bar */}
+      <div className={styles.separator} aria-hidden="true" />
+
       <TaskSection
         sectionType="previous"
         task={previous}

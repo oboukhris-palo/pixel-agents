@@ -27,6 +27,7 @@ import { AchievementEngine } from './achievementEngine.js';
 import { AchievementMessageHandler } from './achievementMessageHandler.js';
 import { AgentActivityMonitor } from './agentActivityMonitor.js';
 import { SoundService } from './soundService.js';
+import { TaskProgressionTracker } from './taskProgressionTracker.js';
 import type { WorkflowState } from './types.js';
 
 export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
@@ -70,6 +71,9 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 	// Agent Activity Monitor (US-001-002)
 	agentActivityMonitor: AgentActivityMonitor | null = null;
 	agentActivityOutputChannel: vscode.OutputChannel | null = null;
+
+	// Task Progression Tracker (US-002-004)
+	taskProgressionTracker: TaskProgressionTracker | null = null;
 
 	// Sound Service (US-002-005)
 	soundService: SoundService | null = null;
@@ -210,8 +214,10 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 
 						console.log('[Extension] Using assetsRoot:', assetsRoot);
 
-						// Load bundled default layout
-						this.defaultLayout = loadDefaultLayout(assetsRoot);
+						// Fix #3: Skip bundled default-layout.json (uses ASSET_* types incompatible with programmatic layout)
+						// Let webview use createDefaultLayout() which has proper named UIDs and two-room structure
+						// this.defaultLayout = loadDefaultLayout(assetsRoot);
+						this.defaultLayout = null; // Force webview to use programmatic default
 
 						// Load character sprites
 						const charSprites = await loadCharacterSprites(assetsRoot);
@@ -314,7 +320,11 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 								}
 							});
 							
-							// Start monitoring and send updates every 5 seconds
+							// Calculate initial context usage
+							const initialContextUsage = await this.contextAnalyzer.analyzeContextWindow();
+							this.contextMessageHandler.sendUpdate(initialContextUsage);
+							
+							// Start monitoring and send updates on file changes
 							this.contextAnalyzer.startMonitoring(async (usage) => {
 								this.contextMessageHandler?.sendUpdate(usage);
 							});
@@ -375,6 +385,33 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 									});
 								}
 							});
+
+							// Initialize task progression tracker (US-002-004)
+							console.log('[Extension] 📋 Initializing task progression tracker...');
+							this.taskProgressionTracker = new TaskProgressionTracker(workspaceRoot, true);
+							
+							// Send initial task progression state
+							const initialProgression = this.taskProgressionTracker.getCurrentTaskProgression();
+							if (this.webview) {
+								this.webview.postMessage({
+									type: 'task.progression',
+									progression: initialProgression
+								});
+							}
+							
+							// Listen for progression changes
+							if (this.taskProgressionTracker.onDidChangeProgression) {
+								const disposable = this.taskProgressionTracker.onDidChangeProgression((progression) => {
+									console.log('[Extension] 📊 Task progression updated:', progression);
+									if (this.webview) {
+										this.webview.postMessage({
+											type: 'task.progression',
+											progression
+										});
+									}
+								});
+								this.context.subscriptions.push(disposable);
+							}
 						// Initialize sound service (US-002-005)
 						if (!this.achievementOutputChannel) {
 							this.achievementOutputChannel = vscode.window.createOutputChannel('Pixel Agents: Achievements');
@@ -564,6 +601,10 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 		// Dispose agent activity monitor (US-001-002)
 		this.agentActivityMonitor?.dispose();
 		this.agentActivityMonitor = null;
+		
+		// Dispose task progression tracker
+		this.taskProgressionTracker?.dispose();
+		this.taskProgressionTracker = null;
 		this.agentActivityOutputChannel?.dispose();
 		this.agentActivityOutputChannel = null;
 
@@ -589,11 +630,18 @@ export function getWebviewContent(webview: vscode.Webview, extensionUri: vscode.
 
 	let html = fs.readFileSync(indexPath, 'utf-8');
 
+	// Convert ./assets/* paths to webview URIs
 	html = html.replace(/(href|src)="\.\/([^"]+)"/g, (_match, attr, filePath) => {
 		const fileUri = vscode.Uri.joinPath(distPath, filePath);
 		const webviewUri = webview.asWebviewUri(fileUri);
 		return `${attr}="${webviewUri}"`;
 	});
+
+	// Inject Palo IT logo URI as global variable (Fix for issue #1)
+	// The logo in public/ folder cannot be referenced as /palo-it-logo.png in webview
+	const logoFileUri = vscode.Uri.joinPath(distPath, 'palo-it-logo.png');
+	const logoWebviewUri = webview.asWebviewUri(logoFileUri).toString();
+	html = html.replace('<head>', `<head>\n  <script>window.__pixelAgentsVars = { logoUri: "${logoWebviewUri}" };</script>`);
 
 	return html;
 }

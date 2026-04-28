@@ -60,6 +60,7 @@ describe('CompletenessMessageHandler', () => {
 				testsTotal: 100,
 				testsPassing: 85,
 				codeCoverage: 82,
+			bddCoverage: 0,
 				linesOfCode: 5000,
 				milestones: []
 			};
@@ -108,6 +109,7 @@ describe('CompletenessMessageHandler', () => {
 				testsTotal: 200,
 				testsPassing: 180,
 				codeCoverage: 90,
+			bddCoverage: 0,
 				linesOfCode: 10000,
 				milestones: [
 					{ threshold: 25, reached: true, celebrated: true, reachedAt: new Date() },

@@ -14,25 +14,19 @@
 
 /* Main Container */
 .completeness-meter {
-  position: fixed;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 280px;
-  background: var(--vscode-sideBar-background, #1e1e1e);
-  border: 2px solid var(--vscode-panel-border, #454545);
-  border-radius: var(--radius-md);
-  padding: var(--space-4);
-  z-index: 100;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  padding: 8px 10px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: 6px;
+  overflow-y: auto;
 }
 
 /* DONE Label (AC1) */
 .doneLabel {
-  font-size: var(--text-micro); /* 9px */
+  font-size: 11px;
   color: var(--vscode-foreground-muted, #808080);
   font-weight: 600;
   text-transform: uppercase;
@@ -42,7 +36,7 @@
 
 /* Percentage Display (AC2) */
 .percentageValue {
-  font-size: 36px; /* Custom h1 size (--text-h1 is 24px) */
+  font-size: 32px;
   font-weight: 700;
   color: var(--vscode-foreground, #ffffff);
   font-family: var(--font-mono);
@@ -50,10 +44,14 @@
   line-height: 1;
 }
 
+.percentageValue::after {
+  content: '%';
+}
+
 /* Progress Container (AC3) */
 .progressContainer {
-  width: 200px;
-  height: 8px;
+  width: 100%;
+  height: 6px;
   background: var(--vscode-border, #3e3e42);
   border-radius: var(--radius-sm); /* 4px */
   position: relative;
@@ -106,16 +104,16 @@
   animation: bounce 400ms ease-out; /* AC10: 400ms ease-out */
 }
 
-/* Stats Grid (AC7) */
+/* Stats Grid (AC7) - Updated to 3-column grid for 6 stats */
 .statsGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* AC7: 2-column grid */
+  grid-template-columns: 1fr 1fr 1fr; /* AC7: 3-column grid for 6 stats */
   gap: var(--space-2);
   margin-top: var(--space-2);
 }
 
 .statLabel {
-  font-size: var(--text-micro); /* AC7: 9px */
+  font-size: 10px;
   color: var(--vscode-foreground-muted, #808080); /* AC7: muted color */
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -123,7 +121,7 @@
 }
 
 .statValue {
-  font-size: var(--text-micro); /* AC7: 9px */
+  font-size: 11px;
   color: var(--vscode-foreground, #ffffff); /* AC7: white */
   font-weight: 600; /* AC7: weight 600 */
   font-family: var(--font-mono);

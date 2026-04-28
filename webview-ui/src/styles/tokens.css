@@ -95,7 +95,7 @@
   --text-body-sm: 11px; /* Small text, agent names */
   --text-code: 12px;    /* Code snippets */
   --text-caption: 10px; /* Timestamps, sub-labels */
-  --text-micro: 9px;    /* Section headers ("AGENTS", "CTX") */
+  --text-micro: 8px;    /* Section headers ("AGENTS", "CTX"), legend text - UPDATED from 9px per Penpot design */
   --text-mini: 8px;     /* Canvas labels, zone names */
 }
 
@@ -125,7 +125,7 @@
   --radius-md: 6px;
   --radius-lg: 8px;
   --radius-xl: 12px;
-  --radius-pill: 14px;  /* Phase pills */
+  --radius-pill: 12px;  /* Phase pills - UPDATED from 14px per Penpot design */
   --radius-full: 9999px;
 }
 

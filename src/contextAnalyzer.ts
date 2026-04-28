@@ -1,5 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
+import * as vscode from 'vscode';
 import {
   TokenUsage,
   TokenBreakdown,
@@ -74,10 +75,10 @@ export class ContextAnalyzer {
   /**
    * Estimates chat history tokens.
    * VS Code Copilot Chat API is not publicly accessible, so we use a
-   * conservative fixed estimate (chat history ~5% of window).
+   * conservative fixed estimate (~4% of the 128k context window).
    */
   private calculateChatTokens(): number {
-    return 0; // Fallback: chat history estimated at 0 until Copilot API is available
+    return Math.floor(128000 * 0.04); // ~5120 tokens — typical active conversation overhead
   }
 
   /**
@@ -121,6 +122,22 @@ export class ContextAnalyzer {
   /** Starts monitoring the workspace for file changes, triggering callback with updates. */
   startMonitoring(callback: (usage: TokenUsage) => void): void {
     this.monitoringCallback = callback;
+    
+    // Watch .github directory for instruction changes
+    const githubPattern = new vscode.RelativePattern(this.workspacePath, '.github/**/*.{md,ts,json}');
+    const githubWatcher = vscode.workspace.createFileSystemWatcher(githubPattern);
+    githubWatcher.onDidChange(() => this._triggerUpdate());
+    githubWatcher.onDidCreate(() => this._triggerUpdate());
+    githubWatcher.onDidDelete(() => this._triggerUpdate());
+    this.watchers.push(githubWatcher);
+    
+    // Watch src directory for code changes
+    const srcPattern = new vscode.RelativePattern(this.workspacePath, 'src/**/*.{ts,tsx,js,jsx}');
+    const srcWatcher = vscode.workspace.createFileSystemWatcher(srcPattern);
+    srcWatcher.onDidChange(() => this._triggerUpdate());
+    srcWatcher.onDidCreate(() => this._triggerUpdate());
+    srcWatcher.onDidDelete(() => this._triggerUpdate());
+    this.watchers.push(srcWatcher);
   }
 
   /** Triggers a debounced context analysis and invokes the registered callback. */

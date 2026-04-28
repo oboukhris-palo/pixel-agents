@@ -5,7 +5,7 @@ import type { EditorRenderState, SelectionRenderState, DeleteButtonBounds, Rotat
 import { startGameLoop } from '../engine/gameLoop.js'
 import { renderFrame } from '../engine/renderer.js'
 import { TILE_SIZE, EditTool } from '../types.js'
-import { CAMERA_FOLLOW_LERP, CAMERA_FOLLOW_SNAP_THRESHOLD, ZOOM_MIN, ZOOM_MAX, ZOOM_SCROLL_THRESHOLD, PAN_MARGIN_FRACTION } from '../../constants.js'
+import { CAMERA_FOLLOW_LERP, CAMERA_FOLLOW_SNAP_THRESHOLD, ZOOM_MIN, ZOOM_MAX, PAN_MARGIN_FRACTION } from '../../constants.js'
 import { getCatalogEntry, isRotatable } from '../layout/furnitureCatalog.js'
 import { canPlaceFurniture, getWallPlacementRow } from '../editor/editorActions.js'
 import { vscode } from '../../vscodeApi.js'
@@ -41,7 +41,19 @@ export function OfficeCanvas({ officeState, onClick, isEditMode, editorState, on
   // Right-click erase dragging
   const isEraseDraggingRef = useRef(false)
   // Zoom scroll accumulator for trackpad pinch sensitivity
-  const zoomAccumulatorRef = useRef(0)
+
+
+  // Compute auto-fit zoom: scale the layout to fill the canvas, no manual zoom
+  const computeAutoFitZoom = useCallback((): number => {
+    const canvas = canvasRef.current
+    if (!canvas) return 1
+    const layout = officeState.getLayout()
+    if (!layout.cols || !layout.rows) return 1
+    const mapW = layout.cols * TILE_SIZE
+    const mapH = layout.rows * TILE_SIZE
+    const fitZoom = Math.min(canvas.width / mapW, canvas.height / mapH)
+    return Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, fitZoom))
+  }, [officeState])
 
   // Clamp pan so the map edge can't go past a margin inside the viewport
   const clampPan = useCallback((px: number, py: number): { x: number; y: number } => {
@@ -60,7 +72,7 @@ export function OfficeCanvas({ officeState, onClick, isEditMode, editorState, on
     }
   }, [officeState, zoom])
 
-  // Resize canvas backing store to device pixels (no DPR transform on ctx)
+  // Resize canvas backing store to device pixels and recompute auto-fit zoom + center pan
   const resizeCanvas = useCallback(() => {
     const canvas = canvasRef.current
     const container = containerRef.current
@@ -71,8 +83,16 @@ export function OfficeCanvas({ officeState, onClick, isEditMode, editorState, on
     canvas.height = Math.round(rect.height * dpr)
     canvas.style.width = `${rect.width}px`
     canvas.style.height = `${rect.height}px`
-    // No ctx.scale(dpr) — we render directly in device pixels
-  }, [])
+    // Recompute auto-fit zoom so layout always fills the canvas
+    const fitZoom = computeAutoFitZoom()
+    onZoomChange(fitZoom)
+    // Center the layout in the canvas
+    const layout = officeState.getLayout()
+    panRef.current = {
+      x: (canvas.width - layout.cols * TILE_SIZE * fitZoom) / 2,
+      y: (canvas.height - layout.rows * TILE_SIZE * fitZoom) / 2,
+    }
+  }, [computeAutoFitZoom, officeState, onZoomChange, panRef])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -629,32 +649,19 @@ export function OfficeCanvas({ officeState, onClick, isEditMode, editorState, on
     }
   }, [isEditMode, officeState, screenToTile])
 
-  // Wheel: Ctrl+wheel to zoom, plain wheel/trackpad to pan
+  // Wheel: trackpad two-finger scroll to pan (no zoom — canvas is auto-fit)
   const handleWheel = useCallback(
     (e: React.WheelEvent) => {
       e.preventDefault()
-      if (e.ctrlKey || e.metaKey) {
-        // Accumulate scroll delta, step zoom when threshold crossed
-        zoomAccumulatorRef.current += e.deltaY
-        if (Math.abs(zoomAccumulatorRef.current) >= ZOOM_SCROLL_THRESHOLD) {
-          const delta = zoomAccumulatorRef.current < 0 ? 1 : -1
-          zoomAccumulatorRef.current = 0
-          const newZoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, zoom + delta))
-          if (newZoom !== zoom) {
-            onZoomChange(newZoom)
-          }
-        }
-      } else {
-        // Pan via trackpad two-finger scroll or mouse wheel
-        const dpr = window.devicePixelRatio || 1
-        officeState.cameraFollowId = null
-        panRef.current = clampPan(
-          panRef.current.x - e.deltaX * dpr,
-          panRef.current.y - e.deltaY * dpr,
-        )
-      }
+      // Pan via trackpad two-finger scroll or mouse wheel
+      const dpr = window.devicePixelRatio || 1
+      officeState.cameraFollowId = null
+      panRef.current = clampPan(
+        panRef.current.x - e.deltaX * dpr,
+        panRef.current.y - e.deltaY * dpr,
+      )
     },
-    [zoom, onZoomChange, officeState, panRef, clampPan],
+    [officeState, panRef, clampPan],
   )
 
   // Prevent default middle-click browser behavior (auto-scroll)

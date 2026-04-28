@@ -270,20 +270,45 @@ export class OfficeState {
    * Spawn placeholder characters for all core agents
    * Placeholders are idle agents that show on layout before they're actively running
    * They use negative IDs to avoid collision with runtime agents
+   * 
+   * Fix #2: Fall back to any available seat when named UIDs aren't found
+   * (Robustness improvement for custom layouts with auto-generated UIDs)
    */
   spawnPlaceholderAgents(): void {
+    console.log('[Placeholder] Starting spawn for', PLACEHOLDER_AGENTS.length, 'agents')
+    console.log('[Placeholder] Available seats:', Array.from(this.seats.keys()))
+    
     for (const agentDef of PLACEHOLDER_AGENTS) {
-      // Find seat for this agent
+      // Try to find the named chair first
       const chairUid = agentDef.deskUid.replace('-desk', '-chair')
-      const seat = this.seats.get(chairUid)
-      if (!seat || seat.assigned) {
-        console.warn(`[Placeholder] Seat not available for ${agentDef.role}:`, chairUid)
+      let seatId: string | null = null
+      let seat: Seat | null = null
+      
+      // Check if named seat exists and is available
+      if (this.seats.has(chairUid)) {
+        const namedSeat = this.seats.get(chairUid)!
+        if (!namedSeat.assigned) {
+          seatId = chairUid
+          seat = namedSeat
+        }
+      }
+      
+      // Fallback: use any available seat
+      if (!seatId) {
+        seatId = this.findFreeSeat()
+        if (seatId) {
+          seat = this.seats.get(seatId) || null
+        }
+      }
+      
+      if (!seat || !seatId) {
+        console.warn(`[Placeholder] No seat available for ${agentDef.role}`)
         continue
       }
 
       const placeholderId = getNextPlaceholderId()
       seat.assigned = true
-      const ch = createCharacter(placeholderId, agentDef.palette, chairUid, seat, agentDef.hueShift)
+      const ch = createCharacter(placeholderId, agentDef.palette, seatId, seat, agentDef.hueShift)
       
       // Mark as placeholder and set to idle
       ch.isPlaceholder = true
@@ -294,8 +319,10 @@ export class OfficeState {
       
       // No spawn effect for placeholders (they're already there)
       this.characters.set(placeholderId, ch)
-      console.log(`[Placeholder] Spawned ${agentDef.label} at ${chairUid}`)
+      console.log(`[Placeholder] ✓ Spawned ${agentDef.label} at ${seatId} (id=${placeholderId}, pos=${ch.x},${ch.y})`)
     }
+    
+    console.log('[Placeholder] Spawn complete. Total characters:', this.characters.size)
   }
 
   /**
@@ -736,6 +763,7 @@ export class OfficeState {
         if (ch.bubbleTimer <= 0) {
           ch.bubbleType = null
           ch.bubbleTimer = 0
+          ch.bubbleText = null
         }
       }
     }

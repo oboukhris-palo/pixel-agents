@@ -7,11 +7,7 @@
  */
 
 /* Container - exact dimensions (AC2) */
-.contextWindowBar {
-  position: fixed;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
+.contextWindowBar, .context-window-bar {
   width: 30px; /* Exact width from design spec */
   height: fit-content; /* Auto-height to accommodate legend */
   display: flex;
@@ -19,12 +15,12 @@
   align-items: center;
   gap: var(--space-1); /* 4px */
   padding: var(--space-2); /* 8px */
-  background: var(--vscode-bg);
+  background: rgba(30, 30, 30, 0.92);
   border: 1px solid color-mix(in srgb, var(--vscode-border) 50%, transparent);
   border-radius: var(--radius-sm); /* 4px */
-  z-index: 100;
   cursor: pointer;
   box-shadow: var(--shadow-sm);
+  pointer-events: auto;
 }
 
 /* CTX label (AC1) */
@@ -38,7 +34,7 @@
 }
 
 /* Progress track container (AC2) */
-.progressTrack {
+.progressTrack, .progress-track {
   width: 100%;
   height: 180px; /* Exact height from design spec */
   border-radius: var(--radius-sm); /* 4px */
@@ -49,30 +45,33 @@
   flex-direction: column-reverse; /* Stack from bottom */
 }
 
-.progressTrack:focus {
+.progressTrack:focus, .progress-track:focus {
   outline: 2px solid var(--vscode-focus-border);
   outline-offset: 2px;
 }
 
 /* Segmented progress fills (AC3) */
-.segmentGithub {
-  background: color-mix(in srgb, var(--context-github) 70%, transparent); /* #3B82F6 @ 70% */
+.segmentGithub, .segment-github {
+  background: color-mix(in srgb, var(--context-github, #3B82F6) 70%, transparent);
   transition: height 0.3s ease;
+  width: 100%;
 }
 
-.segmentProject {
-  background: color-mix(in srgb, var(--context-project) 60%, transparent); /* #10B981 @ 60% */
+.segmentProject, .segment-project {
+  background: color-mix(in srgb, var(--context-project, #10B981) 60%, transparent);
   transition: height 0.3s ease;
+  width: 100%;
 }
 
-.segmentChat {
-  background: color-mix(in srgb, var(--context-chat) 70%, transparent); /* #F59E0B @ 70% */
+.segmentChat, .segment-chat {
+  background: color-mix(in srgb, var(--context-chat, #F59E0B) 70%, transparent);
   transition: height 0.3s ease;
+  width: 100%;
 }
 
 /* Percentage label (AC4) */
 .percentageLabel {
-  font-size: var(--text-caption); /* 10px */
+  font-size: 12px; /* 12px per Penpot design - updated from var(--text-caption) 10px */
   font-weight: 700;
   font-family: var(--font-mono);
   margin-top: var(--space-1); /* 4px */
@@ -103,37 +102,40 @@
   gap: var(--space-1); /* 4px */
   margin-top: var(--space-2); /* 8px */
   width: 100%;
-  font-size: 8px; /* Exact size from design spec */
+  font-size: 9px; /* Slightly increased for readability */
   color: var(--vscode-foreground-muted);
   line-height: 1.2;
 }
 
-.legendItem {
+.legendItem, .legend-item {
   display: flex;
   align-items: center;
   gap: 4px;
   white-space: nowrap;
 }
 
-.legendDotGithub,
-.legendDotProject,
-.legendDotChat {
+.legendDotGithub, .legend-dot-github {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   flex-shrink: 0;
+  background: var(--context-github, #3B82F6);
 }
 
-.legendDotGithub {
-  background: var(--context-github); /* #3B82F6 */
+.legendDotProject, .legend-dot-project {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--context-project, #10B981);
 }
 
-.legendDotProject {
-  background: var(--context-project); /* #10B981 */
-}
-
-.legend-dot-chat {
-  background: var(--context-chat); /* #F59E0B */
+.legendDotChat, .legend-dot-chat {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--context-chat, #F59E0B);
 }
 
 /* Tooltip (AC6) */

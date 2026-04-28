@@ -173,10 +173,10 @@ export function renderScene(
     drawables.push({
       zY: charZY,
       draw: (c) => {
-        // Placeholder characters: render with reduced opacity
+        // Placeholder characters: render with moderate opacity for visibility
         if (ch.isPlaceholder) {
           c.save()
-          c.globalAlpha = 0.4  // Dimmed placeholder
+          c.globalAlpha = 0.65  // Increased from 0.4 to 0.65 for better visibility
           c.drawImage(cached, drawX, drawY)
           c.restore()
         } else {
@@ -486,6 +486,32 @@ export function renderBubbles(
     ctx.save()
     if (alpha < 1.0) ctx.globalAlpha = alpha
     ctx.drawImage(cached, bubbleX, bubbleY)
+    
+    // Draw text caption if available
+    if (ch.bubbleText) {
+      const textY = bubbleY + cached.height / 2
+      const textX = bubbleX + cached.width / 2
+      
+      ctx.font = `${Math.max(10, zoom * 11)}px monospace`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      
+      // Background for readability
+      const metrics = ctx.measureText(ch.bubbleText)
+      const padding = 4 * zoom
+      const bgX = textX - metrics.width / 2 - padding
+      const bgY = textY - 6 * zoom
+      const bgWidth = metrics.width + padding * 2
+      const bgHeight = 12 * zoom
+      
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.7)'
+      ctx.fillRect(bgX, bgY, bgWidth, bgHeight)
+      
+      // Text
+      ctx.fillStyle = '#fff'
+      ctx.fillText(ch.bubbleText, textX, textY)
+    }
+    
     ctx.restore()
   }
 }

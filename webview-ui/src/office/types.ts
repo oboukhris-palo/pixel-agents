@@ -182,6 +182,8 @@ export interface Character {
   bubbleType: 'permission' | 'waiting' | null
   /** Countdown timer for bubble (waiting: 2→0, permission: unused) */
   bubbleTimer: number
+  /** Text caption to show in bubble (e.g., "Writing test", "Idle") */
+  bubbleText: string | null
   /** Timer to stay seated while inactive after seat reassignment (counts down to 0) */
   seatTimer: number
   /** Whether this character represents a sub-agent (spawned by Task tool) */

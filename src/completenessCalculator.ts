@@ -45,20 +45,75 @@ export class CompletenessCalculator {
 	}
 
 	/**
-	 * Calculate project metrics by parsing user-stories.md
+	 * Calculate project metrics by parsing user-stories.md, counting test files,
+	 * and reading coverage from lcov.info.
 	 * 
 	 * @returns ProjectMetrics with calculated completion percentage
 	 */
 	async calculateMetrics(): Promise<ProjectMetrics> {
 		try {
-			const stories = await this.parseUserStoriesFile();
+			const [stories, testsTotal, coverageInfo, bddCoverage] = await Promise.all([
+				this.parseUserStoriesFile(),
+				this.countTestFiles(),
+				this.readCoverageFromLcov(),
+				this.calculateBddCoverage(),
+			]);
 			const metrics = this.calculateStoriesMetrics(stories);
-			
+			metrics.testsTotal = testsTotal;
+			metrics.testsPassing = testsTotal;
+			metrics.codeCoverage = coverageInfo.coverage;
+			metrics.linesOfCode = coverageInfo.totalLines;
+			metrics.bddCoverage = bddCoverage;
 			this.currentMetrics = metrics;
 			return metrics;
 		} catch (error) {
 			this.log(`Error calculating metrics: ${error}`);
 			return getDefaultProjectMetrics();
+		}
+	}
+
+	/**
+	 * Count test files in the workspace
+	 * 
+	 * @returns number of test files found
+	 * @private
+	 */
+	private async countTestFiles(): Promise<number> {
+		try {
+			const testPattern = new vscode.RelativePattern(this.workspaceRoot, '**/*.test.{ts,tsx}');
+			const testFiles = await vscode.workspace.findFiles(testPattern, '**/node_modules/**');
+			return testFiles.length;
+		} catch (error) {
+			this.log(`Error counting test files: ${error}`);
+			return 0;
+		}
+	}
+
+	/**
+	 * Read coverage percentage and line count from coverage/lcov.info
+	 * 
+	 * @returns coverage % and total instrumented lines
+	 * @private
+	 */
+	private async readCoverageFromLcov(): Promise<{ coverage: number; totalLines: number }> {
+		try {
+			const lcovPath = vscode.Uri.joinPath(this.workspaceRoot, 'coverage', 'lcov.info');
+			const content = await vscode.workspace.fs.readFile(lcovPath);
+			const text = Buffer.from(content).toString('utf-8');
+			let linesFound = 0;
+			let linesHit = 0;
+			for (const line of text.split('\n')) {
+				if (line.startsWith('LF:')) {
+					linesFound += parseInt(line.substring(3), 10) || 0;
+				} else if (line.startsWith('LH:')) {
+					linesHit += parseInt(line.substring(3), 10) || 0;
+				}
+			}
+			const coverage = linesFound > 0 ? Math.round((linesHit / linesFound) * 100) : 0;
+			return { coverage, totalLines: linesFound };
+		} catch (error) {
+			this.log(`Coverage file not available: ${error}`);
+			return { coverage: 0, totalLines: 0 };
 		}
 	}
 
@@ -98,8 +153,9 @@ export class CompletenessCalculator {
 		const stories: StoryStatus[] = [];
 		const lines = text.split('\n');
 
-		// Pattern: **Status**: Not Started | In Progress | Implemented | Delivered
-		const statusPattern = /\*\*Status\*\*:\s*(Not Started|In Progress|Implemented|Delivered)/;
+		// Pattern: **Status**: [optional emoji] Not Started | In Progress | Implemented | Delivered
+		// Handles emoji prefixes like: ✅ Delivered, 🔵 Not Started, 🟡 In Progress, 🟢 Implemented
+		const statusPattern = /\*\*Status\*\*:\s*[^a-zA-Z]*(Not Started|In Progress|Implemented|Delivered)/;
 
 		for (let i = 0; i < lines.length; i++) {
 			const line = lines[i].trim();
@@ -124,6 +180,76 @@ export class CompletenessCalculator {
 		}
 
 		return stories;
+	}
+
+	/**
+	 * Count BDD feature files in docs/05-implementation/
+	 * 
+	 * @returns number of BDD feature files
+	 * @private
+	 */
+	private async countBddFeatures(): Promise<number> {
+		try {
+			const pattern = new vscode.RelativePattern(
+				vscode.Uri.joinPath(this.workspaceRoot, 'docs', '05-implementation'),
+				'**/*.feature'
+			);
+			const featureFiles = await vscode.workspace.findFiles(pattern, '**/node_modules/**');
+			return featureFiles.length;
+		} catch (error) {
+			this.log(`Error counting BDD features: ${error}`);
+			return 0;
+		}
+	}
+
+	/**
+	 * Calculate BDD coverage: percentage of user stories that have at least one .feature file.
+	 * Only counts feature files under docs/05-implementation/epics/{EPIC}/user-stories/{US-REF}/features/
+	 * to avoid counting shared test scenarios in docs/03-testing/.
+	 * 
+	 * @returns BDD coverage percentage (0-100)
+	 * @private
+	 */
+	private async calculateBddCoverage(): Promise<number> {
+		try {
+			// Only count feature files that belong to specific user story folders
+			const featurePattern = new vscode.RelativePattern(
+				this.workspaceRoot,
+				'docs/05-implementation/epics/*/user-stories/*/features/*.feature'
+			);
+			const featureFiles = await vscode.workspace.findFiles(featurePattern, '**/node_modules/**');
+
+			if (featureFiles.length === 0) {
+				this.log('BDD Coverage: No feature files found in user story folders, returning 0%');
+				return 0;
+			}
+
+			// Count unique user story folders (each folder = 1 story with BDD coverage)
+			const storyFolders = new Set<string>();
+			for (const file of featureFiles) {
+				// Path: .../user-stories/{US-REF}/features/{file}.feature
+				// Extract the story folder (parent of 'features/')
+				const parts = file.fsPath.split(/[\\/]/);
+				const featuresIdx = parts.lastIndexOf('features');
+				if (featuresIdx > 0) {
+					const storyPath = parts.slice(0, featuresIdx).join('/');
+					storyFolders.add(storyPath);
+				}
+			}
+
+			const storiesWithFeatures = storyFolders.size;
+			const allStories = await this.parseUserStoriesFile();
+			const totalStories = allStories.length;
+
+			if (totalStories === 0) { return 0; }
+
+			const coverage = Math.round((storiesWithFeatures / totalStories) * 100);
+			this.log(`BDD Coverage: ${storiesWithFeatures} stories with features / ${totalStories} total = ${coverage}%`);
+			return Math.min(coverage, 100);
+		} catch (error) {
+			this.log(`Error calculating BDD coverage: ${error}`);
+			return 0;
+		}
 	}
 
 	/**

@@ -21,8 +21,10 @@ import { TaskProgressionBar } from './components/TaskProgressionBar.js'
 import { DocumentWatcherIndicator } from './components/DocumentWatcherIndicator.js'
 import { ContextWindowBar } from './components/ContextWindowBar.js'
 import { CompletenessMeter } from './components/CompletenessMeter.js'
+import { AgentSidebar } from './components/AgentSidebar.js'
 import { useContextWindow } from './hooks/useContextWindow.js'
-import { spawnPlaceholderAgents } from './office/engine/placeholderAgents.js'
+import { spawnPlaceholderAgents, PLACEHOLDER_AGENTS } from './office/engine/placeholderAgents.js'
+import { useAgentActivity } from './hooks/useAgentActivity.js'
 
 // Game state lives outside React — updated imperatively by message handlers
 const officeStateRef = { current: null as OfficeState | null }
@@ -134,8 +136,14 @@ function App() {
 
   // Context Window tracking (US-002-001)
   const { tokenUsage } = useContextWindow()
+  
+  // Agent Activity tracking (US-001-002) - for real-time bubble updates
+  const agentActivity = useAgentActivity()
 
   const [isDebugMode] = useState(false)
+  
+  // Track selected agent for sidebar highlighting (synced with officeState.selectedAgentId)
+  const [selectedAgentIdForSidebar, setSelectedAgentIdForSidebar] = useState<number | null>(null)
 
   // const handleToggleDebugMode = useCallback(() => setIsDebugMode((prev) => !prev), [])
 
@@ -172,17 +180,76 @@ function App() {
     const meta = os.subagentMeta.get(agentId)
     const focusId = meta ? meta.parentAgentId : agentId
     vscode.postMessage({ type: 'focusAgent', id: focusId })
-  }, [])
+    
+    // Also show action bubble on clicked character
+    const char = os.characters.get(agentId)
+    if (char) {
+      // Select the character
+      os.selectedAgentId = agentId
+      setSelectedAgentIdForSidebar(agentId) // Update state to trigger sidebar re-render
+      
+      // Show action bubble with real-time activity
+      char.bubbleType = 'waiting'
+      char.bubbleTimer = 3 // Show for 3 seconds
+      
+      // Get real-time activity for this agent
+      if (agentActivity && agentActivity.activeAgent?.id === char.agentRole) {
+        // Agent is currently active - show real activity
+        char.bubbleText = agentActivity.currentAction.description || 'Working...'
+      } else if (char.isActive) {
+        // Character marked active but no current activity
+        char.bubbleText = 'Working...'
+      } else {
+        // Agent is idle
+        char.bubbleText = 'Idle'
+      }
+      
+      console.log(`[Canvas] Clicked character ${agentId} (${char.agentRole}), showing bubble: "${char.bubbleText}"`)
+    }
+  }, [agentActivity])
 
   const officeState = getOfficeState()
 
-  // Spawn placeholder agents when layout and metadata are ready
+  // Spawn placeholder agents as soon as layout is ready (seats exist)
+  // Fix #4: Also re-spawn when agentMetadata arrives to use real agent info
   useEffect(() => {
-    if (layoutReady && agentMetadata.length > 0) {
-      console.log(`[App] Spawning ${agentMetadata.length} placeholder agents`)
+    console.log('[App] useEffect triggered - layoutReady:', layoutReady, 'agentMetadata:', agentMetadata.length)
+    if (layoutReady) {
+      console.log('[App] Layout ready, spawning placeholder agents...')
+      console.log('[App] Office layout:', {
+        cols: officeState.getLayout().cols,
+        rows: officeState.getLayout().rows,
+        furniture: officeState.getLayout().furniture.length,
+        seats: officeState.seats.size,
+        existingCharacters: officeState.characters.size
+      })
+      
+      // Clear existing placeholder characters before respawning
+      // (avoids duplicates when agentMetadata arrives after initial spawn)
+      const placeholdersToRemove: number[] = []
+      for (const [id, ch] of officeState.characters.entries()) {
+        if ((ch as { isPlaceholder?: boolean }).isPlaceholder) {
+          placeholdersToRemove.push(id)
+        }
+      }
+      for (const id of placeholdersToRemove) {
+        const ch = officeState.characters.get(id)
+        if (ch && ch.seatId) {
+          const seat = officeState.seats.get(ch.seatId)
+          if (seat) seat.assigned = false
+        }
+        officeState.characters.delete(id)
+      }
+      if (placeholdersToRemove.length > 0) {
+        console.log('[App] Cleared', placeholdersToRemove.length, 'placeholder characters before respawn')
+      }
+      
       spawnPlaceholderAgents(officeState, agentMetadata, agents)
+      console.log('[App] Spawn complete, characters now:', officeState.characters.size)
     }
-  }, [layoutReady, agentMetadata, agents])
+    // Re-run when layoutReady OR agentMetadata changes (to update with real agent info)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [layoutReady, agentMetadata])
 
   // Force dependency on editorTickForKeyboard to propagate keyboard-triggered re-renders
   void editorTickForKeyboard
@@ -225,13 +292,11 @@ function App() {
         .pixel-agents-pulse { animation: pixel-agents-pulse ${PULSE_ANIMATION_DURATION_SEC}s ease-in-out infinite; }
       `}</style>
 
-      {/* Task Progression Bar (36px) - Top */}
-      {taskProgression && (
-        <TaskProgressionBar
-          taskProgression={taskProgression}
-          onTaskClick={handleTaskClick}
-        />
-      )}
+      {/* Task Progression Bar (36px) - Top - Always visible */}
+      <TaskProgressionBar
+        taskProgression={taskProgression || { previous: null, current: null, next: null }}
+        onTaskClick={handleTaskClick}
+      />
 
       {/* Content Area (flex) - Middle: Sidebar + Canvas + Metrics */}
       <div style={{
@@ -241,7 +306,85 @@ function App() {
         overflow: 'hidden',
         position: 'relative',
       }}>
-        {/* Main canvas with metrics overlaid */}
+        {/* Agent Sidebar (180px) - Left: shows agents from .github/agents/ or PLACEHOLDER_AGENTS fallback */}
+        <AgentSidebar 
+          agents={
+            agentMetadata.length > 0
+              ? agentMetadata.map(meta => {
+                  // Check if this agent is currently selected
+                  const selectedChar = selectedAgentIdForSidebar !== null 
+                    ? officeState.characters.get(selectedAgentIdForSidebar) 
+                    : null
+                  const isCurrent = selectedChar?.agentRole === meta.id
+                  
+                  return {
+                    name: meta.id,
+                    description: `${meta.name}${meta.description ? ': ' + meta.description : ''}`,
+                    status: 'idle' as const,
+                    isCurrent,
+                  }
+                })
+              : PLACEHOLDER_AGENTS.map(p => {
+                  const selectedChar = selectedAgentIdForSidebar !== null 
+                    ? officeState.characters.get(selectedAgentIdForSidebar) 
+                    : null
+                  const isCurrent = selectedChar?.agentRole === p.role
+                  
+                  return {
+                    name: p.role,
+                    status: 'idle' as const,
+                    isCurrent,
+                  }
+                })
+          }
+          onAgentClick={(agentName: string) => {
+            // Find character by agentRole and select it in office canvas
+            const os = getOfficeState()
+            let foundCharacter = null
+            for (const [id, char] of os.characters.entries()) {
+              if (char.agentRole === agentName) {
+                foundCharacter = { id, char }
+                break
+              }
+            }
+            
+            if (foundCharacter) {
+              // Select the character in office state
+              os.selectedAgentId = foundCharacter.id
+              setSelectedAgentIdForSidebar(foundCharacter.id) // Update state to trigger sidebar re-render
+              
+              // Show action bubble with caption
+              const char = foundCharacter.char
+              char.bubbleType = 'waiting'
+              char.bubbleTimer = 3 // Show for 3 seconds
+              
+              // Get real-time activity for this agent
+              if (agentActivity && agentActivity.activeAgent?.id === char.agentRole) {
+                // Agent is currently active - show real activity
+                char.bubbleText = agentActivity.currentAction.description || 'Working...'
+              } else if (char.isActive) {
+                // Character marked active but no current activity
+                char.bubbleText = 'Working...'
+              } else {
+                // Agent is idle
+                char.bubbleText = 'Idle'
+              }
+              
+              // Focus camera on selected character (optional)
+              os.cameraFollowId = foundCharacter.id
+              
+              console.log(`[AgentSidebar] Selected agent ${agentName} (character ID: ${foundCharacter.id}), bubble: "${char.bubbleText}"`)
+              
+              // Force re-render to show bubble (trigger canvas update)
+              const canvasEvent = new CustomEvent('agent-selected', { detail: { agentId: foundCharacter.id } })
+              window.dispatchEvent(canvasEvent)
+            } else {
+              console.warn(`[AgentSidebar] No character found for agent role: ${agentName}`)
+            }
+          }}
+        />
+
+        {/* Main canvas */}
         <div style={{
           flex: 1,
           position: 'relative',
@@ -263,31 +406,56 @@ function App() {
             onZoomChange={editor.handleZoomChange}
             panRef={editor.panRef}
           />
+        </div>
 
-          {/* Context Window Bar (left side) - US-002-001 */}
+        {/* Right Metrics Panel (220px) - CTX left + Completeness right */}
+        <div style={{
+          width: '220px',
+          flexShrink: 0,
+          background: '#252526',
+          borderLeft: '1px solid #3e3e42',
+          display: 'flex',
+          flexDirection: 'row',
+          overflow: 'hidden',
+        }}>
+          {/* CTX section - left ~58px */}
           <div style={{
-            position: 'absolute',
-            left: '8px',
-            top: '8px',
-            zIndex: 30,
+            width: '58px',
+            flexShrink: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            padding: '6px 4px 6px 8px',
+            borderRight: '1px solid #3e3e42',
           }}>
             <ContextWindowBar tokenUsage={tokenUsage} />
           </div>
-
-          {/* Completeness Meter (right side) - US-002-002 */}
-          <div style={{
-            position: 'absolute',
-            right: '8px',
-            top: '8px',
-            zIndex: 30,
-          }}>
+          {/* Completeness section - right ~242px */}
+          <div style={{ flex: 1, overflow: 'hidden' }}>
             <CompletenessMeter />
           </div>
         </div>
       </div>
 
       {/* Status Bar (28px) - Bottom */}
-      <WorkflowStatusBar workflowState={workflowState} />
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 12px',
+        background: '#007ACC',
+        color: '#fff',
+        height: '28px',
+        minHeight: '28px',
+        flexShrink: 0,
+        zIndex: 1000,
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        {/* Workflow Status */}
+        <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+          <WorkflowStatusBar workflowState={workflowState} />
+        </div>
+      </div>
 
       {/* Document Watcher Indicator - Overlay */}
       <DocumentWatcherIndicator watcherState={documentWatcherState} />

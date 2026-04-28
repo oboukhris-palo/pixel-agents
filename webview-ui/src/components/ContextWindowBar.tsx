@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, memo, useMemo } from 'react';
+import { useState, useMemo, memo } from 'react';
 import type { TokenUsage, TokenThreshold } from '../../../src/contextTypes';
 
 // CSS module — mocked as identity-obj-proxy in Jest, loaded by Vite in production
@@ -72,16 +72,17 @@ const THRESHOLD_ICON: Record<TokenThreshold, string> = {
  */
 export const ContextWindowBar = memo(function ContextWindowBar({
   tokenUsage,
-  onThresholdReached,
 }: ContextWindowBarProps) {
   const percentage = tokenUsage?.percentage ?? 0;
   const threshold = tokenUsage?.threshold ?? 'safe';
   const [tooltipVisible, setTooltipVisible] = useState(false);
-  const notifiedThreshold = useRef<TokenThreshold | null>(null);
+
+  const icon = THRESHOLD_ICON[threshold];
 
   // Memoize segment height calculations (AC3)
   const segmentHeights = useMemo(() => {
     if (!tokenUsage) return { github: 0, project: 0, chat: 0 };
+
     return {
       github: segmentHeight(tokenUsage.breakdown.githubCode, tokenUsage.used),
       project: segmentHeight(tokenUsage.breakdown.projectCode, tokenUsage.used),
@@ -99,18 +100,7 @@ export const ContextWindowBar = memo(function ContextWindowBar({
     };
   }, [tokenUsage]);
 
-  // Fire onThresholdReached once per threshold crossing (no spam)
-  useEffect(() => {
-    if (!onThresholdReached || !tokenUsage) return;
-    if (threshold !== 'safe' && notifiedThreshold.current !== threshold) {
-      notifiedThreshold.current = threshold;
-      onThresholdReached(threshold as 'warning' | 'critical');
-    }
-  }, [threshold, tokenUsage, onThresholdReached]);
 
-  const icon = THRESHOLD_ICON[threshold];
-
-  // Determine percentage label class based on threshold
   const percentageClass = {
     safe: 'percentageSafe',
     warning: 'percentageWarning',

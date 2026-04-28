@@ -204,11 +204,11 @@ export function getSeatTiles(seats: Map<string, Seat>): Set<string> {
   return tiles
 }
 
-/** Default floor colors for the two rooms */
-const DEFAULT_LEFT_ROOM_COLOR: FloorColor = { h: 35, s: 30, b: 15, c: 0 }  // warm beige
-const DEFAULT_RIGHT_ROOM_COLOR: FloorColor = { h: 25, s: 45, b: 5, c: 10 }  // warm brown
-const DEFAULT_CARPET_COLOR: FloorColor = { h: 280, s: 40, b: -5, c: 0 }     // purple
-const DEFAULT_DOORWAY_COLOR: FloorColor = { h: 35, s: 25, b: 10, c: 0 }     // tan
+/** Default floor colors — Palo IT brand palette (colorize mode = Photoshop-style hue replacement) */
+const DEFAULT_LEFT_ROOM_COLOR: FloorColor  = { h: 142, s: 80, b:  5, c: 0, colorize: true }  // Palo IT green
+const DEFAULT_RIGHT_ROOM_COLOR: FloorColor = { h: 142, s: 70, b: -5, c: 5, colorize: true }  // darker green
+const DEFAULT_CARPET_COLOR: FloorColor     = { h:  45, s: 80, b:  5, c: 0, colorize: true }  // gold accent
+const DEFAULT_DOORWAY_COLOR: FloorColor    = { h: 142, s: 60, b: 10, c: 0, colorize: true }  // lighter green
 
 /** Create the default office layout matching the current hardcoded office */
 export function createDefaultLayout(): OfficeLayout {
@@ -221,21 +221,29 @@ export function createDefaultLayout(): OfficeLayout {
   const tiles: TileTypeVal[] = []
   const tileColors: Array<FloorColor | null> = []
 
+  // Create office layout with walls and floors
   for (let r = 0; r < DEFAULT_ROWS; r++) {
     for (let c = 0; c < DEFAULT_COLS; c++) {
+      // Perimeter walls
       if (r === 0 || r === DEFAULT_ROWS - 1) { tiles.push(W); tileColors.push(null); continue }
       if (c === 0 || c === DEFAULT_COLS - 1) { tiles.push(W); tileColors.push(null); continue }
+      
+      // Center divider wall with doorway
       if (c === 10) {
         if (r >= 4 && r <= 6) {
-          tiles.push(F4); tileColors.push(DEFAULT_DOORWAY_COLOR)
+          tiles.push(F4); tileColors.push(DEFAULT_DOORWAY_COLOR) // Doorway
         } else {
-          tiles.push(W); tileColors.push(null)
+          tiles.push(W); tileColors.push(null) // Wall
         }
         continue
       }
+      
+      // Meeting area carpet (right side)
       if (c >= 15 && c <= 18 && r >= 7 && r <= 9) {
         tiles.push(F3); tileColors.push(DEFAULT_CARPET_COLOR); continue
       }
+      
+      // Different floor colors for left/right rooms
       if (c < 10) {
         tiles.push(F1); tileColors.push(DEFAULT_LEFT_ROOM_COLOR)
       } else {
@@ -244,24 +252,44 @@ export function createDefaultLayout(): OfficeLayout {
     }
   }
 
+  // Furniture layout with 8 agent desks matching PLACEHOLDER_AGENTS
   const furniture: PlacedFurniture[] = [
-    { uid: 'desk-left', type: FurnitureType.DESK, col: 4, row: 3 },
-    { uid: 'desk-right', type: FurnitureType.DESK, col: 13, row: 3 },
-    { uid: 'bookshelf-1', type: FurnitureType.BOOKSHELF, col: 1, row: 5 },
+    // LEFT ROOM - 4 agents
+    // Row 1: orchestrator (top-left) and ai-eng (top-right)
+    { uid: 'orchestrator-desk', type: FurnitureType.DESK, col: 2, row: 2 },
+    { uid: 'orchestrator-chair', type: FurnitureType.CHAIR, col: 2, row: 1 },
+    
+    { uid: 'ai-eng-desk', type: FurnitureType.DESK, col: 6, row: 2 },
+    { uid: 'ai-eng-chair', type: FurnitureType.CHAIR, col: 6, row: 1 },
+    
+    // Row 2: architect (bottom-left) and po (bottom-right)
+    { uid: 'architect-desk', type: FurnitureType.DESK, col: 2, row: 6 },
+    { uid: 'architect-chair', type: FurnitureType.CHAIR, col: 2, row: 5 },
+    
+    { uid: 'po-desk', type: FurnitureType.DESK, col: 6, row: 6 },
+    { uid: 'po-chair', type: FurnitureType.CHAIR, col: 6, row: 5 },
+    
+    // RIGHT ROOM - 4 agents
+    // Row 1: ba (top-left) and pm (top-right)
+    { uid: 'ba-desk', type: FurnitureType.DESK, col: 12, row: 2 },
+    { uid: 'ba-chair', type: FurnitureType.CHAIR, col: 12, row: 1 },
+    
+    { uid: 'pm-desk', type: FurnitureType.DESK, col: 16, row: 2 },
+    { uid: 'pm-chair', type: FurnitureType.CHAIR, col: 16, row: 1 },
+    
+    // Row 2: dev-lead (bottom-left) and tdd-orchestrator (bottom-right)
+    { uid: 'dev-lead-desk', type: FurnitureType.DESK, col: 12, row: 5 },
+    { uid: 'dev-lead-chair', type: FurnitureType.CHAIR, col: 12, row: 4 },
+    
+    { uid: 'tdd-orchestrator-desk', type: FurnitureType.DESK, col: 16, row: 5 },
+    { uid: 'tdd-orchestrator-chair', type: FurnitureType.CHAIR, col: 16, row: 4 },
+    
+    // Decorative furniture
+    { uid: 'bookshelf-1', type: FurnitureType.BOOKSHELF, col: 1, row: 8 },
     { uid: 'plant-left', type: FurnitureType.PLANT, col: 1, row: 1 },
-    { uid: 'cooler-1', type: FurnitureType.COOLER, col: 17, row: 7 },
+    { uid: 'cooler-1', type: FurnitureType.COOLER, col: 17, row: 8 },
     { uid: 'plant-right', type: FurnitureType.PLANT, col: 18, row: 1 },
-    { uid: 'whiteboard-1', type: FurnitureType.WHITEBOARD, col: 15, row: 0 },
-    // Left desk chairs
-    { uid: 'chair-l-top', type: FurnitureType.CHAIR, col: 4, row: 2 },
-    { uid: 'chair-l-bottom', type: FurnitureType.CHAIR, col: 5, row: 5 },
-    { uid: 'chair-l-left', type: FurnitureType.CHAIR, col: 3, row: 4 },
-    { uid: 'chair-l-right', type: FurnitureType.CHAIR, col: 6, row: 3 },
-    // Right desk chairs
-    { uid: 'chair-r-top', type: FurnitureType.CHAIR, col: 13, row: 2 },
-    { uid: 'chair-r-bottom', type: FurnitureType.CHAIR, col: 14, row: 5 },
-    { uid: 'chair-r-left', type: FurnitureType.CHAIR, col: 12, row: 4 },
-    { uid: 'chair-r-right', type: FurnitureType.CHAIR, col: 15, row: 3 },
+    { uid: 'whiteboard-1', type: FurnitureType.WHITEBOARD, col: 14, row: 0 },
   ]
 
   return { version: 1, cols: DEFAULT_COLS, rows: DEFAULT_ROWS, tiles, tileColors, furniture }
@@ -291,13 +319,47 @@ export function migrateLayoutColors(layout: OfficeLayout): OfficeLayout {
   return migrateLayout(layout)
 }
 
+/** Map all floor tile types to their default Palo IT colors (used during color migration) */
+function regenerateTileColors(tiles: TileTypeVal[]): Array<FloorColor | null> {
+  return tiles.map((tile) => {
+    switch (tile) {
+      case TileType.FLOOR_1: return DEFAULT_LEFT_ROOM_COLOR
+      case TileType.FLOOR_2: return DEFAULT_RIGHT_ROOM_COLOR
+      case TileType.FLOOR_3: return DEFAULT_CARPET_COLOR
+      case TileType.FLOOR_4: return DEFAULT_DOORWAY_COLOR
+      case TileType.FLOOR_5: return DEFAULT_LEFT_ROOM_COLOR
+      case TileType.FLOOR_6: return DEFAULT_RIGHT_ROOM_COLOR
+      default: return tile > 0 ? DEFAULT_LEFT_ROOM_COLOR : null
+    }
+  })
+}
+
+/** Legacy furniture type names used in older saved layouts */
+const LEGACY_FURNITURE_TYPE_MAP: Record<string, string> = {
+  CHAIR_FRONT: FurnitureType.CHAIR,
+  DESK_FRONT: FurnitureType.DESK,
+  TABLE_CENTER: FurnitureType.DESK,
+}
+
 /**
  * Migrate old layouts that use legacy tile types (TILE_FLOOR=1, WOOD_FLOOR=2, CARPET=3, DOORWAY=4)
  * to the new pattern-based system. If tileColors is already present, no migration needed.
  */
 function migrateLayout(layout: OfficeLayout): OfficeLayout {
+  // Always translate legacy furniture types (e.g. CHAIR_FRONT → 'chair') regardless of tileColors
+  const furniture = layout.furniture.map((item) => {
+    const mapped = LEGACY_FURNITURE_TYPE_MAP[item.type]
+    return mapped ? { ...item, type: mapped } : item
+  })
+  layout = { ...layout, furniture }
+
   if (layout.tileColors && layout.tileColors.length === layout.tiles.length) {
-    return layout // Already migrated
+    // Migrate neutral/warm tileColors to Palo IT green colorize scheme
+    const firstNonNull = layout.tileColors.find((c) => c !== null)
+    if (firstNonNull && !firstNonNull.colorize) {
+      return { ...layout, tileColors: regenerateTileColors(layout.tiles) }
+    }
+    return layout // Already using colorize scheme
   }
 
   // Check if any tiles use old values (1-4) — these map directly to FLOOR_1-4

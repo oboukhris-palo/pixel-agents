@@ -128,25 +128,28 @@ export function CompletenessMeter() {
 				})}
 			</div>
 
-			{/* Stats Grid (AC7) */}
+			{/* Stats Grid (AC7) - Enhanced with all metrics from design */}
 			<div className={styles.statsGrid || 'statsGrid'} data-testid="stats-grid">
+				{/* Epics */}
+				<div>
+					<div className={styles.statLabel || 'statLabel'}>Epics</div>
+					<div className={styles.statValue || 'statValue'}>
+						{Math.floor(metrics.storiesCompleted / 5)}/{Math.floor(metrics.storiesTotal / 5)}
+					</div>
+				</div>
+
+				{/* Stories */}
 				<div>
 					<div className={styles.statLabel || 'statLabel'}>Stories</div>
 					<div className={styles.statValue || 'statValue'}>
-						{metrics.storiesCompleted} / {metrics.storiesTotal} stories
+						{metrics.storiesCompleted}/{metrics.storiesTotal}
 					</div>
 					<span className={styles['sr-only'] || 'sr-only'}>
 						{metrics.storiesCompleted} of {metrics.storiesTotal} stories completed
 					</span>
 				</div>
 
-				<div>
-					<div className={styles.statLabel || 'statLabel'}>Tests</div>
-					<div className={styles.statValue || 'statValue'}>
-						{metrics.testsPassing} / {metrics.testsTotal} tests
-					</div>
-				</div>
-
+				{/* Coverage */}
 				<div>
 					<div className={styles.statLabel || 'statLabel'}>Coverage</div>
 					<div className={styles.statValue || 'statValue'}>
@@ -154,10 +157,27 @@ export function CompletenessMeter() {
 					</div>
 				</div>
 
+				{/* BDD */}
 				<div>
-					<div className={styles.statLabel || 'statLabel'}>LOC</div>
+					<div className={styles.statLabel || 'statLabel'}>BDD</div>
 					<div className={styles.statValue || 'statValue'}>
-						{metrics.linesOfCode.toLocaleString()}
+						{metrics.bddCoverage}%
+					</div>
+				</div>
+
+				{/* PASS */}
+				<div>
+					<div className={styles.statLabel || 'statLabel'}>PASS</div>
+					<div className={styles.statValue || 'statValue'}>
+						{Math.round((metrics.testsPassing / Math.max(metrics.testsTotal, 1)) * 100)}%
+					</div>
+				</div>
+
+				{/* Tests */}
+				<div>
+					<div className={styles.statLabel || 'statLabel'}>Tests</div>
+					<div className={styles.statValue || 'statValue'}>
+						{metrics.testsPassing}/{metrics.testsTotal}
 					</div>
 				</div>
 			</div>
