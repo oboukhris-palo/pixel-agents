@@ -15,7 +15,6 @@ import { PULSE_ANIMATION_DURATION_SEC } from './constants.js'
 import { useEditorActions } from './hooks/useEditorActions.js'
 import { useEditorKeyboard } from './hooks/useEditorKeyboard.js'
 // import { ZoomControls } from './components/ZoomControls.js' // Hidden per user request
-import { DebugView } from './components/DebugView.js'
 import { WorkflowStatusBar } from './components/WorkflowStatusBar.js'
 import { TaskProgressionBar } from './components/TaskProgressionBar.js'
 import { DocumentWatcherIndicator } from './components/DocumentWatcherIndicator.js'
@@ -132,24 +131,16 @@ function App() {
 
   const isEditDirty = useCallback(() => editor.isEditMode && editor.isDirty, [editor.isEditMode, editor.isDirty])
 
-  const { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, agentMetadata, workflowState, taskProgression, documentWatcherState } = useExtensionMessages(getOfficeState, editor.setLastSavedLayout, isEditDirty)
+  const { agents, agentTools, subagentCharacters, layoutReady, loadedAssets, agentMetadata, workflowState, taskProgression, documentWatcherState } = useExtensionMessages(getOfficeState, editor.setLastSavedLayout, isEditDirty)
 
   // Context Window tracking (US-002-001)
   const { tokenUsage } = useContextWindow()
   
   // Agent Activity tracking (US-001-002) - for real-time bubble updates
   const { activity: agentActivity } = useAgentActivity()
-
-  const [isDebugMode] = useState(false)
   
   // Track selected agent for sidebar highlighting (synced with officeState.selectedAgentId)
   const [selectedAgentIdForSidebar, setSelectedAgentIdForSidebar] = useState<number | null>(null)
-
-  // const handleToggleDebugMode = useCallback(() => setIsDebugMode((prev) => !prev), [])
-
-  const handleSelectAgent = useCallback((id: number) => {
-    vscode.postMessage({ type: 'focusAgent', id })
-  }, [])
 
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -542,17 +533,6 @@ function App() {
         panRef={editor.panRef}
         onCloseAgent={handleCloseAgent}
       />
-
-      {isDebugMode && (
-        <DebugView
-          agents={agents}
-          selectedAgent={selectedAgent}
-          agentTools={agentTools}
-          agentStatuses={agentStatuses}
-          subagentTools={subagentTools}
-          onSelectAgent={handleSelectAgent}
-        />
-      )}
     </div>
   )
 }

@@ -129,6 +129,7 @@ export interface TaskProgressionMessage {
   previous: TaskInfo | null
   current: TaskInfo | null
   next: TaskInfo | null
+  planCheckpoint?: PlanCheckpoint | null
 }
 
 // ── Agent Activity Types (US-001-002) ─────────────────────────────────────────
