@@ -226,3 +226,27 @@
   font-style: italic;
   white-space: nowrap;
 }
+
+/* v1.0.5: Plan checkpoint badge */
+.checkpointBadge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #10B981;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 10px;
+  padding: 2px 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* v1.0.5: Current checkpoint description label */
+.checkpointDesc {
+  font-size: 11px;
+  color: #a0a0a0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+  flex-shrink: 1;
+}

@@ -286,7 +286,29 @@ export const TaskProgressionBar = memo(function TaskProgressionBar({
           )}
         </div>
       )}
+      {/* v1.0.5: Plan checkpoint badge — shows completed/total checkbox count */}
+      {taskProgression.planCheckpoint != null && (
+        <span
+          data-testid="checkpoint-badge"
+          className={styles.checkpointBadge}
+          title={`Implementation plan: ${taskProgression.planCheckpoint.completedCheckboxes} of ${taskProgression.planCheckpoint.totalCheckboxes} checkboxes complete`}
+          aria-label={`Plan progress: ${taskProgression.planCheckpoint.completedCheckboxes} of ${taskProgression.planCheckpoint.totalCheckboxes}`}
+        >
+          {taskProgression.planCheckpoint.completedCheckboxes}/{taskProgression.planCheckpoint.totalCheckboxes}
+        </span>
+      )}
+      {/* v1.0.5: Current checkpoint description (shown adjacent to current task section) */}
+      {taskProgression.planCheckpoint?.currentCheckbox != null && (
+        <span
+          data-testid="current-checkpoint-desc"
+          className={styles.checkpointDesc}
+          title={taskProgression.planCheckpoint.currentCheckbox.description}
+        >
+          {taskProgression.planCheckpoint.currentCheckbox.description}
+        </span>
+      )}
     </div>
   );
 });
+
 

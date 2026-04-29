@@ -113,3 +113,24 @@
   color: #808080;
   text-align: center;
 }
+
+/* v1.0.5: Disabled agent state (TDD sub-agents: dev-tdd-red/green/refactor) */
+.agentRowDisabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.agentRowDisabled .agentName {
+  color: #6b7280;
+}
+
+.disabledIcon {
+  font-size: 10px;
+  width: 8px;
+  height: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}

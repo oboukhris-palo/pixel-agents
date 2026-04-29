@@ -57,13 +57,13 @@ describe('AgentSidebar Component (v1.0.5 enhancements)', () => {
     it('applies disabled CSS class to disabled agent row', () => {
       render(<AgentSidebar agents={[DISABLED_AGENT]} />);
       const row = screen.getByTestId('agent-row-dev-tdd-red');
-      expect(row.className).toMatch(/disabled/);
+      expect(row.className).toMatch(/[Dd]isabled/);
     });
 
     it('does not apply disabled class to active agent', () => {
       render(<AgentSidebar agents={[ACTIVE_AGENT]} />);
       const row = screen.getByTestId('agent-row-orchestrator');
-      expect(row.className).not.toMatch(/disabled/);
+      expect(row.className).not.toMatch(/[Dd]isabled/);
     });
   });
 
@@ -97,13 +97,13 @@ describe('AgentSidebar Component (v1.0.5 enhancements)', () => {
       render(<AgentSidebar agents={agents} />);
 
       // Active/idle should NOT be disabled
-      expect(screen.getByTestId('agent-row-orchestrator').className).not.toMatch(/disabled/);
-      expect(screen.getByTestId('agent-row-architect').className).not.toMatch(/disabled/);
+      expect(screen.getByTestId('agent-row-orchestrator').className).not.toMatch(/[Dd]isabled/);
+      expect(screen.getByTestId('agent-row-architect').className).not.toMatch(/[Dd]isabled/);
 
       // TDD sub-agents should be disabled
-      expect(screen.getByTestId('agent-row-dev-tdd-red').className).toMatch(/disabled/);
-      expect(screen.getByTestId('agent-row-dev-tdd-green').className).toMatch(/disabled/);
-      expect(screen.getByTestId('agent-row-dev-tdd-refactor').className).toMatch(/disabled/);
+      expect(screen.getByTestId('agent-row-dev-tdd-red').className).toMatch(/[Dd]isabled/);
+      expect(screen.getByTestId('agent-row-dev-tdd-green').className).toMatch(/[Dd]isabled/);
+      expect(screen.getByTestId('agent-row-dev-tdd-refactor').className).toMatch(/[Dd]isabled/);
     });
 
     it('shows ⛔ icon only for disabled agents', () => {
@@ -132,17 +132,10 @@ describe('AgentSidebar Component (v1.0.5 enhancements)', () => {
   });
 });
 
-// ── Layer 4: TaskProgressionBar checkbox badge (RED phase) ───────────────────
+// ── Layer 4: TaskProgressionBar checkpoint badge (RED phase) ───────────────────
 
 import { TaskProgressionBar } from './TaskProgressionBar';
 import type { TaskProgressionState } from '../hooks/useExtensionMessages';
-
-// Mock useTaskProgression
-jest.mock('../hooks/useTaskProgression', () => ({
-  useTaskProgression: jest.fn(),
-}));
-import { useTaskProgression } from '../hooks/useTaskProgression';
-const mockUseTaskProgression = useTaskProgression as jest.MockedFunction<typeof useTaskProgression>;
 
 const makePlanCheckpoint = (total: number, completed: number) => ({
   planPath: '/ws/docs/05-implementation/epics/EPIC-001/user-stories/US-001/implementation-plan.md',
@@ -159,70 +152,44 @@ const makePlanCheckpoint = (total: number, completed: number) => ({
   completedCheckboxes: completed,
 });
 
-const makeTaskProgression = (planCheckpoint = makePlanCheckpoint(12, 4)) => ({
-  taskProgression: {
-    previous: { storyId: 'US-000', title: 'Setup', status: 'completed' as const, epic: 'EPIC-001' },
-    current: { storyId: 'US-001', title: 'Activity Monitor', status: 'in-progress' as const, epic: 'EPIC-001', cycle: 'GREEN-02' },
-    next: { storyId: 'US-002', title: 'Context Window', status: 'not-started' as const, epic: 'EPIC-001' },
-    planCheckpoint,
-  } as TaskProgressionState,
-  currentTask: { storyId: 'US-001', title: 'Activity Monitor', status: 'in-progress' as const, epic: 'EPIC-001', cycle: 'GREEN-02' },
-  previousTask: { storyId: 'US-000', title: 'Setup', status: 'completed' as const, epic: 'EPIC-001' },
-  nextTask: { storyId: 'US-002', title: 'Context Window', status: 'not-started' as const, epic: 'EPIC-001' },
-  currentPhase: 'GREEN' as const,
+const makeTaskProgression = (planCheckpoint = makePlanCheckpoint(12, 4)): TaskProgressionState => ({
+  previous: { storyId: 'US-000', title: 'Setup', status: 'completed' as const, epic: 'EPIC-001' },
+  current: { storyId: 'US-001', title: 'Activity Monitor', status: 'in-progress' as const, epic: 'EPIC-001', cycle: 'GREEN-02' },
+  next: { storyId: 'US-002', title: 'Context Window', status: 'not-started' as const, epic: 'EPIC-001' },
   planCheckpoint,
-  isLoading: false,
-  error: undefined,
 });
 
-describe('TaskProgressionBar Component — Checkbox Badge (v1.0.5)', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockUseTaskProgression.mockReturnValue(makeTaskProgression());
-  });
-
+describe('TaskProgressionBar Component — Checkpoint Badge (v1.0.5)', () => {
   describe('AC-TPB1: Checkbox count badge', () => {
     it('renders checkpoint badge when planCheckpoint is present', () => {
-      render(<TaskProgressionBar />);
+      render(<TaskProgressionBar taskProgression={makeTaskProgression()} />);
       expect(screen.getByTestId('checkpoint-badge')).toBeInTheDocument();
     });
 
     it('displays completedCheckboxes/totalCheckboxes format (4/12)', () => {
-      render(<TaskProgressionBar />);
+      render(<TaskProgressionBar taskProgression={makeTaskProgression()} />);
       expect(screen.getByTestId('checkpoint-badge')).toHaveTextContent('4/12');
     });
 
     it('does not render badge when planCheckpoint is null', () => {
-      mockUseTaskProgression.mockReturnValue({
-        ...makeTaskProgression(),
-        planCheckpoint: null,
-        taskProgression: {
-          previous: null,
-          current: null,
-          next: null,
-          planCheckpoint: null,
-        },
-      });
-      render(<TaskProgressionBar />);
+      render(<TaskProgressionBar taskProgression={{ previous: null, current: null, next: null, planCheckpoint: null }} />);
       expect(screen.queryByTestId('checkpoint-badge')).not.toBeInTheDocument();
     });
 
     it('shows 0/0 when no checkboxes exist', () => {
-      mockUseTaskProgression.mockReturnValue(makeTaskProgression(makePlanCheckpoint(0, 0)));
-      render(<TaskProgressionBar />);
+      render(<TaskProgressionBar taskProgression={makeTaskProgression(makePlanCheckpoint(0, 0))} />);
       expect(screen.getByTestId('checkpoint-badge')).toHaveTextContent('0/0');
     });
 
     it('shows 12/12 when all checkboxes complete', () => {
-      mockUseTaskProgression.mockReturnValue(makeTaskProgression(makePlanCheckpoint(12, 12)));
-      render(<TaskProgressionBar />);
+      render(<TaskProgressionBar taskProgression={makeTaskProgression(makePlanCheckpoint(12, 12))} />);
       expect(screen.getByTestId('checkpoint-badge')).toHaveTextContent('12/12');
     });
   });
 
-  describe('AC-TPB2: Current checkpoint description in title', () => {
+  describe('AC-TPB2: Current checkpoint description', () => {
     it('shows current checkbox description in current task section', () => {
-      render(<TaskProgressionBar />);
+      render(<TaskProgressionBar taskProgression={makeTaskProgression()} />);
       expect(screen.getByTestId('current-checkpoint-desc')).toHaveTextContent('Implement validation');
     });
   });
