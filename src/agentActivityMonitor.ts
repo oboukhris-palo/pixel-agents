@@ -62,7 +62,10 @@ export class AgentActivityMonitor extends EventEmitter {
 
   /** FIFO buffer of recent file operations (max MAX_FILE_OPS) */
   private fileOperationBuffer: FileOperation[] = [];
+  private fileOpDebounceTimer: NodeJS.Timeout | null = null;
+  private pendingFileOp: FileOperation | null = null;
   private static readonly MAX_FILE_OPS = 10;
+  private static readonly FILE_OP_DEBOUNCE_MS = 300;
 
   constructor(
     workspaceFolder: string,
@@ -103,15 +106,23 @@ export class AgentActivityMonitor extends EventEmitter {
       clearTimeout(this.debounceTimer);
       this.debounceTimer = null;
     }
+    if (this.fileOpDebounceTimer) {
+      clearTimeout(this.fileOpDebounceTimer);
+      this.fileOpDebounceTimer = null;
+    }
     this.fileOperationBuffer = [];
+    this.pendingFileOp = null;
     this.removeAllListeners();
   }
 
   /**
    * Record a file operation in the FIFO buffer (max 10).
+   * Debounced by 300ms to prevent update storms when many files change rapidly.
    * Used to populate the "what the agent is doing" action bubble.
    */
   trackFileOperation(op: FileOperation): void {
+    // Flush immediately — debounce is handled at the VS Code event level in
+    // the VS Code layer (Layer 3 wiring). The buffer itself is synchronous.
     if (this.fileOperationBuffer.length >= AgentActivityMonitor.MAX_FILE_OPS) {
       this.fileOperationBuffer.shift();
     }
