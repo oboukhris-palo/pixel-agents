@@ -175,8 +175,9 @@ export function parseCheckboxLine(
   const cycleNumber = parseInt(phaseMatch[2], 10);
   const description = phaseMatch[3].trim();
 
-  // Layer is determined by context — default to 1 when not otherwise tracked.
-  // The parser service (Layer 2) will set layerNumber from the surrounding header.
+  // Layer is determined by context (the surrounding "## Layer N:" header).
+  // Callers such as ImplementationPlanParser (Layer 2) must override layerNumber
+  // after parsing the header.  We use 1 as a safe default here.
   return {
     layerNumber: 1,
     phase,
