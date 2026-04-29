@@ -1,8 +1,8 @@
-import { useExtensionMessages, type TaskProgressionState, type TaskInfo } from './useExtensionMessages';
+import { useExtensionMessages, type TaskProgressionState, type TaskInfo, type PlanCheckpoint } from './useExtensionMessages';
 import { extractPhaseFromCycle, type PDLCPhase } from './taskProgressionUtils';
 
 // Re-export PDLCPhase so consumers can import it from a single location.
-export type { PDLCPhase };
+export type { PDLCPhase, PlanCheckpoint };
 
 export interface UseTaskProgressionResult {
   /** Full task progression state (previous, current, next) */
@@ -15,6 +15,8 @@ export interface UseTaskProgressionResult {
   nextTask: TaskInfo | null;
   /** PDLC phase derived from current task cycle (RED/GREEN/REFACTOR/DOCUMENTATION) */
   currentPhase: PDLCPhase | null;
+  /** Enhanced: implementation-plan.md checkpoint data */
+  planCheckpoint: PlanCheckpoint | null;
   /** True while task progression data has not yet been received (null, not just empty) */
   isLoading: boolean;
   /** Error message if task progression loading failed */
@@ -50,8 +52,10 @@ export function useTaskProgression(): UseTaskProgressionResult {
     ? extractPhaseFromCycle(currentTask.cycle)
     : null;
 
+  const planCheckpoint: PlanCheckpoint | null = taskProgression?.planCheckpoint ?? null;
+
   // isLoading distinguishes "not yet received" (null) from "received but empty" (object with nulls).
   const isLoading = taskProgression === null;
 
-  return { taskProgression, currentTask, previousTask, nextTask, currentPhase, isLoading, error };
+  return { taskProgression, currentTask, previousTask, nextTask, currentPhase, planCheckpoint, isLoading, error };
 }

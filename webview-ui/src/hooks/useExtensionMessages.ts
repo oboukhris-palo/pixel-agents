@@ -93,10 +93,35 @@ export interface TaskInfo {
   cycle?: string
 }
 
+/** Plan checkpoint data: implementation-plan.md checkbox state for the current story */
+export interface PlanCheckpoint {
+  planPath: string
+  currentCheckbox: {
+    layerNumber: 1 | 2 | 3 | 4
+    phase: 'RED' | 'GREEN' | 'REFACTOR'
+    cycleNumber: number
+    description: string
+    completed: boolean
+    lineNumber: number
+  } | null
+  nextCheckbox: {
+    layerNumber: 1 | 2 | 3 | 4
+    phase: 'RED' | 'GREEN' | 'REFACTOR'
+    cycleNumber: number
+    description: string
+    completed: boolean
+    lineNumber: number
+  } | null
+  totalCheckboxes: number
+  completedCheckboxes: number
+}
+
 export interface TaskProgressionState {
   previous: TaskInfo | null
   current: TaskInfo | null
   next: TaskInfo | null
+  /** Enhanced: implementation-plan.md checkpoint data for the current story */
+  planCheckpoint?: PlanCheckpoint | null
 }
 
 export interface TaskProgressionMessage {
@@ -132,12 +157,21 @@ export interface AgentAction {
   description: string
 }
 
+/** A single tracked file system operation (inferred from VS Code editor events) */
+export interface FileOperation {
+  type: 'read' | 'write' | 'delete' | 'rename'
+  filePath: string
+  timestamp: number
+}
+
 export interface AgentActivityState {
   activeAgent: AgentActivityMetadata | null
   currentAction: AgentAction
   codeSnippet: CodeSnippetInfo | null
   status: AgentActivityStatus
   timestamp: string
+  /** Enhanced: recent file operations for display in the action bubble */
+  fileOperations?: FileOperation[]
 }
 
 export interface ActionBubbleMessage {
@@ -584,11 +618,24 @@ export function useExtensionMessages(
           previous: progressionMsg.previous,
           current: progressionMsg.current,
           next: progressionMsg.next,
+          planCheckpoint: progressionMsg.planCheckpoint ?? null,
+        })
+      } else if (msg.type === 'plan.checkpoint') {
+        // Enhanced: implementation-plan.md checkpoint message
+        const checkpoint = msg.data as PlanCheckpoint
+        setTaskProgression(prev => prev ? { ...prev, planCheckpoint: checkpoint } : {
+          previous: null,
+          current: null,
+          next: null,
+          planCheckpoint: checkpoint,
         })
       } else if (msg.type === 'agent-activity-update') {
         const activityMsg = msg as ActionBubbleMessage
         console.log(`[Webview] Agent activity updated:`, activityMsg.payload)
-        setAgentActivityState(activityMsg.payload)
+        setAgentActivityState({
+          ...activityMsg.payload,
+          fileOperations: activityMsg.payload.fileOperations ?? [],
+        })
       } else if (msg.type === 'document-changed') {
         // US-001-003: Real-Time Document Monitoring Engine
         const docMsg = msg as DocumentWatcherMessage

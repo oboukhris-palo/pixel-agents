@@ -61,20 +61,20 @@ const mockActivity: AgentActivityState = {
 describe('ActionBubble Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseAgentActivity.mockReturnValue(mockActivity);
+    mockUseAgentActivity.mockReturnValue({ activity: mockActivity, fileOperations: [] });
   });
 
   // ── AC10: Unmount when no active agent ───────────────────────────────────────
 
   describe('AC10: No active agent', () => {
     it('renders null when activity is null', () => {
-      mockUseAgentActivity.mockReturnValue(null);
+      mockUseAgentActivity.mockReturnValue({ activity: null, fileOperations: [] });
       const { container } = render(<ActionBubble />);
       expect(container.firstChild).toBeNull();
     });
 
     it('renders null when activeAgent is null', () => {
-      mockUseAgentActivity.mockReturnValue({ ...mockActivity, activeAgent: null });
+      mockUseAgentActivity.mockReturnValue({ activity: { ...mockActivity, activeAgent: null }, fileOperations: [] });
       const { container } = render(<ActionBubble />);
       expect(container.firstChild).toBeNull();
     });
@@ -108,10 +108,7 @@ describe('ActionBubble Component', () => {
     });
 
     it('shows fallback icon when icon is missing', () => {
-      mockUseAgentActivity.mockReturnValue({
-        ...mockActivity,
-        activeAgent: { ...mockActivity.activeAgent!, icon: undefined },
-      });
+      mockUseAgentActivity.mockReturnValue({ activity: { ...mockActivity, activeAgent: { ...mockActivity.activeAgent!, icon: undefined } }, fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('agent-icon')).toBeInTheDocument();
     });
@@ -136,10 +133,7 @@ describe('ActionBubble Component', () => {
     });
 
     it('omits description when empty', () => {
-      mockUseAgentActivity.mockReturnValue({
-        ...mockActivity,
-        currentAction: { ...mockActivity.currentAction, description: '' },
-      });
+      mockUseAgentActivity.mockReturnValue({ activity: { ...mockActivity, currentAction: { ...mockActivity.currentAction, description: '' } }, fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('action-label')).toHaveTextContent('[RED-01]');
       expect(screen.queryByTestId('action-description')).not.toBeInTheDocument();
@@ -155,19 +149,19 @@ describe('ActionBubble Component', () => {
     });
 
     it('displays ✅ for success status', () => {
-      mockUseAgentActivity.mockReturnValue({ ...mockActivity, status: 'success' });
+      mockUseAgentActivity.mockReturnValue({ activity: { ...mockActivity, status: 'success' }, fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('status-indicator')).toHaveTextContent('✅');
     });
 
     it('displays ❌ for failed status', () => {
-      mockUseAgentActivity.mockReturnValue({ ...mockActivity, status: 'failed' });
+      mockUseAgentActivity.mockReturnValue({ activity: { ...mockActivity, status: 'failed' }, fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('status-indicator')).toHaveTextContent('❌');
     });
 
     it('displays ⏸️ for idle status', () => {
-      mockUseAgentActivity.mockReturnValue({ ...mockActivity, status: 'idle' });
+      mockUseAgentActivity.mockReturnValue({ activity: { ...mockActivity, status: 'idle' }, fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('status-indicator')).toHaveTextContent('⏸️');
     });
@@ -176,7 +170,7 @@ describe('ActionBubble Component', () => {
       const { rerender } = render(<ActionBubble />);
       expect(screen.getByTestId('status-indicator')).toHaveTextContent('🔄');
 
-      mockUseAgentActivity.mockReturnValue({ ...mockActivity, status: 'success' });
+      mockUseAgentActivity.mockReturnValue({ activity: { ...mockActivity, status: 'success' }, fileOperations: [] });
       rerender(<ActionBubble key="updated" />);
       expect(screen.getByTestId('status-indicator')).toHaveTextContent('✅');
     });
@@ -207,13 +201,13 @@ describe('ActionBubble Component', () => {
 
   describe('AC8: Placeholder text', () => {
     it('shows "Waiting for code..." when codeSnippet is null', () => {
-      mockUseAgentActivity.mockReturnValue({ ...mockActivity, codeSnippet: null });
+      mockUseAgentActivity.mockReturnValue({ activity: { ...mockActivity, codeSnippet: null }, fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('code-placeholder')).toHaveTextContent('Waiting for code...');
     });
 
     it('does not show code display when snippet is null', () => {
-      mockUseAgentActivity.mockReturnValue({ ...mockActivity, codeSnippet: null });
+      mockUseAgentActivity.mockReturnValue({ activity: { ...mockActivity, codeSnippet: null }, fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.queryByTestId('code-snippet-display')).not.toBeInTheDocument();
     });
@@ -256,7 +250,7 @@ describe('ActionBubble Component', () => {
     });
 
     it('does not render copy button when snippet is null', () => {
-      mockUseAgentActivity.mockReturnValue({ ...mockActivity, codeSnippet: null });
+      mockUseAgentActivity.mockReturnValue({ activity: { ...mockActivity, codeSnippet: null }, fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.queryByTestId('copy-button')).not.toBeInTheDocument();
     });
@@ -311,29 +305,19 @@ describe('ActionBubble Component', () => {
 
   describe('Edge cases', () => {
     it('renders with minimal activity data (no icon, no snippet)', () => {
-      mockUseAgentActivity.mockReturnValue({
-        ...mockActivity,
-        activeAgent: { id: 'dev-lead', name: 'Dev Lead', description: '', icon: undefined },
-        codeSnippet: null,
-      });
+      mockUseAgentActivity.mockReturnValue({ activity: { ...mockActivity, activeAgent: { id: 'dev-lead', name: 'Dev Lead', description: '', icon: undefined }, codeSnippet: null }, fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('action-bubble')).toBeInTheDocument();
     });
 
     it('handles DOCUMENTATION phase action type', () => {
-      mockUseAgentActivity.mockReturnValue({
-        ...mockActivity,
-        currentAction: { type: 'DOCUMENTATION', cycle: 1, description: 'Writing docs' },
-      });
+      mockUseAgentActivity.mockReturnValue({ activity: { ...mockActivity, currentAction: { type: 'DOCUMENTATION', cycle: 1, description: 'Writing docs' } }, fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('action-label')).toHaveTextContent('[DOCUMENTATION-01]');
     });
 
     it('handles cycle number > 9 (double digit)', () => {
-      mockUseAgentActivity.mockReturnValue({
-        ...mockActivity,
-        currentAction: { type: 'GREEN', cycle: 10, description: '' },
-      });
+      mockUseAgentActivity.mockReturnValue({ activity: { ...mockActivity, currentAction: { type: 'GREEN', cycle: 10, description: '' } }, fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('action-label')).toHaveTextContent('[GREEN-10]');
     });

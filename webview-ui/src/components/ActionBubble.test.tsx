@@ -12,7 +12,7 @@ import { ActionBubble } from './ActionBubble';
 import type { AgentActivityState } from '../hooks/useExtensionMessages';
 
 // ── Mock useAgentActivity hook ────────────────────────────────────────────────
-const mockUseAgentActivity = jest.fn<AgentActivityState | null, []>();
+const mockUseAgentActivity = jest.fn<{ activity: AgentActivityState | null; fileOperations: [] }, []>();
 jest.mock('../hooks/useAgentActivity.js', () => ({
   useAgentActivity: () => mockUseAgentActivity(),
 }));
@@ -58,22 +58,19 @@ describe('ActionBubble Component', () => {
   // ── AC10: Hide when no active agent ───────────────────────────────────────
   describe('Visibility Logic', () => {
     it('should return null when activity is null (AC10)', () => {
-      mockUseAgentActivity.mockReturnValue(null);
+      mockUseAgentActivity.mockReturnValue({ activity: null, fileOperations: [] });
       const { container } = render(<ActionBubble />);
       expect(container.firstChild).toBeNull();
     });
 
     it('should return null when activeAgent is null', () => {
-      mockUseAgentActivity.mockReturnValue({
-        ...mockAgentActivityState(),
-        activeAgent: null,
-      });
+      mockUseAgentActivity.mockReturnValue({ activity: { ...mockAgentActivityState(), activeAgent: null }, fileOperations: [] });
       const { container } = render(<ActionBubble />);
       expect(container.firstChild).toBeNull();
     });
 
     it('should render when activeAgent is present', () => {
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState());
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState(), fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('action-bubble')).toBeInTheDocument();
     });
@@ -82,34 +79,32 @@ describe('ActionBubble Component', () => {
   // ── AC1: Agent metadata display ───────────────────────────────────────────
   describe('Agent Header', () => {
     it('should display agent icon (AC1)', () => {
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState());
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState(), fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('agent-icon')).toHaveTextContent('🔴');
     });
 
     it('should display agent name (AC1)', () => {
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState());
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState(), fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('agent-name')).toHaveTextContent('dev-tdd-red');
     });
 
     it('should use default icon when agent.icon is undefined', () => {
-      mockUseAgentActivity.mockReturnValue(
-        mockAgentActivityState({
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState({
           activeAgent: {
             id: 'orchestrator',
             name: 'orchestrator',
             description: 'Orchestrates workflows',
             // icon is undefined
           },
-        })
-      );
+        }), fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('agent-icon')).toHaveTextContent('🤖');
     });
 
     it('should display status indicator (AC6)', () => {
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState({ status: 'success' }));
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState({ status: 'success' }), fileOperations: [] });
       render(<ActionBubble />);
       const statusIndicator = screen.getByTestId('status-indicator');
       expect(statusIndicator).toHaveTextContent('✅');
@@ -117,7 +112,7 @@ describe('ActionBubble Component', () => {
     });
 
     it('should display failed status icon', () => {
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState({ status: 'failed' }));
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState({ status: 'failed' }), fileOperations: [] });
       render(<ActionBubble />);
       const statusIndicator = screen.getByTestId('status-indicator');
       expect(statusIndicator).toHaveTextContent('❌');
@@ -127,27 +122,25 @@ describe('ActionBubble Component', () => {
   // ── AC3: Action metadata display ──────────────────────────────────────────
   describe('Action Metadata', () => {
     it('should display TDD phase label with cycle (AC3)', () => {
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState());
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState(), fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('action-label')).toHaveTextContent('[RED-01]');
     });
 
     it('should format cycle with leading zero', () => {
-      mockUseAgentActivity.mockReturnValue(
-        mockAgentActivityState({
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState({
           currentAction: {
             type: 'GREEN',
             cycle: 7,
             description: 'Implement feature',
           },
-        })
-      );
+        }), fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('action-label')).toHaveTextContent('[GREEN-07]');
     });
 
     it('should display action description (AC3)', () => {
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState());
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState(), fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('action-description')).toHaveTextContent(
         'Write failing test for authentication'
@@ -155,28 +148,26 @@ describe('ActionBubble Component', () => {
     });
 
     it('should not render description element when description is empty', () => {
-      mockUseAgentActivity.mockReturnValue(
-        mockAgentActivityState({
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState({
           currentAction: {
             type: 'REFACTOR',
             cycle: 3,
             description: '',
           },
-        })
-      );
+        }), fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.queryByTestId('action-description')).not.toBeInTheDocument();
     });
 
     it('should display timestamp in HH:MM:SSZ format (AC8)', () => {
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState());
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState(), fileOperations: [] });
       render(<ActionBubble />);
       // timestamp: '2026-04-24T12:34:56Z' → displays '12:34:56Z'
       expect(screen.getByTestId('action-timestamp')).toHaveTextContent('@ 12:34:56Z');
     });
 
     it('should apply phase-specific color to action label (design-systems.md v2.0.0)', () => {
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState());
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState(), fileOperations: [] });
       render(<ActionBubble />);
       const label = screen.getByTestId('action-label');
       // RED phase color from design-systems.md v2.0.0
@@ -187,7 +178,7 @@ describe('ActionBubble Component', () => {
   // ── AC2: Code snippet display ─────────────────────────────────────────────
   describe('Code Snippet Display', () => {
     it('should display code snippet language (AC2)', () => {
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState());
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState(), fileOperations: [] });
       render(<ActionBubble />);
       // Note: CSS uppercase class not applied in Jest, so we check raw value
       expect(screen.getByTestId('code-language')).toHaveTextContent('typescript');
@@ -196,7 +187,7 @@ describe('ActionBubble Component', () => {
     });
 
     it('should display code content (AC2)', () => {
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState());
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState(), fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('code-content')).toHaveTextContent(
         'expect(validateEmail("invalid@")).toBe(false);'
@@ -204,23 +195,19 @@ describe('ActionBubble Component', () => {
     });
 
     it('should show placeholder when codeSnippet is null', () => {
-      mockUseAgentActivity.mockReturnValue(
-        mockAgentActivityState({ codeSnippet: null })
-      );
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState({ codeSnippet: null }), fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('code-placeholder')).toHaveTextContent('Waiting for code...');
     });
 
     it('should display multi-line code correctly', () => {
-      mockUseAgentActivity.mockReturnValue(
-        mockAgentActivityState({
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState({
           codeSnippet: {
             language: 'javascript',
             content: 'function test() {\n  return true;\n}',
             lineNumbers: [10, 11, 12],
           },
-        })
-      );
+        }), fileOperations: [] });
       render(<ActionBubble />);
       const codeContent = screen.getByTestId('code-content');
       expect(codeContent).toHaveTextContent('function test()');
@@ -231,7 +218,7 @@ describe('ActionBubble Component', () => {
   // ── AC11: Copy-to-clipboard functionality ─────────────────────────────────
   describe('Copy-to-Clipboard', () => {
     it('should copy code to clipboard when copy button clicked (AC11)', async () => {
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState());
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState(), fileOperations: [] });
       render(<ActionBubble />);
 
       const copyButton = screen.getByTestId('copy-button');
@@ -245,7 +232,7 @@ describe('ActionBubble Component', () => {
     });
 
     it('should show success toast after successful copy', async () => {
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState());
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState(), fileOperations: [] });
       render(<ActionBubble />);
 
       const copyButton = screen.getByTestId('copy-button');
@@ -258,7 +245,7 @@ describe('ActionBubble Component', () => {
 
     it('should show error toast when clipboard write fails', async () => {
       (navigator.clipboard.writeText as jest.Mock).mockRejectedValue(new Error('Permission denied'));
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState());
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState(), fileOperations: [] });
       render(<ActionBubble />);
 
       const copyButton = screen.getByTestId('copy-button');
@@ -271,7 +258,7 @@ describe('ActionBubble Component', () => {
 
     it('should auto-dismiss toast after 2.5 seconds', async () => {
       jest.useFakeTimers();
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState());
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState(), fileOperations: [] });
       render(<ActionBubble />);
 
       const copyButton = screen.getByTestId('copy-button');
@@ -295,9 +282,7 @@ describe('ActionBubble Component', () => {
     });
 
     it('should not attempt copy when codeSnippet is null', () => {
-      mockUseAgentActivity.mockReturnValue(
-        mockAgentActivityState({ codeSnippet: null })
-      );
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState({ codeSnippet: null }), fileOperations: [] });
       render(<ActionBubble />);
 
       // No copy button rendered when code is absent
@@ -308,28 +293,28 @@ describe('ActionBubble Component', () => {
   // ── Accessibility Tests ────────────────────────────────────────────────────
   describe('Accessibility (WCAG 2.1 AA)', () => {
     it('should have region role with aria-label', () => {
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState());
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState(), fileOperations: [] });
       render(<ActionBubble />);
       const bubble = screen.getByRole('region', { name: 'Agent activity monitor' });
       expect(bubble).toBeInTheDocument();
     });
 
     it('should have aria-label on copy button', () => {
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState());
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState(), fileOperations: [] });
       render(<ActionBubble />);
       const copyButton = screen.getByLabelText('Copy code to clipboard');
       expect(copyButton).toBeInTheDocument();
     });
 
     it('should have aria-hidden on decorative icon', () => {
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState());
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState(), fileOperations: [] });
       render(<ActionBubble />);
       const icon = screen.getByTestId('agent-icon');
       expect(icon).toHaveAttribute('aria-hidden', 'true');
     });
 
     it('should announce toast with aria-live polite', async () => {
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState());
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState(), fileOperations: [] });
       render(<ActionBubble />);
 
       fireEvent.click(screen.getByTestId('copy-button'));
@@ -344,39 +329,33 @@ describe('ActionBubble Component', () => {
   // ── Edge Cases & Error Handling ────────────────────────────────────────────
   describe('Edge Cases', () => {
     it('should handle missing spriteColor gracefully', () => {
-      mockUseAgentActivity.mockReturnValue(
-        mockAgentActivityState({
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState({
           activeAgent: {
             id: 'orchestrator',
             name: 'orchestrator',
             description: 'Orchestrates workflows',
             // spriteColor is undefined
           },
-        })
-      );
+        }), fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('action-bubble')).toBeInTheDocument();
     });
 
     it('should handle unknown TDD phase with fallback color', () => {
-      mockUseAgentActivity.mockReturnValue(
-        mockAgentActivityState({
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState({
           currentAction: {
             type: 'UNKNOWN' as any,
             cycle: 1,
             description: 'Unknown phase',
           },
-        })
-      );
+        }), fileOperations: [] });
       render(<ActionBubble />);
       const label = screen.getByTestId('action-label');
       expect(label).toHaveStyle({ color: '#CCCCCC' }); // Fallback color
     });
 
     it('should handle unknown status with fallback icon', () => {
-      mockUseAgentActivity.mockReturnValue(
-        mockAgentActivityState({ status: 'unknown' as any })
-      );
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState({ status: 'unknown' as any }), fileOperations: [] });
       render(<ActionBubble />);
       const statusIndicator = screen.getByTestId('status-indicator');
       expect(statusIndicator).toHaveTextContent('⏸️'); // Fallback icon
@@ -384,15 +363,13 @@ describe('ActionBubble Component', () => {
 
     it('should handle very long descriptions with truncation', () => {
       const longDescription = 'A'.repeat(200);
-      mockUseAgentActivity.mockReturnValue(
-        mockAgentActivityState({
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState({
           currentAction: {
             type: 'REFACTOR',
             cycle: 5,
             description: longDescription,
           },
-        })
-      );
+        }), fileOperations: [] });
       render(<ActionBubble />);
       const description = screen.getByTestId('action-description');
       // Should have truncate class
@@ -400,15 +377,13 @@ describe('ActionBubble Component', () => {
     });
 
     it('should handle code with special characters', () => {
-      mockUseAgentActivity.mockReturnValue(
-        mockAgentActivityState({
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState({
           codeSnippet: {
             language: 'html',
             content: '<div class="test">&nbsp;</div>',
             lineNumbers: [1],
           },
-        })
-      );
+        }), fileOperations: [] });
       render(<ActionBubble />);
       expect(screen.getByTestId('code-content')).toHaveTextContent('<div class="test">&nbsp;</div>');
     });
@@ -428,7 +403,7 @@ describe('ActionBubble Component', () => {
         return <ActionBubble />;
       };
 
-      mockUseAgentActivity.mockReturnValue(mockAgentActivityState());
+      mockUseAgentActivity.mockReturnValue({ activity: mockAgentActivityState(), fileOperations: [] });
       const { rerender } = render(<TestWrapper />);
       
       expect(renderSpy).toHaveBeenCalledTimes(1);

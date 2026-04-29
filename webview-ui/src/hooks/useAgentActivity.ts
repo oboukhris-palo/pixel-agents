@@ -7,16 +7,26 @@
  *   - AC5: Integration point with useExtensionMessages
  */
 
-import { useExtensionMessages, type AgentActivityState } from './useExtensionMessages.js';
+import { useExtensionMessages, type AgentActivityState, type FileOperation } from './useExtensionMessages.js';
 
-export type { AgentActivityState };
+export type { AgentActivityState, FileOperation };
+
+export interface UseAgentActivityResult {
+  activity: AgentActivityState | null;
+  fileOperations: FileOperation[];
+}
 
 /**
  * Custom hook that provides real-time agent activity state.
  * Returns the latest AgentActivityState from the backend monitor,
  * or null if no update has been received yet.
+ * Also exposes recent file operations tracked by the backend.
  */
-export function useAgentActivity(): AgentActivityState | null {
+export function useAgentActivity(): UseAgentActivityResult {
   const messages = useExtensionMessages();
-  return messages.agentActivityState ?? null;
+  const activity = messages.agentActivityState ?? null;
+  return {
+    activity,
+    fileOperations: activity?.fileOperations ?? [],
+  };
 }

@@ -138,7 +138,7 @@ function App() {
   const { tokenUsage } = useContextWindow()
   
   // Agent Activity tracking (US-001-002) - for real-time bubble updates
-  const agentActivity = useAgentActivity()
+  const { activity: agentActivity } = useAgentActivity()
 
   const [isDebugMode] = useState(false)
   

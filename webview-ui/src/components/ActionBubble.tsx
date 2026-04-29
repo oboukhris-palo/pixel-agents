@@ -152,7 +152,7 @@ function CodeSnippetDisplay({ content, language, onCopy, copyState }: CodeSnippe
  * Wrapped in React.memo to prevent unnecessary re-renders from sibling updates.
  */
 export const ActionBubble = memo(function ActionBubble() {
-  const activity = useAgentActivity();
+  const { activity } = useAgentActivity();
   const [copyState, setCopyState] = useState<'idle' | 'success' | 'error'>('idle');
 
   const handleCopy = useCallback(async () => {
