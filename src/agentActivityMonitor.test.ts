@@ -421,4 +421,51 @@ icon: "🔴"
       expect(state.historySnapshots!.length).toBeLessThanOrEqual(50); // Max limit
     });
   });
+
+  describe('File Operation Tracking (v1.0.5)', () => {
+    it('should track a file operation', () => {
+      monitor = new AgentActivityMonitor(mockWorkspaceFolder);
+      monitor.trackFileOperation({ type: 'read', filePath: 'src/types.ts', timestamp: Date.now() });
+
+      const ops = monitor.getRecentFileOperations();
+      expect(ops).toHaveLength(1);
+      expect(ops[0].type).toBe('read');
+      expect(ops[0].filePath).toBe('src/types.ts');
+    });
+
+    it('should track multiple file operations in order', () => {
+      monitor = new AgentActivityMonitor(mockWorkspaceFolder);
+      monitor.trackFileOperation({ type: 'read', filePath: 'src/a.ts', timestamp: 100 });
+      monitor.trackFileOperation({ type: 'write', filePath: 'src/b.ts', timestamp: 200 });
+      monitor.trackFileOperation({ type: 'delete', filePath: 'src/c.ts', timestamp: 300 });
+
+      const ops = monitor.getRecentFileOperations();
+      expect(ops).toHaveLength(3);
+      expect(ops[2].filePath).toBe('src/c.ts');
+    });
+
+    it('should evict oldest operation when buffer exceeds MAX_FILE_OPS (10)', () => {
+      monitor = new AgentActivityMonitor(mockWorkspaceFolder);
+
+      // Add 11 operations
+      for (let i = 0; i < 11; i++) {
+        monitor.trackFileOperation({ type: 'write', filePath: `src/file${i}.ts`, timestamp: i });
+      }
+
+      const ops = monitor.getRecentFileOperations();
+      expect(ops).toHaveLength(10);
+      // Oldest (file0) should be evicted; file1 should be first
+      expect(ops[0].filePath).toBe('src/file1.ts');
+    });
+
+    it('should clear file operations on dispose', () => {
+      monitor = new AgentActivityMonitor(mockWorkspaceFolder);
+      monitor.trackFileOperation({ type: 'read', filePath: 'src/x.ts', timestamp: Date.now() });
+
+      monitor.dispose();
+
+      const ops = monitor.getRecentFileOperations();
+      expect(ops).toHaveLength(0);
+    });
+  });
 });

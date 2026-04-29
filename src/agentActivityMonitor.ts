@@ -21,6 +21,7 @@ import {
   getDefaultAgentActivityState,
   CODE_DISPLAY_CONFIG,
 } from './agentActivityTypes.js';
+import type { FileOperation } from './implementationPlanTypes.js';
 
 // ── TDD commit message pattern ────────────────────────────────────────────────
 // Matches: TDD-EPIC-XXX-US-XXX-RED-01: description
@@ -58,6 +59,10 @@ export class AgentActivityMonitor extends EventEmitter {
   private monitoring: boolean = false;
   private currentState: AgentActivityState;
   private debounceTimer: NodeJS.Timeout | null = null;
+
+  /** FIFO buffer of recent file operations (max MAX_FILE_OPS) */
+  private fileOperationBuffer: FileOperation[] = [];
+  private static readonly MAX_FILE_OPS = 10;
 
   constructor(
     workspaceFolder: string,
@@ -98,7 +103,26 @@ export class AgentActivityMonitor extends EventEmitter {
       clearTimeout(this.debounceTimer);
       this.debounceTimer = null;
     }
+    this.fileOperationBuffer = [];
     this.removeAllListeners();
+  }
+
+  /**
+   * Record a file operation in the FIFO buffer (max 10).
+   * Used to populate the "what the agent is doing" action bubble.
+   */
+  trackFileOperation(op: FileOperation): void {
+    if (this.fileOperationBuffer.length >= AgentActivityMonitor.MAX_FILE_OPS) {
+      this.fileOperationBuffer.shift();
+    }
+    this.fileOperationBuffer.push(op);
+  }
+
+  /**
+   * Return a copy of the recent file operations buffer.
+   */
+  getRecentFileOperations(): FileOperation[] {
+    return [...this.fileOperationBuffer];
   }
   
   /**
