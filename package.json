@@ -2,7 +2,7 @@
   "name": "pixel-agents",
   "displayName": "Pixel Agents",
   "description": "Pixel art office where your GitHub Copilot agents come to life as animated characters",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "icon": "icon.png",
   "license": "MIT",
   "engines": {
