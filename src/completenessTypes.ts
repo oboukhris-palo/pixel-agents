@@ -183,3 +183,27 @@ export function getDefaultProjectMetrics(): ProjectMetrics {
 		milestones: []
 	};
 }
+
+/**
+ * A single step in the KPI verification report
+ */
+export interface KpiVerificationStep {
+	/** Name of the KPI being verified */
+	name: string;
+	/** Calculated value */
+	value: number;
+	/** Whether the value is within a valid/expected range */
+	valid: boolean;
+}
+
+/**
+ * Report returned by CompletenessCalculator.verifyKpiCalculations()
+ */
+export interface KpiVerificationReport {
+	/** Individual step results */
+	steps: KpiVerificationStep[];
+	/** True if ALL steps are valid */
+	allValid: boolean;
+	/** Full metrics snapshot at the time of verification */
+	metrics: ProjectMetrics;
+}

@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { TaskInfo, TaskProgressionState, TaskStatus, getDefaultTaskState, isValidTaskInfo } from './types';
 import { VALID_TASK_STATUSES, TASK_PROGRESSION_UPDATE_DEBOUNCE_MS } from './constants';
+import { ImplementationPlanParser } from './implementationPlanParser.js';
 
 // Regular expression patterns for parsing user stories
 const STORY_HEADER_PATTERN = /### (US-\d+-\d+): (.+)/g;
@@ -43,6 +44,7 @@ export class TaskProgressionTracker {
   private fileWatcher: vscode.FileSystemWatcher | null = null;
   private debounceTimer: NodeJS.Timeout | null = null;
   private eventEmitter: vscode.EventEmitter<TaskProgressionState> | null = null;
+  private planParser: ImplementationPlanParser | null = null;
   
   /**
    * Event fired when task progression state changes
@@ -64,6 +66,12 @@ export class TaskProgressionTracker {
       '05-implementation',
       'user-stories.md'
     );
+    
+    // Initialize implementation plan parser (v1.0.5)
+    if (enableWatcher) {
+      const workspaceUri = vscode.Uri.file(workspaceRoot);
+      this.planParser = new ImplementationPlanParser(workspaceUri);
+    }
     
     // Initialize file watcher only when requested (VS Code extension context)
     if (enableWatcher) {
@@ -96,8 +104,8 @@ export class TaskProgressionTracker {
           clearTimeout(this.debounceTimer);
         }
         
-        this.debounceTimer = setTimeout(() => {
-          const state = this.getCurrentTaskProgression();
+        this.debounceTimer = setTimeout(async () => {
+          const state = await this.getCurrentTaskProgression();
           this.eventEmitter?.fire(state);
         }, TASK_PROGRESSION_UPDATE_DEBOUNCE_MS);
       };
@@ -273,16 +281,18 @@ export class TaskProgressionTracker {
    * - Previous task: Most recent completed task
    * - Current task: First in-progress task found
    * - Next task: Next not-started task after current
+   * - Plan checkpoint: Checkbox data from implementation-plan.md (v1.0.5)
    * 
-   * @returns TaskProgressionState with previous, current, next tasks
+   * @returns TaskProgressionState with previous, current, next tasks and plan checkpoints
    * 
    * @example
-   * const state = tracker.getCurrentTaskProgression();
+   * const state = await tracker.getCurrentTaskProgression();
    * console.log(state.current.storyId); // "US-001-002"
    * console.log(state.previous?.title); // "Task Progression Bar"
    * console.log(state.next?.title); // "Completeness Meter"
+   * console.log(state.planCheckpoint?.completedCheckboxes); // 4
    */
-  getCurrentTaskProgression(): TaskProgressionState {
+  async getCurrentTaskProgression(): Promise<TaskProgressionState> {
     try {
       // Check if file exists
       if (!fs.existsSync(this.userStoriesPath)) {
@@ -310,10 +320,35 @@ export class TaskProgressionTracker {
       const previous = this.findPreviousTask(current, allTasks);
       const next = this.findNextTask(current, allTasks);
 
+      // v1.0.5: Fetch plan checkpoint data for current task
+      let planCheckpoint: TaskProgressionState['planCheckpoint'] = null;
+      if (this.planParser && current.epic && current.storyId) {
+        try {
+          const taskProgression = await this.planParser.getCurrentTaskProgression();
+          if (taskProgression) {
+            // Extract epic and story references from current task (e.g. "EPIC-001" and "US-001")
+            const epicRef = current.epic.startsWith('EPIC-') ? current.epic : `EPIC-${current.epic}`;
+            const storyRef = current.storyId.startsWith('US-') ? current.storyId : `US-${current.storyId}`;
+            
+            planCheckpoint = {
+              planPath: `docs/05-implementation/epics/${epicRef}/user-stories/${storyRef}/implementation-plan.md`,
+              totalCheckboxes: taskProgression.totalCheckboxes,
+              completedCheckboxes: taskProgression.completedCheckboxes,
+              // ✅ FIX: Pass full checkbox object, not just description string
+              currentCheckbox: taskProgression.currentCheckbox || null,
+              nextCheckbox: taskProgression.nextCheckbox || null,
+            };
+          }
+        } catch (error) {
+          console.warn('[TaskProgressionTracker] Failed to fetch plan checkpoint:', error);
+        }
+      }
+
       return {
         previous,
         current,
         next,
+        planCheckpoint, // v1.0.5: Add plan checkpoint data
       };
     } catch (error) {
       console.error('[TaskProgressionTracker] Error reading task progression:', error);

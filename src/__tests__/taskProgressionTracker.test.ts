@@ -351,8 +351,8 @@ describe('TaskProgressionTracker', () => {
       mockFs.readFileSync.mockReturnValue(mockUserStoriesContent);
     });
 
-    it('should return current task progression state', () => {
-      const state = tracker.getCurrentTaskProgression();
+    it('should return current task progression state', async () => {
+      const state = await tracker.getCurrentTaskProgression();
 
       expect(state.previous).toEqual({
         storyId: 'US-001-001',
@@ -378,10 +378,10 @@ describe('TaskProgressionTracker', () => {
       });
     });
 
-    it('should return default state when file does not exist', () => {
+    it('should return default state when file does not exist', async () => {
       mockFs.existsSync.mockReturnValue(false);
 
-      const state = tracker.getCurrentTaskProgression();
+      const state = await tracker.getCurrentTaskProgression();
 
       expect(state.previous).toBeNull();
       expect(state.current.storyId).toBe('Unknown');
@@ -389,7 +389,7 @@ describe('TaskProgressionTracker', () => {
       expect(state.next).toBeNull();
     });
 
-    it('should return default state when no in-progress task found', () => {
+    it('should return default state when no in-progress task found', async () => {
       const noInProgressContent = `
 ### US-001-001: Story 1
 - **Status**: not-started
@@ -397,19 +397,19 @@ describe('TaskProgressionTracker', () => {
 `;
       mockFs.readFileSync.mockReturnValue(noInProgressContent);
 
-      const state = tracker.getCurrentTaskProgression();
+      const state = await tracker.getCurrentTaskProgression();
 
       expect(state.previous).toBeNull();
       expect(state.current.storyId).toBe('Unknown');
       expect(state.next).toBeNull();
     });
 
-    it('should handle file read errors gracefully', () => {
+    it('should handle file read errors gracefully', async () => {
       mockFs.readFileSync.mockImplementation(() => {
         throw new Error('File read error');
       });
 
-      const state = tracker.getCurrentTaskProgression();
+      const state = await tracker.getCurrentTaskProgression();
 
       expect(state.previous).toBeNull();
       expect(state.current.storyId).toBe('Unknown');
@@ -443,23 +443,23 @@ describe('TaskProgressionTracker', () => {
       expect(result[0].storyId).toBe('US-001-001');
     });
 
-    it('BDD: should identify previous/current/next tasks accurately', () => {
+    it('BDD: should identify previous/current/next tasks accurately', async () => {
       mockFs.existsSync.mockReturnValue(true);
       mockFs.readFileSync.mockReturnValue(mockUserStoriesContent);
 
-      const state = tracker.getCurrentTaskProgression();
+      const state = await tracker.getCurrentTaskProgression();
 
       expect(state.previous?.status).toBe('completed');
       expect(state.current.status).toBe('in-progress');
       expect(state.next?.status).toBe('not-started');
     });
 
-    it('BDD: should handle missing/malformed data without crashes', () => {
+    it('BDD: should handle missing/malformed data without crashes', async () => {
       mockFs.readFileSync.mockReturnValue('Invalid content ###');
 
       expect(() => tracker.getCurrentTaskProgression()).not.toThrow();
       
-      const state = tracker.getCurrentTaskProgression();
+      const state = await tracker.getCurrentTaskProgression();
       expect(state.current.storyId).toBe('Unknown');
     });
   });

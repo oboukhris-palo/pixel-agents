@@ -390,8 +390,8 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
 							console.log('[Extension] 📋 Initializing task progression tracker...');
 							this.taskProgressionTracker = new TaskProgressionTracker(workspaceRoot, true);
 							
-							// Send initial task progression state
-							const initialProgression = this.taskProgressionTracker.getCurrentTaskProgression();
+							// Send initial task progression state (v1.0.5: async with plan checkpoints)
+							const initialProgression = await this.taskProgressionTracker.getCurrentTaskProgression();
 							if (this.webview) {
 								this.webview.postMessage({
 									type: 'task.progression',

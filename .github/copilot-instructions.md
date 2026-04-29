@@ -232,6 +232,7 @@ All backend→frontend communication uses 5 strongly-typed messages:
 
 ### �📚 Key Resources
 
+- **implementation-plan.md** — v1.0.5 master plan with architectural decisions and Chat Participant API discovery
 - **WORKFLOW-IMPLEMENTATION.md** — Complete architectural specification (5,000+ lines)
   - Backend monitor implementations (TypeScript code examples)
   - Frontend component implementations (React code examples)
@@ -246,6 +247,24 @@ All backend→frontend communication uses 5 strongly-typed messages:
   - `icon` — Role-specific emoji or symbol
   - `displayName` — Human-readable name
   - `description` — Agent role and capabilities
+
+---
+
+## 🔮 Optional Future Enhancement: Chat Participant Integration
+
+**Discovery (April 2026)**: VS Code Chat Participant API enables explicit integration with Copilot Chat.
+
+**What's Possible**:
+- Create `@pixel-agents` participant users can invoke in chat
+- Access chat context: `request.prompt`, `request.variables` (#file references), `context.history`
+- Respond with project status, metrics, implementation progress inline in chat
+- Add "Open Dashboard" buttons in chat responses
+
+**Key Limitation**: Requires explicit @-mention (not passive tracking)
+
+**Status**: DEFERRED to post-v1.0.5 (see implementation-plan.md for full specification)
+
+**Why Defer**: Current v1.0.5 scope comprehensive (11 story points); Chat Participant is additive, not essential; better validated after core features deployed.
 
 ---
 

@@ -26,7 +26,7 @@
 
 /* DONE Label (AC1) */
 .doneLabel {
-  font-size: 11px;
+  font-size: 13px; /* Increased from 11px per plan */
   color: var(--vscode-foreground-muted, #808080);
   font-weight: 600;
   text-transform: uppercase;
@@ -36,7 +36,7 @@
 
 /* Percentage Display (AC2) */
 .percentageValue {
-  font-size: 32px;
+  font-size: 36px; /* Increased from 32px per plan */
   font-weight: 700;
   color: var(--vscode-foreground, #ffffff);
   font-family: var(--font-mono);
@@ -113,7 +113,7 @@
 }
 
 .statLabel {
-  font-size: 10px;
+  font-size: 12px; /* Increased from 10px per plan - minimum readability */
   color: var(--vscode-foreground-muted, #808080); /* AC7: muted color */
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -121,7 +121,7 @@
 }
 
 .statValue {
-  font-size: 11px;
+  font-size: 13px; /* Increased from 11px per plan */
   color: var(--vscode-foreground, #ffffff); /* AC7: white */
   font-weight: 600; /* AC7: weight 600 */
   font-family: var(--font-mono);

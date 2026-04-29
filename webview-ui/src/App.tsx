@@ -179,23 +179,40 @@ function App() {
       os.selectedAgentId = agentId
       setSelectedAgentIdForSidebar(agentId) // Update state to trigger sidebar re-render
       
-      // Show action bubble with real-time activity
+      // Show action bubble persistently (v1.0.5: No auto-dismiss)
       char.bubbleType = 'waiting'
-      char.bubbleTimer = 3 // Show for 3 seconds
+      char.bubbleTimer = 999999 // Persist until user dismisses (per plan Section 4.3)
       
-      // Get real-time activity for this agent
+      // Get real-time activity and file operations for this agent
+      let bubbleContent = ''
       if (agentActivity && agentActivity.activeAgent?.id === char.agentRole) {
         // Agent is currently active - show real activity
-        char.bubbleText = agentActivity.currentAction.description || 'Working...'
+        bubbleContent = agentActivity.currentAction.description || 'Working...'
+        
+        // Add file operations if available (v1.0.5: Show recent files)
+        const { fileOperations } = agentActivity
+        if (fileOperations && fileOperations.length > 0) {
+          const recentOps = fileOperations.slice(0, 3) // Show last 3 operations
+          const opLines = recentOps.map(op => {
+            const fileName = op.filePath.split('/').pop() || op.filePath
+            return `${op.type === 'read' ? 'Reading' : 'Writing'}: ${fileName}`
+          })
+          bubbleContent += '\n' + opLines.join('\n')
+          
+          if (fileOperations.length > 3) {
+            bubbleContent += `\n${fileOperations.length - 3} more files...`
+          }
+        }
       } else if (char.isActive) {
         // Character marked active but no current activity
-        char.bubbleText = 'Working...'
+        bubbleContent = 'Working...'
       } else {
         // Agent is idle
-        char.bubbleText = 'Idle'
+        bubbleContent = 'Idle'
       }
       
-      console.log(`[Canvas] Clicked character ${agentId} (${char.agentRole}), showing bubble: "${char.bubbleText}"`)
+      char.bubbleText = bubbleContent
+      console.log(`[Canvas] Clicked character ${agentId} (${char.agentRole}), showing persistent bubble: "${bubbleContent}"`)
     }
   }, [agentActivity])
 
@@ -344,27 +361,45 @@ function App() {
               os.selectedAgentId = foundCharacter.id
               setSelectedAgentIdForSidebar(foundCharacter.id) // Update state to trigger sidebar re-render
               
-              // Show action bubble with caption
+              // Show action bubble persistently (v1.0.5: No auto-dismiss)
               const char = foundCharacter.char
               char.bubbleType = 'waiting'
-              char.bubbleTimer = 3 // Show for 3 seconds
+              char.bubbleTimer = 999999 // Persist until user dismisses (per plan Section 4.3)
               
-              // Get real-time activity for this agent
+              // Get real-time activity and file operations for this agent
+              let bubbleContent = ''
               if (agentActivity && agentActivity.activeAgent?.id === char.agentRole) {
                 // Agent is currently active - show real activity
-                char.bubbleText = agentActivity.currentAction.description || 'Working...'
+                bubbleContent = agentActivity.currentAction.description || 'Working...'
+                
+                // Add file operations if available (v1.0.5: Show recent files)
+                const { fileOperations } = agentActivity
+                if (fileOperations && fileOperations.length > 0) {
+                  const recentOps = fileOperations.slice(0, 3) // Show last 3 operations
+                  const opLines = recentOps.map(op => {
+                    const fileName = op.filePath.split('/').pop() || op.filePath
+                    return `${op.type === 'read' ? 'Reading' : 'Writing'}: ${fileName}`
+                  })
+                  bubbleContent += '\n' + opLines.join('\n')
+                  
+                  if (fileOperations.length > 3) {
+                    bubbleContent += `\n${fileOperations.length - 3} more files...`
+                  }
+                }
               } else if (char.isActive) {
                 // Character marked active but no current activity
-                char.bubbleText = 'Working...'
+                bubbleContent = 'Working...'
               } else {
                 // Agent is idle
-                char.bubbleText = 'Idle'
+                bubbleContent = 'Idle'
               }
+              
+              char.bubbleText = bubbleContent
               
               // Focus camera on selected character (optional)
               os.cameraFollowId = foundCharacter.id
               
-              console.log(`[AgentSidebar] Selected agent ${agentName} (character ID: ${foundCharacter.id}), bubble: "${char.bubbleText}"`)
+              console.log(`[AgentSidebar] Selected agent ${agentName} (character ID: ${foundCharacter.id}), persistent bubble: "${bubbleContent}"`)
               
               // Force re-render to show bubble (trigger canvas update)
               const canvasEvent = new CustomEvent('agent-selected', { detail: { agentId: foundCharacter.id } })

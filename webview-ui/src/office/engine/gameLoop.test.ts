@@ -101,8 +101,12 @@ describe('startGameLoop', () => {
     const renderMock = jest.fn();
     const stop = startGameLoop(makeCanvas(), { update: jest.fn(), render: renderMock });
 
-    tickRaf(16);   // frame 1 — schedules frame 2
-    tickRaf(32);   // frame 2 — schedules frame 3
+    // FRAME_SKIP=4: renders every 5th frame (frameCount % 4 === 0)
+    tickRaf(16);   // frame 0 — renders (0 % 4 === 0)
+    tickRaf(32);   // frame 1 — skipped (1 % 4 !== 0)
+    tickRaf(48);   // frame 2 — skipped
+    tickRaf(64);   // frame 3 — skipped
+    tickRaf(80);   // frame 4 — renders (4 % 4 === 0)
 
     expect(renderMock).toHaveBeenCalledTimes(2);
     stop();

@@ -7,7 +7,7 @@
  */
 
 import * as vscode from 'vscode';
-import { ProjectMetrics, getDefaultProjectMetrics, calculateCompletionPercentage } from './completenessTypes';
+import { ProjectMetrics, KpiVerificationReport, KpiVerificationStep, getDefaultProjectMetrics, calculateCompletionPercentage } from './completenessTypes';
 
 /**
  * Story status extracted from user-stories.md
@@ -335,6 +335,66 @@ export class CompletenessCalculator {
 	 */
 	dispose(): void {
 		this.stopMonitoring();
+	}
+
+	/**
+	 * Verify KPI calculations by logging each step and returning a summary report.
+	 *
+	 * Calculates fresh metrics, logs every step to the output channel for
+	 * debugging, and returns a report indicating whether each KPI value is
+	 * within expected range.
+	 *
+	 * @returns KpiVerificationReport with per-metric status and full metrics snapshot
+	 */
+	async verifyKpiCalculations(): Promise<KpiVerificationReport> {
+		this.log('=== KPI Verification started ===');
+
+		const metrics = await this.calculateMetrics();
+
+		this.log(`storiesTotal:      ${metrics.storiesTotal}`);
+		this.log(`storiesCompleted:  ${metrics.storiesCompleted}`);
+		this.log(`testsTotal:        ${metrics.testsTotal}`);
+		this.log(`testsPassing:      ${metrics.testsPassing}`);
+		this.log(`codeCoverage:      ${metrics.codeCoverage}%`);
+		this.log(`completionPct:     ${metrics.completionPercentage}%`);
+
+		const steps: KpiVerificationStep[] = [
+			{
+				name: 'storiesTotal',
+				value: metrics.storiesTotal,
+				valid: metrics.storiesTotal >= 0,
+			},
+			{
+				name: 'storiesCompleted',
+				value: metrics.storiesCompleted,
+				valid: metrics.storiesCompleted >= 0 && metrics.storiesCompleted <= metrics.storiesTotal,
+			},
+			{
+				name: 'testsTotal',
+				value: metrics.testsTotal,
+				valid: metrics.testsTotal >= 0,
+			},
+			{
+				name: 'testsPassing',
+				value: metrics.testsPassing,
+				valid: metrics.testsPassing >= 0 && metrics.testsPassing <= metrics.testsTotal,
+			},
+			{
+				name: 'codeCoverage',
+				value: metrics.codeCoverage,
+				valid: metrics.codeCoverage >= 0 && metrics.codeCoverage <= 100,
+			},
+			{
+				name: 'completionPercentage',
+				value: metrics.completionPercentage,
+				valid: metrics.completionPercentage >= 0 && metrics.completionPercentage <= 100,
+			},
+		];
+
+		const allValid = steps.every(s => s.valid);
+		this.log(`=== KPI Verification ${allValid ? 'PASSED' : 'FAILED'} ===`);
+
+		return { steps, allValid, metrics };
 	}
 
 	/**

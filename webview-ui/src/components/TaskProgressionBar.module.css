@@ -195,7 +195,7 @@
 }
 
 .storyId {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 400; /* Regular weight */
   color: inherit; /* Inherit from card (.taskCardPrevious: #999999, .taskCardCurrent: #ff5500, .taskCardNext: #666666) */
   line-height: 1;
@@ -204,7 +204,7 @@
 }
 
 .title {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 400; /* Regular weight */
   color: inherit; /* Inherit from card */
   line-height: 1;
@@ -216,12 +216,12 @@
 
 .layer,
 .cycle {
-  font-size: var(--text-caption); /* 10px */
+  font-size: 12px; /* Increased from 10px per plan */
   color: var(--vscode-foreground-muted);
 }
 
 .emptyState {
-  font-size: var(--text-caption); /* 10px */
+  font-size: 12px; /* Increased from 10px per plan */
   color: var(--vscode-foreground-faint);
   font-style: italic;
   white-space: nowrap;

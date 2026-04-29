@@ -213,4 +213,34 @@ Some story here
 			expect(metrics.storiesCompleted).toBe(1); // Only "Delivered"
 		});
 	});
+
+        describe('verifyKpiCalculations()', () => {
+                it('returns a KpiVerificationReport with allValid true when metrics are valid', async () => {
+                        const report = await calculator.verifyKpiCalculations();
+                        expect(report).toHaveProperty('steps');
+                        expect(report).toHaveProperty('allValid');
+                        expect(report).toHaveProperty('metrics');
+                        expect(Array.isArray(report.steps)).toBe(true);
+                        expect(report.allValid).toBe(true);
+                });
+
+                it('includes steps for all key KPIs', async () => {
+                        const report = await calculator.verifyKpiCalculations();
+                        const names = report.steps.map(s => s.name);
+                        expect(names).toContain('storiesTotal');
+                        expect(names).toContain('storiesCompleted');
+                        expect(names).toContain('testsTotal');
+                        expect(names).toContain('testsPassing');
+                        expect(names).toContain('codeCoverage');
+                        expect(names).toContain('completionPercentage');
+                });
+
+                it('logs each calculation step to the output channel', async () => {
+                        const mockChannel = { appendLine: jest.fn() } as unknown as vscode.OutputChannel;
+                        const calcWithChannel = new CompletenessCalculator(mockWorkspaceRoot, mockChannel);
+                        await calcWithChannel.verifyKpiCalculations();
+                        expect(mockChannel.appendLine).toHaveBeenCalledWith(expect.stringContaining('KPI Verification'));
+                        expect(mockChannel.appendLine).toHaveBeenCalledWith(expect.stringContaining('storiesTotal'));
+                });
+        });
 });

@@ -2,9 +2,10 @@
 
 **Project**: Pixel Agents VS Code Extension (v1.0.5)  
 **Created**: 2026-04-29  
+**Revised**: 2026-04-29 (Scope corrected based on VS Code API analysis)  
 **Status**: 📋 READY FOR EXECUTION  
-**Total Estimated Effort**: 13 story points (~40-48 hours over 5-6 days)  
-**TDD Cycles**: Estimated 12 cycles (3 per major layer group)  
+**Total Estimated Effort**: 11 story points (~32-40 hours over 4-5 days)  
+**TDD Cycles**: Estimated 11 cycles (scope reduced after architectural review)  
 
 ---
 
@@ -13,15 +14,132 @@
 This plan addresses critical UI/UX improvements and KPI validation for the Pixel Agents extension based on production usage feedback. The extension currently displays agent activity but needs enhancements in task progression visibility, agent interaction patterns, information density, and metric accuracy.
 
 **Key Improvements**:
-1. **Task Bar Integration**: Connect to implementation-plan.md to show copilot chat workflow context
+1. **Task Bar Integration**: Connect to implementation-plan.md to show git commit workflow context
 2. **Agent Sidebar Enhancement**: Display TDD agents as disabled with visual indicators
-3. **Agent Bubble Persistence**: Keep bubbles visible until user interaction + show file operations
+3. **Agent Bubble Persistence**: Keep bubbles visible until user interaction (git commit descriptions)
 4. **Context Bar Popup**: Improve positioning and readability
 5. **Font Size Normalization**: Increase readability across all components (12-14px minimum)
 6. **Footer Bar Visibility**: Enhance contrast and font size
 7. **KPI Verification**: Validate completeness calculation accuracy
 
+**Scope Corrections** (based on VS Code API analysis):
+- **Removed**: Real-time file operation tracking (not feasible - extension can't observe Copilot Chat internals)
+- **Kept**: Git-based agent activity tracking (existing AgentActivityMonitor works well)
+- **Clarified**: Extension observes workspace events only (file create/delete/rename, document changes)
+
 **Framework Context**: This project uses gene2-core framework for orchestrated AI-first delivery. The extension visualizes this workflow through implementation-plan.md checkboxes, which should drive the task progression bar display.
+
+**⚠️ CRITICAL ARCHITECTURAL REALITY CHECK**:
+- **What We CAN Do**: Parse implementation-plan.md files, monitor file system changes (create/delete/rename), display task progression from markdown checkboxes
+- **What We CANNOT Do**: Track real-time file read/write operations by AI agents, determine which agent is currently active without git commits, directly observe Copilot Chat internal state
+- **Why**: The extension runs in VS Code extension host, separate from Copilot Chat. We only get notifications through git commits (existing AgentActivityMonitor approach) or explicit user actions. VS Code API doesn't expose granular file operation events during AI agent work.
+
+---
+
+## 📚 VS Code Extension API Capabilities & Limitations
+
+**Reference**: [VS Code API Documentation](https://code.visualstudio.com/api/references/vscode-api)
+
+### ✅ What We CAN Do
+
+1. **File System Monitoring** (workspace namespace):
+   - `workspace.createFileSystemWatcher(globPattern)` → FileSystemWatcher with onDidCreate/onDidChange/onDidDelete events
+   - `workspace.onDidCreateFiles: Event<FileCreateEvent>` → When files are created
+   - `workspace.onDidDeleteFiles: Event<FileDeleteEvent>` → When files are deleted
+   - `workspace.onDidRenameFiles: Event<FileRenameEvent>` → When files are renamed
+   - `workspace.fs.readFile(uri)` → Read file contents as Uint8Array
+
+2. **Document Change Monitoring**:
+   - `workspace.onDidChangeTextDocument: Event<TextDocumentChangeEvent>` → When document content changes
+   - `workspace.onDidSaveTextDocument: Event<TextDocument>` → When document is saved
+   - `workspace.onDidOpenTextDocument: Event<TextDocument>` → When document is opened
+   - `workspace.onDidCloseTextDocument: Event<TextDocument>` → When document is closed
+
+3. **Editor Tracking**:
+   - `window.onDidChangeActiveTextEditor: Event<TextEditor | undefined>` → When active editor changes
+   - `window.activeTextEditor: TextEditor | undefined` → Currently active editor
+
+4. **Webview Communication**:
+   - `webview.postMessage(message)` → Send messages from extension to webview
+   - `webview.onDidReceiveMessage: Event<any>` → Receive messages from webview
+   - Bi-directional communication with typed message protocol
+
+5. **Resource Lifecycle**:
+   - Disposable pattern for cleanup: `const disposable = vscode.workspace.onDidChangeTextDocument(...); disposable.dispose()`
+   - Extension context tracks disposables for automatic cleanup
+
+### ❌ What We CANNOT Do (Without User Interaction)
+
+1. **Passive Real-Time Tracking**:
+   - ❌ Cannot passively observe which AI agent is currently active (Copilot Chat internal state)
+   - ❌ Cannot track file read operations (only writes via document changes)
+   - ❌ Cannot automatically attribute file changes to specific agents without commits
+   - ❌ Cannot intercept AI agent's file system operations before they happen
+   
+2. **Granular Operation Tracking**:
+   - ❌ Cannot distinguish between "reading" and "opening" a file (only see onDidOpen)
+   - ❌ Cannot track in-memory operations (agents reading AST without opening files)
+   - ❌ Cannot observe clipboard operations or code completions automatically
+   - ❌ Cannot track when agents search/grep the codebase (no API event)
+
+3. **Direct Process Communication**:
+   - ❌ Extension runs in separate process from Copilot Chat core
+   - ❌ No direct API to query Copilot Chat internal state
+   - ❌ Cannot subscribe to Copilot-specific lifecycle events (agent started, agent finished, agent thinking)
+
+### ✅ What We CAN Do (Via Chat Participant API)
+
+**MAJOR DISCOVERY**: We can create a **Chat Participant** (@pixel-agents) that provides explicit integration!
+
+1. **Chat Context Access** (vscode.ChatRequest):
+   - ✅ `request.prompt` - User's query text
+   - ✅ `request.command` - Slash command used (e.g., /teach)
+   - ✅ `request.variables` - Chat variables (like #file, #selection references)
+   - ✅ `request.model` - Language model instance user selected
+   - ✅ `request.location` - Location (Chat view, Quick Chat, inline chat)
+
+2. **Chat History Access** (vscode.ChatContext):
+   - ✅ `context.history` - All previous ChatRequestTurn and ChatResponseTurn
+   - ✅ Filter to see previous messages where @pixel-agents was mentioned
+   - ✅ Reconstruct conversation flow and referenced files
+
+3. **File Reference Tracking**:
+   - ✅ Users can explicitly reference files via `#file:path/to/file.ts`
+   - ✅ Users can reference current selection via `#selection`
+   - ✅ We can track which files users are explicitly discussing in chat
+
+4. **Custom Participant Integration**:
+   - ✅ Create `@pixel-agents` participant that users can invoke
+   - ✅ Receive notifications when users mention our participant
+   - ✅ Parse chat variables to extract file references
+   - ✅ Provide custom responses showing current project status
+
+### 🎯 Architectural Implications
+
+**For Agent Activity Tracking**:
+- ✅ **Current Approach (Git-Based)**: AgentActivityMonitor parses TDD commit messages → Reliable and accurate
+- ❌ **Attempted Approach (Real-Time Passive)**: Monitor VS Code editor events and infer agent operations → Not feasible
+- ✅ **NEW OPTION (Chat Participant)**: Create @pixel-agents participant → Users invoke explicitly → Access chat context, file references, history
+- 📝 **Conclusion**: Keep git-based approach + ADD optional Chat Participant for explicit user integration
+
+**For Implementation Plan Integration**:
+- ✅ **Feasible**: Parse implementation-plan.md via workspace.fs.readFile → Extract checkbox states → Display in TaskProgressionBar
+- ✅ **Feasible**: Watch for plan file changes via workspace.createFileSystemWatcher → Update UI when plan is modified
+- ✅ **Feasible**: Scan user-stories.md for "In Progress" status → Determine current story → Construct plan file path
+- ✅ **NEW**: Chat Participant can reference implementation-plan.md when users ask about status
+
+**For Chat Context Integration**:
+- ✅ **Feasible**: Create @pixel-agents Chat Participant with vscode.chat.createChatParticipant()
+- ✅ **Feasible**: Access chat history via context.history to see previous agent interactions
+- ✅ **Feasible**: Parse #file variables from request.variables to track discussed files
+- ✅ **Feasible**: Respond with project status, completeness metrics, current story info
+- 🔄 **User Experience**: Requires explicit @pixel-agents mention (not passive tracking)
+
+**For UI Enhancements**:
+- ✅ **Feasible**: All proposed UI changes (fonts, colors, layout, tooltips) are pure frontend changes
+- ✅ **Feasible**: Agent bubble persistence controlled by React state (no VS Code API limitations)
+- ✅ **Feasible**: Disabled TDD agents in sidebar is UI-only filtering logic
+- ✅ **NEW**: Chat Participant icon in VS Code Chat view to invoke Pixel Agents dashboard
 
 ---
 
@@ -41,10 +159,10 @@ This plan addresses critical UI/UX improvements and KPI validation for the Pixel
 - **Spacing**: 4px base scale (maintain existing design tokens)
 
 **Dependencies**:
-- Existing TaskProgressionTracker (needs extension)
-- Existing AgentActivityMonitor (needs file operation tracking)
-- Existing CompletenesCalculator (needs verification)
-- VS Code API (fs, workspace, OutputChannel)
+- Existing TaskProgressionTracker (needs extension to read implementation-plan.md)
+- Existing AgentActivityMonitor (already tracks via git commits - NO CHANGES NEEDED)
+- Existing CompletenessCalculator (needs verification)
+- VS Code API: workspace.createFileSystemWatcher, workspace.fs, workspace.onDidCreateFiles, workspace.onDidDeleteFiles, workspace.onDidRenameFiles
 
 ---
 
@@ -55,7 +173,7 @@ This plan addresses critical UI/UX improvements and KPI validation for the Pixel
 **Files to Create/Modify** (~100-150 lines total):
 - `src/implementationPlanTypes.ts` - NEW: Types for plan structure
 - `src/implementationPlanTypes.test.ts` - NEW: Type validation tests
-- `src/agentActivityTypes.ts` - MODIFY: Add file operation tracking
+- ~~`src/agentActivityTypes.ts`~~ - NO CHANGES (existing git-based tracking is sufficient)
 
 **Key Types & Functions**:
 ```typescript
@@ -89,18 +207,20 @@ interface TaskProgressionEnhanced {
   next: TaskInfo | null;
 }
 
-// File operation tracking (extend agentActivityTypes.ts)
-interface FileOperation {
-  type: 'read' | 'write' | 'delete' | 'rename';
+// File system change tracking (for completeness only - NOT per-agent)
+// This tracks workspace-level file changes, not agent-specific operations
+interface FileSystemChange {
+  type: 'create' | 'delete' | 'rename';
   filePath: string;
   timestamp: number;
+  oldPath?: string; // For rename operations
 }
 
-interface AgentActionEnhanced extends AgentAction {
-  description: string;
-  fileOperations: FileOperation[];
-  codeSnippet?: string;
-  lastUpdated: number;
+// NOTE: We do NOT extend AgentAction with file operations
+// because the extension cannot attribute file changes to specific agents
+// Agent activity is only known through git commits (existing architecture)
+  // Removed fileOperations - this is not feasible with VS Code API
+  // Agent activity is tracked via git commits only (existing AgentActivityMonitor)
 }
 ```
 
@@ -114,8 +234,8 @@ interface AgentActionEnhanced extends AgentAction {
 - [ ] Write test: `parseCheckboxLine()` handles unchecked "- [ ]" vs checked "- [x]"
 - [ ] Write test: `calculateCurrentCheckbox()` returns first unchecked item
 - [ ] Write test: `calculateCurrentCheckbox()` returns null when all complete
-- [ ] Write test: `FileOperation` validates type enum
-- [ ] Write test: `AgentActionEnhanced` includes fileOperations array
+- [ ] Write test: `FileSystemChange` validates type enum (create|delete|rename)
+- [ ] Write test: `TaskProgressionEnhanced` includes currentCheckbox and nextCheckbox
 - [ ] Run tests → All fail ✅
 - [ ] Commit: `TDD-PLAN-ENHANCEMENT-RED-01-20260429`
 
@@ -126,7 +246,7 @@ interface AgentActionEnhanced extends AgentAction {
 - [ ] Define `TaskProgressionEnhanced` interface
 - [ ] Implement `parseCheckboxLine(line: string, lineNumber: number): ImplementationPlanCheckbox | null`
 - [ ] Implement `calculateCurrentCheckbox(checkboxes: []): ImplementationPlanCheckbox | null`
-- [ ] Modify `src/agentActivityTypes.ts` to add FileOperation and AgentActionEnhanced
+- [ ] Create `src/fileSystemTypes.ts` for FileSystemChange (workspace-level, not agent-specific)
 - [ ] Run tests → All pass ✅
 - [ ] Commit: `TDD-PLAN-ENHANCEMENT-GREEN-01-20260429`
 
@@ -141,23 +261,25 @@ interface AgentActionEnhanced extends AgentAction {
 
 **Acceptance Criteria Covered**:
 - [ ] AC1.1: Types defined for implementation-plan.md checkbox structure
-- [ ] AC1.2: File operation tracking types integrated
+- [ ] AC1.2: File system change types defined (workspace-level only)
 
 **Estimated Time**: 3-4 hours (1 TDD cycle)
 
 ---
 
-## Layer 2: Backend Services (Plan Parser, Activity Tracker, KPI Validator)
+## Layer 2: Backend Services (Plan Parser, KPI Validator)
 
-**Purpose**: Parse implementation-plan.md files, track file operations, validate KPI calculations
+**Purpose**: Parse implementation-plan.md files, validate KPI calculations
 
-**Files to Create/Modify** (~300-500 lines total):
+**⚠️ SCOPE CLARIFICATION**: This layer does NOT add file operation tracking to AgentActivityMonitor. The existing git-based activity tracking is sufficient and works well. We're only extending TaskProgressionTracker to read implementation-plan.md checkboxes.
+
+**Files to Create/Modify** (~200-300 lines total):
 - `src/implementationPlanParser.ts` - NEW: Parse plan files
 - `src/implementationPlanParser.test.ts` - NEW: Parser integration tests
-- `src/agentActivityMonitor.ts` - MODIFY: Track file operations
-- `src/agentActivityMonitor.test.ts` - MODIFY: Test file operation tracking
 - `src/completenessCalculator.ts` - MODIFY: Add verification logging
 - `src/completenessCalculator.test.ts` - MODIFY: Test all KPI calculations
+- ~~`src/agentActivityMonitor.ts`~~ - NO CHANGES (git-based tracking works well)
+- ~~`src/agentActivityMonitor.test.ts`~~ - NO CHANGES
 
 **Service Architecture**:
 ```typescript
@@ -199,8 +321,6 @@ class CompletenessCalculator {
 - [ ] Write test: `findCurrentUserStory()` scans user-stories.md for "In Progress" status
 - [ ] Write test: `getCurrentTaskProgression()` combines story status + plan checkboxes
 - [ ] Write test: `getCurrentTaskProgression()` returns previous/current/next with checkbox details
-- [ ] Modify `src/agentActivityMonitor.test.ts`: Test `trackFileOperation()` adds to buffer
-- [ ] Modify `src/agentActivityMonitor.test.ts`: Test buffer keeps max 10 operations (FIFO)
 - [ ] Modify `src/completenessCalculator.test.ts`: Test `verifyKpiCalculations()` logs each step
 - [ ] Run tests → All fail ✅
 - [ ] Commit: `TDD-PLAN-ENHANCEMENT-RED-02-20260429`
@@ -211,18 +331,15 @@ class CompletenessCalculator {
 - [ ] Implement `extractCheckboxes()` - regex parse checkboxes from markdown
 - [ ] Implement `findCurrentUserStory()` - scan user-stories.md for "In Progress"
 - [ ] Implement `getCurrentTaskProgression()` - combine story + plan data
-- [ ] Modify `src/agentActivityMonitor.ts` - add `trackFileOperation()` method
-- [ ] Modify `src/agentActivityMonitor.ts` - add `fileOperationBuffer` with FIFO logic
 - [ ] Modify `src/completenessCalculator.ts` - add `verifyKpiCalculations()` method
 - [ ] Modify `src/completenessCalculator.ts` - add logging to each calculation step
 - [ ] Run tests → All pass ✅
 - [ ] Commit: `TDD-PLAN-ENHANCEMENT-GREEN-02-20260429`
 
 ### ♻️ REFACTOR Phase - Cycle 2 (Code Quality)
-- [ ] Add debouncing to file operation tracking (300ms) to prevent spam
 - [ ] Extract markdown parsing utilities to separate file
 - [ ] Add error handling for missing implementation-plan.md files
-- [ ] Add caching for parsed plans (invalidate on file change)
+- [ ] Add caching for parsed plans (invalidate on file change with workspace.createFileSystemWatcher)
 - [ ] Add comprehensive JSDoc comments
 - [ ] Extract file path construction to utility function
 - [ ] Add null safety checks for optional outputChannel
@@ -232,46 +349,38 @@ class CompletenessCalculator {
 
 **Acceptance Criteria Covered**:
 - [ ] AC2.1: Implementation plan parser reads and parses checkbox states
-- [ ] AC2.2: File operations tracked and buffered (last 10)
-- [ ] AC2.3: KPI calculations verified and logged
+- [ ] AC2.2: KPI calculations verified and logged
 
-**Estimated Time**: 8-10 hours (3 TDD cycles - complex parsing logic)
+**Estimated Time**: 6-8 hours (3 TDD cycles - parsing and verification only)
 
 ---
 
 ## Layer 3: Message Protocol & Integration (Communication)
 
-**Purpose**: Extend message protocol for enhanced task progression and agent activity
+**Purpose**: Extend task progression message to include implementation plan checkbox details
 
-**Files to Modify** (~150-200 lines total):
-- `src/PixelAgentsViewProvider.ts` - MODIFY: Send enhanced messages
+**Files to Modify** (~100-150 lines total):
+- `src/PixelAgentsViewProvider.ts` - MODIFY: Send enhanced task progression messages
 - `webview-ui/src/hooks/useExtensionMessages.ts` - MODIFY: Add enhanced message types
 - `webview-ui/src/hooks/useTaskProgression.ts` - MODIFY: Handle plan checkboxes
-- `webview-ui/src/hooks/useAgentActivity.ts` - MODIFY: Handle file operations
 
 **Message Protocol Extensions**:
 ```typescript
-// Extend existing messages
+// Extend existing task progression message
 interface TaskProgressionMessage {
   type: 'task.progression';
   progression: TaskProgressionEnhanced; // Now includes plan checkboxes
 }
 
-interface AgentActivityMessage {
-  type: 'activity-update';
-  payload: {
-    activeAgent: { id: string; name: string } | null;
-    currentAction: AgentActionEnhanced; // Now includes file operations
-  };
-}
+// AgentActivityMessage UNCHANGED - git-based tracking works well
+// No need to extend with file operations
 ```
 
 **TDD Execution Checklist**:
 
 ### 🔴 RED Phase - Cycle 3 (Write Failing Tests)
-- [ ] Create integration test: `src/integration.test.ts` - verify PixelAgentsViewProvider sends enhanced messages
+- [ ] Create integration test: `src/integration.test.ts` - verify PixelAgentsViewProvider sends enhanced task progression
 - [ ] Write test: Hook `useTaskProgression()` receives plan checkbox data
-- [ ] Write test: Hook `useAgentActivity()` receives file operations
 - [ ] Write test: Message type matching for enhanced payloads
 - [ ] Run tests → All fail ✅
 - [ ] Commit: `TDD-PLAN-ENHANCEMENT-RED-03-20260429`
@@ -280,14 +389,10 @@ interface AgentActivityMessage {
 - [ ] Modify `src/PixelAgentsViewProvider.ts`:
   - [ ] Initialize ImplementationPlanParser in constructor
   - [ ] Call `getCurrentTaskProgression()` and send enhanced message
-  - [ ] Forward file operations from AgentActivityMonitor
 - [ ] Modify `webview-ui/src/hooks/useExtensionMessages.ts`:
   - [ ] Add TaskProgressionEnhanced type
-  - [ ] Add AgentActionEnhanced type
 - [ ] Modify `webview-ui/src/hooks/useTaskProgression.ts`:
   - [ ] Extract planPath, currentCheckbox, nextCheckbox from message
-- [ ] Modify `webview-ui/src/hooks/useAgentActivity.ts`:
-  - [ ] Extract fileOperations from message payload
 - [ ] Run tests → All pass ✅
 - [ ] Commit: `TDD-PLAN-ENHANCEMENT-GREEN-03-20260429`
 
@@ -301,10 +406,10 @@ interface AgentActivityMessage {
 - [ ] Commit: `TDD-PLAN-ENHANCEMENT-REFACTOR-03-20260429`
 
 **Acceptance Criteria Covered**:
-- [ ] AC3.1: Enhanced messages sent from backend to frontend
-- [ ] AC3.2: React hooks handle new message fields
+- [ ] AC3.1: Enhanced task progression messages sent from backend to frontend
+- [ ] AC3.2: React hooks handle plan checkbox fields
 
-**Estimated Time**: 4-5 hours (1 TDD cycle with integration testing)
+**Estimated Time**: 3-4 hours (1 TDD cycle with integration testing, simplified scope)
 
 ---
 
@@ -351,18 +456,16 @@ interface AgentInfo {
 // Visual: Gray out with ⛔ icon, no click handler
 ```
 
-### 4.3 Agent Bubble - Persistent File Operations
+### 4.3 Agent Bubble - Persistent Display
 
 ```typescript
 // Keep bubble visible until:
 // - User clicks another character
-// - User clicks elsewhere in canvas
-// - User clicks outside webview panel
+// - User clicks outside the canvas
+// - 30 seconds of inactivity
 
-// Display format:
-// "Reading: src/componentA.tsx"
-// "Writing: src/componentB.tsx"
-// "3 files modified in last 30s"
+// Content: Show git commit description from AgentActivityMonitor
+// (Already working - no changes needed to data source)
 ```
 
 ### 4.4 ContextWindowBar - Improved Tooltip
@@ -421,8 +524,8 @@ const PALO_BLUE = '#60A5FA'; // Lighter blue for visibility
 - [ ] Update `AgentSidebar.test.tsx` - test disabled agents not clickable
 - [ ] Write new test: Context tooltip positioned adjacent to bar (left: 38px)
 - [ ] Write new test: Context tooltip has opaque background with high contrast
-- [ ] Write new test: Agent bubble persists until next click
-- [ ] Write new test: Agent bubble shows file operations list
+- [ ] Write new test: Agent bubble persists until next click or 30s timeout
+- [ ] Write new test: Agent bubble displays git commit description (from existing AgentActivityMonitor)
 - [ ] Write new test: All fonts meet minimum size requirements
 - [ ] Write new test: Footer bar colors meet WCAG AAA contrast (7:1)
 - [ ] Run tests → All fail ✅
@@ -728,28 +831,247 @@ const LINES_HIT_PATTERN = /^LH:(\d+)$/;
 
 ---
 
-## Appendix B: File Operation Tracking Strategy
-
-**VS Code API Limitations**: No native file operation events exposed by API
-
-**Workaround Strategy**:
-1. **Monitor active text editor**: `vscode.window.onDidChangeActiveTextEditor`
-2. **Monitor document changes**: `vscode.workspace.onDidChangeTextDocument`
-3. **Monitor document saves**: `vscode.workspace.onDidSaveTextDocument`
-4. **Infer operations**:
-   - Document opened → "Reading"
-   - Document changed (not saved) → "Editing"
-   - Document saved → "Writing"
-
-**Buffer Management**:
-- Keep last 10 operations per agent
-- Timestamp each operation (milliseconds)
-- Group operations within 5-second window
-- Display: "3 files modified" if >2 files in window
-
 ---
 
 **Plan Status**: 📋 READY FOR EXECUTION  
-**Total Checkboxes**: 158 tasks across 12 TDD cycles  
-**Estimated Duration**: 5-6 days (40-48 hours)  
+**Total Checkboxes**: ~140 tasks across 11 TDD cycles (reduced from 158)  
+**Estimated Duration**: 4-5 days (32-40 hours, reduced from 40-48)  
 **Next Step**: Execute Layer 1 (Types) - Start with TDD-PLAN-ENHANCEMENT-RED-01
+
+**Scope Reduction Note**: Removed file operation tracking feature because:
+1. VS Code Extension API doesn't expose granular file operation events during AI agent work
+2. The extension runs in separate process from Copilot Chat - can't observe internal operations
+3. Existing git-based AgentActivityMonitor already provides meaningful activity tracking
+4. Focus shifted to feasible enhancements: plan parsing, KPI verification, UI improvements
+
+---
+
+## 📋 Revision Log: Architectural Corrections (2026-04-29)
+
+### 🔍 Issues Identified in Original Plan
+
+**Fundamental Misunderstanding**:
+- Original plan attempted to add real-time file operation tracking to AgentActivityMonitor
+- Assumed VS Code Extension API could track which files agents are reading/writing/editing
+- Planned to infer agent operations from editor events (onDidChangeActiveTextEditor, onDidChangeTextDocument)
+
+**Why This Doesn't Work**:
+1. **Process Separation**: Pixel Agents extension runs in VS Code extension host, Copilot Chat runs in separate process
+2. **No Agent Attribution**: File system events don't indicate which agent (or even if an agent) caused the change
+3. **Read Operations Invisible**: VS Code API only exposes write operations (document changes/saves), not read operations
+4. **Inference Unreliable**: Opening a document doesn't mean "agent is reading it" - could be user navigation
+5. **No Copilot Integration**: No API to query Copilot Chat state or subscribe to agent lifecycle events
+
+### ✅ Corrections Applied
+
+**Removed Features** (~300 lines):
+- ❌ FileOperation interface and tracking logic
+- ❌ AgentActionEnhanced with fileOperations array
+- ❌ trackFileOperation() method in AgentActivityMonitor
+- ❌ fileOperationBuffer with FIFO management
+- ❌ Appendix B: File Operation Tracking Strategy section
+- ❌ All tests related to file operation tracking
+- ❌ File operation display in agent bubbles
+
+**Added Clarity**:
+- ✅ "VS Code Extension API Capabilities & Limitations" section (comprehensive reference)
+- ✅ "⚠️ CRITICAL ARCHITECTURAL REALITY CHECK" callout in executive summary
+- ✅ Explicit notes in Layer 2 that AgentActivityMonitor needs NO CHANGES
+- ✅ Scope reduction note explaining why file operation tracking was removed
+- ✅ FileSystemChange type for workspace-level events (if needed in future)
+
+**Preserved Features**:
+- ✅ Git-based agent activity tracking (existing AgentActivityMonitor) - proven to work well
+- ✅ Implementation plan parsing (feasible with workspace.fs.readFile + regex)
+- ✅ KPI verification and logging (feasible with existing CompletenessCalculator)
+- ✅ All UI/UX enhancements (pure frontend changes, no VS Code API constraints)
+
+### 📊 Effort Adjustment
+
+| Metric | Original | Corrected | Reduction |
+|--------|----------|-----------|-----------|
+| Story Points | 13 | 11 | -2 (15%) |
+| Hours | 40-48 | 32-40 | -8 to -8 (17-20%) |
+| Days | 5-6 | 4-5 | -1 day |
+| TDD Cycles | 12 | 11 | -1 cycle |
+| Total Tasks | 158 | ~140 | -18 tasks (11%) |
+
+**Simplified Scope**:
+- Layer 1: Types (~100 lines, not ~150)
+- Layer 2: Services (~200 lines, not ~500 - removed AgentActivityMonitor changes)
+- Layer 3: Integration (~100 lines, not ~200 - removed file operation message handling)
+- Layer 4: UI Components (unchanged - ~600 lines)
+
+### 🎯 Validation Against VS Code API Documentation
+
+**Confirmed Feasible Patterns**:
+1. ✅ `workspace.fs.readFile(uri)` for parsing implementation-plan.md
+2. ✅ `workspace.createFileSystemWatcher('**/implementation-plan.md')` for change detection
+3. ✅ `webview.postMessage(TaskProgressionEnhanced)` for sending checkbox data to frontend
+4. ✅ Existing git-based activity tracking via AgentActivityMonitor (no API limitations)
+
+**Confirmed Infeasible Patterns**:
+1. ❌ Tracking which agent performed file operations (no API support)
+2. ❌ Monitoring file read operations (only writes via document changes)
+3. ❌ Real-time attribution of workspace events to agents (no cross-process communication)
+
+**NEW DISCOVERY - Chat Participant Integration**:
+1. ✅ `vscode.chat.createChatParticipant()` - Create @pixel-agents participant for explicit chat integration
+2. ✅ `ChatRequest.variables` - Access #file references users include in chat prompts
+3. ✅ `ChatContext.history` - Read chat message history to see previous agent discussions
+4. ✅ `ChatResponseStream.button()` - Add "Open Dashboard" button in chat responses
+5. ⚠️ **Limitation**: Requires explicit @pixel-agents mention (not passive tracking)
+
+### 📚 References Used for Corrections
+
+- [VS Code API Reference](https://code.visualstudio.com/api/references/vscode-api) - Comprehensive namespace documentation
+- [Chat Participant API Guide](https://code.visualstudio.com/api/extension-guides/ai/chat) - Complete guide to creating chat participants
+- [Copilot Extensibility Overview](https://code.visualstudio.com/docs/copilot/copilot-extensibility-overview) - AI extensibility options in VS Code
+- [Extension Guides](https://code.visualstudio.com/api/extension-guides/overview) - Architecture patterns and best practices
+- [UX Guidelines](https://code.visualstudio.com/api/ux-guidelines/overview) - Component design standards
+
+**Key API Patterns Applied**:
+- Event-driven architecture with Disposable pattern for cleanup
+- Promise-based async file system operations (workspace.fs)
+- Webview bi-directional communication via postMessage
+- File system watchers with glob patterns and event handlers
+
+### 💡 Lessons Learned
+
+1. **Always Consult API Docs First**: Don't assume extension capabilities - verify against official API reference
+2. **Understand Process Boundaries**: VS Code extensions run in separate process from other components (Copilot, debuggers, terminals)
+3. **Git Commits Are Reliable**: For agent activity tracking, git-based approach is superior to attempting real-time inference
+4. **Simplicity Wins**: Existing AgentActivityMonitor works well - don't add complexity without clear value
+5. **Scope Creep Prevention**: Removing infeasible features early saves implementation time and prevents technical debt6. **Chat Participant Discovery**: Chat Participant API provides explicit integration point for user-initiated queries about project status
+
+---
+
+## 🆕 Optional Future Enhancement: Chat Participant Integration
+
+**Discovery Date**: 2026-04-29 (From Chat Participant API documentation review)  
+**Status**: DEFERRED to post-v1.0.5  
+**Estimated Effort**: 3-4 story points (~8-12 hours)
+
+### Overview
+
+The **Chat Participant API** allows Pixel Agents to integrate directly into VS Code's Copilot Chat. Users could invoke `@pixel-agents` to query project status, reference implementation plans, and track files discussed in chat—all without leaving the chat interface.
+
+### What This Enables
+
+**Explicit Chat Integration** via `@pixel-agents` participant:
+
+```typescript
+// Example: User types "@pixel-agents /status"
+@pixel-agents: 
+📊 Current Story: US-002-001 - Agent Sidebar Enhancement
+📍 Layer 2, GREEN Phase, Cycle 2  
+✅ 4/12 checkboxes complete  
+📁 Files: src/agentSidebar.tsx, src/agentSidebar.module.css  
+[Open Dashboard Button]
+```
+
+**Available Chat Context** (via ChatRequest & ChatContext):
+- ✅ `request.prompt` - User's query text
+- ✅ `request.variables` - #file and #selection references
+- ✅ `context.history` - Previous chat messages
+- ✅ `request.location` - Chat view, Quick Chat, or inline chat
+
+**Example User Interactions**:
+
+```
+User: "@pixel-agents what are we working on?"
+→ Responds with current story, layer, cycle, files
+
+User: "@pixel-agents /plan"  
+→ Displays implementation-plan.md checkboxes inline
+
+User: "@pixel-agents /metrics"
+→ Shows completeness, test coverage, story progress
+
+User: "@pixel-agents what files did we discuss?"
+→ Parses chat history for #file references
+```
+
+### Why Defer to Post-v1.0.5?
+
+**Reasons NOT to include in current scope**:
+1. **Current plan is comprehensive** - 11 story points already (4-5 days work)
+2. **Additive, not essential** - Core dashboard works without chat integration
+3. **Requires user behavior change** - Learning to @-mention Pixel Agents
+4. **Limited impact on passive tracking** - Still relies on git commits for real-time activity
+5. **Better as follow-up** - Validate core v1.0.5 features first, then enhance
+
+**Benefits** (when implemented):
+- ✅ Explicit integration into Copilot Chat UI
+- ✅ Access to chat context, history, file references
+- ✅ Bidirectional control (chat query → dashboard update)
+- ✅ Native VS Code experience (no separate window)
+
+**Limitations** (inherent to approach):
+- ⚠️ Not passive - requires explicit @pixel-agents mention
+- ⚠️ User-initiated only - cannot observe agent activity automatically
+- ⚠️ Chat-only - only works when users are in Copilot Chat
+
+### Implementation Sketch (For Future Reference)
+
+**package.json Registration**:
+```json
+{
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "pixel-agents.dashboard",
+        "name": "pixel-agents",
+        "fullName": "Pixel Agents Dashboard",
+        "description": "Get project status, metrics, and implementation progress",
+        "commands": [
+          { "name": "status", "description": "Show current user story and progress" },
+          { "name": "plan", "description": "Display implementation plan checkboxes" },
+          { "name": "metrics", "description": "Show detailed KPI metrics" }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Chat Handler** (src/chatParticipant.ts):
+```typescript
+const handler: vscode.ChatRequestHandler = async (
+  request: vscode.ChatRequest,
+  context: vscode.ChatContext,
+  stream: vscode.ChatResponseStream
+) => {
+  const implementationPlanParser = new ImplementationPlanParser(workspaceRoot);
+  const currentStory = await implementationPlanParser.findCurrentUserStory();
+  
+  stream.markdown(`## 📊 Pixel Agents Status\n`);
+  stream.markdown(`**Current Story**: ${currentStory.storyRef}\n`);
+  stream.markdown(`**Completeness**: 43% (6/14 stories)\n`);
+  
+  stream.button({
+    command: 'pixelAgents.openDashboard',
+    title: 'Open Dashboard'
+  });
+};
+```
+
+### When to Reconsider
+
+**Triggers for future implementation**:
+- Post-v1.0.5 launch and user validation
+- User requests for "Copilot Chat integration"
+- Desire for chat-based project status queries
+- Need for bidirectional control (chat ↔ dashboard)
+
+### API References for Future Implementation
+
+- [Chat Participant API](https://code.visualstudio.com/api/extension-guides/ai/chat) - Complete guide
+- [ChatRequest](https://code.visualstudio.com/api/references/vscode-api#ChatRequest) - Access prompt, variables, location
+- [ChatContext](https://code.visualstudio.com/api/references/vscode-api#ChatContext) - Access chat history
+- [ChatResponseStream](https://code.visualstudio.com/api/references/vscode-api#ChatResponseStream) - Stream responses
+---
+
+**Plan Status**: ✅ ARCHITECTURALLY SOUND | 📋 READY FOR TDD EXECUTION  
+**Confidence Level**: HIGH (validated against official VS Code API documentation)  
+**Risk Assessment**: LOW (all proposed features confirmed feasible with API examples)

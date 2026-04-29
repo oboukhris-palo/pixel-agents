@@ -102,7 +102,7 @@
   gap: var(--space-1); /* 4px */
   margin-top: var(--space-2); /* 8px */
   width: 100%;
-  font-size: 9px; /* Slightly increased for readability */
+  font-size: 11px; /* Increased from 9px per plan - minimum readability */ /* Slightly increased for readability */
   color: var(--vscode-foreground-muted);
   line-height: 1.2;
 }
@@ -138,20 +138,20 @@
   background: var(--context-chat, #F59E0B);
 }
 
-/* Tooltip (AC6) */
+/* Tooltip (AC6) - v1.0.5 Enhanced */
 .tooltip {
   position: fixed;
-  left: 50px;
+  left: 38px; /* 30px bar + 8px gap per plan */
   top: 50%;
   transform: translateY(-50%);
-  background: var(--vscode-widget-bg);
-  border: 2px solid var(--vscode-widget-border);
+  background: rgba(30, 30, 30, 0.95); /* Opaque, high contrast per plan */
+  border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--radius-md); /* 8px */
   padding: var(--space-3); /* 12px */
   min-width: 220px;
   z-index: 200;
-  font-size: var(--text-body-sm); /* 12px */
-  color: var(--vscode-foreground);
+  font-size: 12px; /* Explicit 12px per plan */
+  color: #ffffff; /* White text for contrast per plan */
   box-shadow: var(--shadow-md);
 }
 

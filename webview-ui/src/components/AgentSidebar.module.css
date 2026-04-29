@@ -98,7 +98,7 @@
 }
 
 .agentName {
-  font-size: 10px; /* Exact from Penpot */
+  font-size: 13px; /* Increased from 10px per plan - minimum readability */
   font-family: var(--vscode-font-family);
   font-weight: 400;
   white-space: nowrap;

@@ -47,12 +47,13 @@ const SECTION_CONFIG: Readonly<Record<SectionType, SectionConfig>> = {
 
 interface TaskContentProps {
   task: TaskInfo;
+  checkpointProgress?: string | null; // e.g., "(4/12)" or null
 }
 
 /** Renders the populated content of a section when a task is available. */
-function TaskContent({ task }: TaskContentProps) {
+function TaskContent({ task, checkpointProgress }: TaskContentProps) {
   // In the compact design, we don't show individual phase badges - the main phase pill shows the current phase
-  // Task content is just: icon + storyId + · + layer/title
+  // Task content is just: icon + storyId + · + layer/title + optional checkpoint count
   
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1, minWidth: 0 }}>
@@ -63,6 +64,14 @@ function TaskContent({ task }: TaskContentProps) {
         <>
           <span style={{ color: 'inherit', opacity: 0.7 }}>·</span>
           <span className={styles.cycle}>{task.cycle}</span>
+        </>
+      )}
+      {checkpointProgress && (
+        <>
+          <span style={{ color: 'inherit', opacity: 0.7 }}>·</span>
+          <span className={styles.cycle} title="Implementation plan checkpoint progress">
+            {checkpointProgress}
+          </span>
         </>
       )}
     </div>
@@ -89,6 +98,7 @@ interface TaskSectionProps {
   task: TaskInfo | null;
   label: string;
   onTaskClick?: (task: TaskInfo) => void;
+  checkpointProgress?: string | null; // v1.0.5: Checkpoint count for current section
 }
 
 /**
@@ -98,7 +108,7 @@ interface TaskSectionProps {
  *   1 (base) + 1 (handleClick guard) + 1 (Enter key) + 1 (task?) + 1 (sectionType current) + 1 (phase)
  *   Phase badge path is handled in TaskContent with its own budget (≤ 3).
  */
-function TaskSection({ sectionType, task, label, onTaskClick }: TaskSectionProps) {
+function TaskSection({ sectionType, task, label, onTaskClick, checkpointProgress }: TaskSectionProps) {
   const { icon, iconTestId, fallbackText } = SECTION_CONFIG[sectionType];
 
   // Determine CSS module class based on section type
@@ -137,7 +147,7 @@ function TaskSection({ sectionType, task, label, onTaskClick }: TaskSectionProps
         {icon}
       </span>
       {task ? (
-        <TaskContent task={task} />
+        <TaskContent task={task} checkpointProgress={checkpointProgress} />
       ) : (
         <EmptyTaskContent fallbackText={fallbackText} />
       )}
@@ -199,6 +209,11 @@ export const TaskProgressionBar = memo(function TaskProgressionBar({
   // Extract current phase for the phase pill (shown for all tasks, not just current)
   const currentPhase = current ? extractPhaseFromCycle(current.cycle) : null;
 
+  // v1.0.5: Format checkpoint progress as "(X/Y)" for current task
+  const checkpointProgress = taskProgression.planCheckpoint
+    ? `(${taskProgression.planCheckpoint.completedCheckboxes}/${taskProgression.planCheckpoint.totalCheckboxes})`
+    : null;
+
   // Determine context usage status for styling
   const contextStatus =
     contextUsage !== undefined
@@ -259,6 +274,7 @@ export const TaskProgressionBar = memo(function TaskProgressionBar({
         task={current}
         label="Current"
         onTaskClick={onTaskClick}
+        checkpointProgress={checkpointProgress}
       />
       <span className={styles.arrowSeparator} aria-hidden="true">
         →

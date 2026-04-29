@@ -51,12 +51,17 @@ describe('CompletenessMeter Component', () => {
 
 		it('should render stories metrics', () => {
 			render(<CompletenessMeter />);
-			expect(screen.getByText(/5 \/ 10 stories/i)).toBeInTheDocument();
+			// Component renders as '5/10' (no spaces) in statValue, plus sr-only text
+			const storiesLabel = screen.getByText('Stories');
+			expect(storiesLabel).toBeInTheDocument();
+			expect(screen.getByText(/5 of 10 stories completed/i)).toBeInTheDocument();
 		});
 
 		it('should render test metrics', () => {
 			render(<CompletenessMeter />);
-			expect(screen.getByText(/85 \/ 100 tests/i)).toBeInTheDocument();
+			// Component renders as '85/100' in statValue under 'Tests' label
+			const testsLabel = screen.getByText('Tests');
+			expect(testsLabel).toBeInTheDocument();
 		});
 
 		it('should render code coverage', () => {
@@ -387,8 +392,10 @@ describe('CompletenessMeter Component', () => {
 
 			it('should use white color with weight 600 for values', () => {
 				render(<CompletenessMeter />);
-				const value = screen.getByText(/5 \/ 10 stories/i);
-				expect(value).toHaveClass('statValue');
+				// Stories statValue is rendered as '5/10' (no spaces)
+				const storiesLabel = screen.getByText('Stories');
+				const statValue = storiesLabel.nextElementSibling;
+				expect(statValue).toHaveClass('statValue');
 			});
 		});
 

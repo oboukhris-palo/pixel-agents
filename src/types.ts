@@ -64,6 +64,32 @@ export interface TaskProgressionState {
 	current: TaskInfo;
 	/** Next task in queue (null if no upcoming task) */
 	next: TaskInfo | null;
+	/**
+	 * Plan checkpoint data from implementation-plan.md (v1.0.5)
+	 * Includes checkbox counts for progress display: "4/12"
+	 * Null if no implementation plan exists for current task
+	 */
+	planCheckpoint?: {
+		planPath: string;
+		totalCheckboxes: number;
+		completedCheckboxes: number;
+		currentCheckbox: {
+			layerNumber: 1 | 2 | 3 | 4;
+			phase: 'RED' | 'GREEN' | 'REFACTOR';
+			cycleNumber: number;
+			description: string;
+			completed: boolean;
+			lineNumber: number;
+		} | null;
+		nextCheckbox: {
+			layerNumber: 1 | 2 | 3 | 4;
+			phase: 'RED' | 'GREEN' | 'REFACTOR';
+			cycleNumber: number;
+			description: string;
+			completed: boolean;
+			lineNumber: number;
+		} | null;
+	} | null;
 }
 
 /**

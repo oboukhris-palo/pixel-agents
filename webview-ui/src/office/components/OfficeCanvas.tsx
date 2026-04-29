@@ -617,9 +617,15 @@ export function OfficeCanvas({ officeState, onClick, isEditMode, editorState, on
             }
           }
         }
-        // Clicked empty space — deselect
+        // Clicked empty space — deselect and dismiss all bubbles (v1.0.5: per plan Section 4.3)
         officeState.selectedAgentId = null
         officeState.cameraFollowId = null
+        // Dismiss all persistent bubbles
+        for (const char of officeState.characters.values()) {
+          if (char.bubbleType) {
+            officeState.dismissBubble(char.id)
+          }
+        }
       }
     },
     [officeState, onClick, screenToWorld, screenToTile, isEditMode],
