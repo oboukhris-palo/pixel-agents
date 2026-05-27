@@ -1,3 +1,10 @@
+---
+applyTo: "**"
+description: Project structure conventions — greenfield/brownfield directory layouts, source organization, and workflow file conventions
+priority: high
+enforcement: strict
+---
+
 # Project Structure Instructions
 
 ## Overview
@@ -396,13 +403,13 @@ This section documents the `.github/` directory structure and workflow-related f
 │   └── ...                                  # Other project-specific instructions
 │
 ├── workflows/                         # Workflow definitions (reference only, read all before acting)
-│   ├── 00-assessment.workflows.md     # Phase 0: Assessment & Discovery
-│   ├── 01-requirements.workflows.md   # Phases 1-2: Requirements & Personas
-│   ├── 02-architecture.workflows.md   # Phases 3-4: Architecture & Design
-│   ├── 03-testing.workflows.md        # Phase 5: Testing Strategy
-│   ├── 04-planning.workflows.md       # Phases 6-7: Planning & Deployment
-│   ├── 05-implementation.workflows.md # Phase 8: TDD Implementation
-│   ├── ci-cd.workflows.md            # CI/CD pipeline definitions
+│   ├── 00-assessment.workflows.yml     # Phase 0: Assessment & Discovery
+│   ├── 01-requirements.workflows.yml   # Phases 1-2: Requirements & Personas
+│   ├── 02-architecture.workflows.yml   # Phases 3-4: Architecture & Design
+│   ├── 03-testing.workflows.yml        # Phase 5: Testing Strategy
+│   ├── 04-planning.workflows.yml       # Phases 6-7: Planning & Deployment
+│   ├── 05-implementation.workflows.yml # Phase 8: TDD Implementation
+│   ├── cicd.workflows.yml            # CI/CD pipeline definitions
 │   └── ...                            # Other workflow definitions
 │
 ├── prompts/                           # Copilot-surfaced prompts (via /commands)
@@ -536,11 +543,11 @@ docs/05-implementation/
 - **Used By**: All developers (reference during code review)
 - **Example**: `coding.instructions.md` defines SOLID principles, cyclomatic complexity <10
 
-#### `.github/workflows/*.workflows.md` (Workflow Definitions)
+#### `.github/workflows/*.workflows.yml` (Workflow Definitions)
 - **Purpose**: Describe complete workflow phases (assessment, documentation, implementation)
 - **Update Pattern**: Read-only reference (define sequence, not execute)
 - **Used By**: Orchestrator (decides routing); dev-lead (creates implementation plans)
-- **Example**: `implementation.workflows.md` defines RED → GREEN → REFACTOR sequence
+- **Example**: `implementation.workflows.yml` defines RED → GREEN → REFACTOR sequence
 
 #### `.github/prompts/*.prompt.md` (Copilot Surfaced)
 - **Purpose**: Fast lookup, task starters, context bridges for heavy-load agents

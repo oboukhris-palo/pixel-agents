@@ -50,3 +50,10 @@ executed_by: "dev-lead.agent.md + qa.agent.md"
 ## Post-Gate Artifact
 
 Story status update in `docs/05-implementation/user-stories.md`
+
+## Override Procedures
+
+If gate FAILS and override is justified, follow `.github/validation/override-mechanisms.md`.
+Use `.github/templates/approval-block-tmpl.md` to document override approval.
+Use `.github/templates/approval-gate-tmpl.md` for structured approval gate records.
+Orchestrator enforces `.github/validation/workflow-compliance.yml` risk levels.

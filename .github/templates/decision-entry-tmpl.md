@@ -21,7 +21,7 @@
     trigger: "{trigger_description}"     # e.g., "gate-00-assessment PASSED"
     rationale: "{why_this_transition}"   # e.g., "All prerequisites met, AI readiness 75%"
   recorded_by: "orchestrator"
-  workflow_ref: "{NN-phase}.workflows.md"
+  workflow_ref: "{NN-phase}.workflows.yml"
   git_commit: "{sha}"                   # Git SHA for auditability (null if not yet committed)
 ```
 
@@ -40,7 +40,7 @@
       metric_name_2: "value"            # e.g., bdd_format_coverage: "95%"
     details: "{summary of gate results}"
   recorded_by: "orchestrator"
-  workflow_ref: "{NN-phase}.workflows.md"
+  workflow_ref: "{NN-phase}.workflows.yml"
   git_commit: "{sha}"
 ```
 
@@ -57,7 +57,7 @@
     retry_deadline: "YYYY-MM-DDTHH:MM:SSZ"  # Gate re-run deadline
     estimated_rework_hours: 4           # Estimated hours to fix
   recorded_by: "orchestrator"
-  workflow_ref: "{NN-phase}.workflows.md"
+  workflow_ref: "{NN-phase}.workflows.yml"
   git_commit: "{sha}"
 ```
 

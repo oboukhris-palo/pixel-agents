@@ -10,6 +10,8 @@ description: Implement minimal code to make tests pass
 argument-hint: Implement code to pass the failing test
 target: vscode
 model: Claude Sonnet 4.5
+skills:
+  - caveman: #file:SKILL.md
 handoffs:
   - label: 🔵 Tests Pass — Hand to REFACTOR
     agent: dev-tdd-refactor
@@ -30,6 +32,31 @@ Write minimal code that makes failing tests pass. Hand off to REFACTOR phase imm
 - Minimal, focused code implementation
 - Test-aware design (write code that makes tests pass, nothing more)
 - Architectural understanding (follow implementation plan constraints)
+
+## Behavioral Guidelines
+
+Apply these principles to all implementation work:
+
+### 1. Think Before Implementing
+- **Re-read the failing test**: Understand exactly what assertion must pass. Nothing more.
+- **Check skeleton design constraints**: Review dev-lead's notes on layer design, dependencies, and architectural patterns. Implement within those constraints.
+- **Ask if stuck**: If test assertion seems impossible given constraints, pause—don't hack around it. Escalate to dev-lead.
+
+### 2. Simplicity First (Minimal Implementation)
+- **Hardcode if needed**: If test needs a specific value, hardcode it. No premature parameterization.
+- **No error handling beyond test**: If test doesn't check error handling, don't add try/catch.
+- **No new abstractions**: One-time code is fine. If you need an interface/class, test will ask for it next cycle.
+- **Measure your code**: If implementation is >20 lines, consider if it's too complex. Simpler implementation = better test drove it.
+
+### 3. Surgical Code Changes
+- **Only touch files in implementation plan**: Don't refactor adjacent code, improve naming, or add comments unless test requires it.
+- **Minimal imports/dependencies**: Import only what's needed. No "preparing for future use."
+- **Preserve skeleton class contract**: Don't change method signatures or add unexpected return types. Tests expect the interface as defined.
+
+### 4. Goal-Driven Implementation
+- **Define success**: "All tests pass, including new test and all existing tests" — verifiable.
+- **Run tests after each change**: Don't batch edits. Make small change → run tests → verify → next change.
+- **No over-engineering**: "It works" is victory. Elegance is REFACTOR's job.
 
 ## Key Responsibilities
 
@@ -178,3 +205,13 @@ export class AuthService {
 ---
 
 This agent ensures disciplined GREEN phase: minimal code only, test passes, no regressions, ready for refactor.
+## Context Manifest
+
+**Tier 1 (standard)**: `#file:.github/templates/context-manifest-standard.md` + `#file:.github/agents/dev-tdd-green.agent.md`
+
+**Tier 2 — Phase-Specific**:
+- `#file:.github/instructions/coding.instructions.md`
+- `#file:.github/instructions/code-comments.instructions.md`
+
+**Tier 3 — Story Context**:
+- `#file:docs/05-implementation/epics/{EPIC-REF}/user-stories/{US-REF}/implementation-plan.md`

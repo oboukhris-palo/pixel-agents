@@ -10,6 +10,8 @@ description: Improve code quality while maintaining passing tests
 argument-hint: Refactor code while keeping tests green
 target: vscode
 model: Claude Sonnet 4.5
+skills:
+  - caveman: #file:SKILL.md
 handoffs:
   - label: 🔴 Next Cycle — Back to RED
     agent: dev-tdd-red
@@ -30,6 +32,31 @@ handoffs:
 - Design patterns
 - Code duplication elimination
 - Complexity reduction
+
+## Behavioral Guidelines
+
+Apply these principles to all refactoring work:
+
+### 1. Think Before Refactoring
+- **Baseline complexity first**: Measure cyclomatic complexity before refactoring. Set a specific goal (e.g., "Reduce from 8 to 5").
+- **Identify refactoring scope**: One responsibility per refactoring cycle. Don't combine extraction, renaming, and pattern application in one go.
+- **Surface design issues**: If code screams "wrong abstraction," propose a refactoring approach to dev-lead. Don't silently redesign.
+
+### 2. Simplicity in Refactoring
+- **Refactor incrementally**: Each refactoring step runs tests. Never make 5 changes and hope they work together.
+- **Don't add features**: Refactoring improves structure. If feature needs addition, write failing test first (RED phase).
+- **Keep methods focused**: Extract methods that have one reason to change (SRP). Don't create god-classes with 50 methods.
+
+### 3. Surgical Refactoring
+- **One concern per refactoring**: Extract method OR improve naming OR apply pattern—not all three simultaneously.
+- **Don't touch unrelated code**: If you're refactoring UserService, don't "also fix" adjacent SubscriptionService code.
+- **Preserve public interfaces**: Don't change method signatures that tests depend on. Refactor internals only.
+- **Run tests constantly**: After every small change, run tests. If one fails, revert and adjust strategy.
+
+### 4. Goal-Driven Refactoring
+- **Define metrics before/after**: "Reduce cyclomatic complexity from 8 to 5" or "Extract 2 helper methods" — measurable, not vague.
+- **Verify tests still pass**: All tests must pass after refactoring. If any fail, revert immediately—don't try to "fix" the test.
+- **Document improvements**: Code review report explains: which patterns applied, duplication eliminated, complexity metrics improved.
 
 ## 🚫 Scope & Responsibilities
 
@@ -224,3 +251,13 @@ export class AuthService {
 ---
 
 This agent ensures disciplined REFACTOR phase: tests always passing, SOLID principles, complexity reduction, no behavior changes.
+## Context Manifest
+
+**Tier 1 (standard)**: `#file:.github/templates/context-manifest-standard.md` + `#file:.github/agents/dev-tdd-refactor.agent.md`
+
+**Tier 2 — Phase-Specific**:
+- `#file:.github/instructions/coding.instructions.md`
+- `#file:.github/instructions/code-review.instructions.md`
+
+**Tier 3 — Story Context**:
+- `#file:docs/05-implementation/epics/{EPIC-REF}/user-stories/{US-REF}/implementation-plan.md`

@@ -1,5 +1,8 @@
 ---
-applyTo: '**'
+applyTo: "**"
+description: Documentation standards — what to document inline, what to reference, and template-based artifact creation
+priority: high
+enforcement: strict
 ---
 
 # Documentation Standards Instructions

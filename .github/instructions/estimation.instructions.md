@@ -404,7 +404,7 @@ PROJECT_TIME = Σ(EPIC_TIME) + SYSTEM_INTEGRATION + E2E_TESTING + DISCOVERY_BUFF
 
 ## Related Documentation
 
-- **Workflow Integration**: Phase-specific workflows (`01-requirements.workflows.md`, `02-architecture.workflows.md`, `03-testing.workflows.md`, `04-planning.workflows.md`) - STAGE 3.5 estimation process
+- **Workflow Integration**: Phase-specific workflows (`01-requirements.workflows.yml`, `02-architecture.workflows.yml`, `03-testing.workflows.yml`, `04-planning.workflows.yml`) - STAGE 3.5 estimation process
 - **Team Tracking**: `.github/team-profile.yml` (INTERNAL ONLY - skill levels, experience)
 - **User Story Template**: `.github/templates/user-story-tmpl.yml` (estimation section structure)
 - **Epic Template**: `.github/templates/epic-tmpl.yml` (epic-level aggregation)

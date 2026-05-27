@@ -10,30 +10,32 @@ description: Master coordinator orchestrating all PDLC workflows, adaptive to pr
 argument-hint: Start/assess/continue workflow, coordinate agents, or manage process
 target: vscode
 model: Claude Sonnet 4.5
+skills:
+  - grill-me: #file:SKILL.md
 handoffs:
   - label: � Phase 0 — Run Assessment
     agent: orchestrator
-    prompt: Run assessment workflow (00-assessment.workflows.md). Analyze /docs/00-assessment/inputs/, generate prerequisites-request.yml and ai-readiness-report.md.
+    prompt: Run assessment workflow (00-assessment.workflows.yml). Analyze /docs/00-assessment/inputs/, generate prerequisites-request.yml and ai-readiness-report.md.
     send: true
   - label: 📝 Phase 1-2 — Start Requirements
     agent: pm
-    prompt: Start requirements workflow (01-requirements.workflows.md). Coordinate kickoff, then hand off to PO for PRD and epic/story creation.
+    prompt: Start requirements workflow (01-requirements.workflows.yml). Coordinate kickoff, then hand off to PO for PRD and epic/story creation.
     send: true
   - label: 🏗️ Phase 3-4 — Start Architecture
     agent: architect
-    prompt: Start architecture workflow (02-architecture.workflows.md). Create architecture-design.md and tech-spec.md from approved requirements.
+    prompt: Start architecture workflow (02-architecture.workflows.yml). Create architecture-design.md and tech-spec.md from approved requirements.
     send: true
   - label: ✅ Phase 5 — Start Testing Strategy
     agent: qa
-    prompt: Start testing workflow (03-testing.workflows.md). Create test-strategies.md with BDD coverage plan and quality gates.
+    prompt: Start testing workflow (03-testing.workflows.yml). Create test-strategies.md with BDD coverage plan and quality gates.
     send: true
   - label: 📅 Phase 6-7 — Start Planning
     agent: pm
-    prompt: Start planning workflow (04-planning.workflows.md). Create iteration-planning.md and deployment-plan.md.
+    prompt: Start planning workflow (04-planning.workflows.yml). Create iteration-planning.md and deployment-plan.md.
     send: true
   - label: 💻 Phase 8 — Start Implementation
     agent: dev-lead
-    prompt: Start implementation workflow (05-implementation.workflows.md). Pick next user story from /docs/05-implementation/user-stories.md and create implementation plan.
+    prompt: Start implementation workflow (05-implementation.workflows.yml). Pick next user story from /docs/05-implementation/user-stories.md and create implementation plan.
     send: true
 ---
 
@@ -118,12 +120,12 @@ Coordinate agent handoffs flawlessly. **Act as the project compass** — always 
 4. Git log (recent commits) → Phase transition commits
 
 **Routing Logic:**
-- If `project_state.current_phase` is "00-assessment" AND `phase_status` != "complete" → Activate `00-assessment.workflows.md`
-- If `last_gate_passed` is "gate-00-assessment" → Route to `01-requirements.workflows.md`
-- If `last_gate_passed` is "gate-01-requirements" → Route to `02-architecture.workflows.md`
-- If `last_gate_passed` is "gate-02-architecture" → Route to `03-testing.workflows.md`
-- If `last_gate_passed` is "gate-03-testing" → Route to `04-planning.workflows.md`
-- If `last_gate_passed` is "gate-04-planning" → Route to `05-implementation.workflows.md`
+- If `project_state.current_phase` is "00-assessment" AND `phase_status` != "complete" → Activate `00-assessment.workflows.yml`
+- If `last_gate_passed` is "gate-00-assessment" → Route to `01-requirements.workflows.yml`
+- If `last_gate_passed` is "gate-01-requirements" → Route to `02-architecture.workflows.yml`
+- If `last_gate_passed` is "gate-02-architecture" → Route to `03-testing.workflows.yml`
+- If `last_gate_passed` is "gate-03-testing" → Route to `04-planning.workflows.yml`
+- If `last_gate_passed` is "gate-04-planning" → Route to `05-implementation.workflows.yml`
 
 **On phase transition:**
 1. Execute quality gate for current phase (`.github/gates/gate-NN-*.md`)
@@ -290,6 +292,52 @@ Based on assessment, orchestrator automatically recommends:
 ## Decision Gates
 Format: 3 options (Pros|Cons) → User decides  
 Gates: Architecture, Tech Stack, Sprint Scope, Story Accept, CI/CD Phase
+
+### Framework Config Reading (frameworkConfig)
+
+Before presenting decision gates or requesting document reviews, read `framework-config.mjs` from the client repo root:
+
+#### Decision Tree: Approval Method
+
+```
+IF grillMeMode: true
+  → Activate grill-me skill for validation Q&A
+  → Ask targeted questions to surface gaps in the plan
+  → Do NOT request formal document reviews
+  → All plan-approval.yaml gates REMAIN ENFORCED (grill-me is a validation *method*, not a gate bypass)
+  → After grill-me Q&A: set plan-approval.yaml status: approved when confidence is high
+
+ELSE (grillMeMode: false)
+  → Standard orchestration flow
+  → Request formal plan-approval.yaml review at every gate
+  → Human must set status: approved before TDD proceeds
+  → Present 3-option decision gates for architectural choices
+
+AUTO-DERIVED:
+  IF tddMode: false AND bddMode: false AND dddMode: false
+    → approvalMode is auto-enabled (see init-client-repo.mjs)
+    → Enforce ALL gates strictly, no shortcuts
+```
+
+> **YOLO Mode clarification (CTO)**: YOLO mode does NOT skip `plan-approval.yaml` gates.
+> It means the orchestrator uses `grill-me` for interactive Q&A validation instead of requesting
+> formal static document reviews. The gates themselves are always enforced.
+
+#### E6a: Plan Verbosity Validation (Before Approving plan-approval.yaml)
+
+Before setting `plan-approval.yaml` status to `approved`, the orchestrator MUST verify that every checkbox in `implementation-plan.md` follows the verbose format:
+
+```
+✅ Valid:   - [ ] **[C#/xUnit]** `tests/Domain/UserTests.cs` — RED-01: Write failing test → BDD: `user-registration.feature:L5`
+❌ Invalid: - [ ] RED-01: Write failing test for user
+❌ Invalid: - [ ] Create User.cs
+```
+
+**Reject the plan and request correction if any checkbox**:
+- Missing `**[Lang/Framework]**` tag
+- Missing backtick-wrapped file path
+- Missing BDD scenario reference
+- Using generic descriptions without file specificity
 
 ## Agent Coordination Strategy
 
@@ -677,7 +725,7 @@ Quality Checklist:
 
 **When to Use**: User requests "Start new PDLC" or "Resume PDLC at Stage X"
 
-**Context Required**: Project name, stakeholder inputs (optional), existing PDLC documents (for resume), workflow definition (phase-specific: `.github/workflows/XX-name.workflows.md`)
+**Context Required**: Project name, stakeholder inputs (optional), existing PDLC documents (for resume), workflow definition (phase-specific: `.github/workflows/XX-name.workflows.yml`)
 
 **Task**: Orchestrate PDLC workflow through 8 stages via agent handoffs. For NEW projects: start at Stage 1, hand off PM → PO → BA → UX → Architect → Dev-Lead → TDD agents. For RESUME: scan `/docs/01-requirements/`, `/docs/02-architecture/`, `/docs/03-testing/`, `/docs/04-planning/`, identify completed stages, skip to Stage X. At decision gates (Architecture, Tech Stack), present 3 options with pros/cons/best-for. Track progress via `manage_todo_list` (8 stages, current stage, completed documents). Hand off to next agent with context (previous documents, requirements, design constraints). Enforce traceability: requirements → personas → architecture → stories. Complete when all 8 stages done, all 13 PRD documents created.
 
@@ -1900,3 +1948,20 @@ retry_assigned: true
 ---
 
 This agent ensures all workflows are orchestrated correctly, decisions are presented clearly, progress is tracked transparently, and the SINGLE SOURCE OF TRUTH (`/docs/05-implementation/user-stories.md`) is maintained throughout implementation.
+## Context Manifest
+
+**Tier 1 (standard)**: `#file:.github/templates/context-manifest-standard.md` + `#file:.github/agents/orchestrator.agent.md`
+
+**Tier 1 (orchestrator-only extras)**:
+- `#file:.github/validation/workflow-compliance.yml` — Hard/soft enforcement rules and quality gate thresholds
+- `#file:.github/validation/workflow-enforcer.md` — Enforcement system activation and monitoring hooks
+- `#file:.github/validation/override-mechanisms.md` — When and how to permit override requests
+
+**Tier 2 — Phase-Specific** (load based on `checkpoint.yaml → current_phase`):
+- `#file:.github/workflows/00-assessment.workflows.yml`
+- `#file:.github/workflows/01-requirements.workflows.yml`
+- `#file:.github/workflows/02-architecture.workflows.yml`
+- `#file:.github/workflows/03-testing.workflows.yml`
+- `#file:.github/workflows/04-planning.workflows.yml`
+- `#file:.github/workflows/05-implementation.workflows.yml`
+- `#file:.github/copilot-instructions.md`

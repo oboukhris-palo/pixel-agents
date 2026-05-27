@@ -19,18 +19,11 @@ This document provides systematic instructions for implementing naming conventio
 
 ### 📋 Standard Phase Organization
 
-All Product Development Lifecycle (PDLC) phases MUST use this consistent naming and numbering convention:
+All phases use a consistent `NN-name` folder naming convention. For the canonical phase table (folder names, workflows, status), see:
 
-| Phase | Folder Name | Phase Range | Description | Status |
-|-------|-------------|------------|-------------|--------|
-| **📊 Phase 0** | `00-assessment` | Single Phase | Requirements assessment & discovery | Output-only |
-| **📝 Phases 1-2** | `01-requirements` | Two Phases | Requirements definition, personas, user stories | Frozen (read-only) |
-| **🏗️ Phases 3-4** | `02-architecture` | Two Phases | System architecture & technical specifications | Frozen (read-only) |
-| **✅ Phase 5** | `03-testing` | Single Phase | Testing strategy & BDD scenarios | Frozen (read-only) |
-| **📅 Phases 6-7** | `04-planning` | Two Phases | Iteration planning, deployment strategy | Frozen (read-only) |
-| **💻 Phase 8** | `05-implementation` | Single Phase | TDD implementation, epic tracking | Active (mutable) |
+> `#file:.github/reference/pdlc-phases.md` — source of truth for all phase descriptions, folder names, and status
 
----
+**Key rule**: Always use the two-digit prefix format (`00-XX` through `05-XX`). Never use plain phase names without the numeric prefix.
 
 ### 🎯 Folder Structure References
 
@@ -76,13 +69,13 @@ When linking to workflow files, use the standard pattern:
 
 ```bash
 # ✅ CORRECT
-.github/workflows/00-assessment.workflows.md      # Phase 0
-.github/workflows/01-requirements.workflows.md   # Phases 1-2
-.github/workflows/02-architecture.workflows.md    # Phases 3-4
-.github/workflows/03-testing.workflows.md         # Phase 5
-.github/workflows/04-planning.workflows.md        # Phases 6-7
-.github/workflows/05-implementation.workflows.md  # Phase 8
-.github/workflows/cicd.workflows.md            # CI/CD (cross-phase)
+.github/workflows/00-assessment.workflows.yml      # Phase 0
+.github/workflows/01-requirements.workflows.yml   # Phases 1-2
+.github/workflows/02-architecture.workflows.yml    # Phases 3-4
+.github/workflows/03-testing.workflows.yml         # Phase 5
+.github/workflows/04-planning.workflows.yml        # Phases 6-7
+.github/workflows/05-implementation.workflows.yml  # Phase 8
+.github/workflows/cicd.workflows.yml            # CI/CD (cross-phase)
 
 # ❌ INCORRECT
 .github/workflows/assessment.yml               # Wrong extension
@@ -172,7 +165,7 @@ Use this checklist when creating new files, directories, or documentation:
 - [ ] **Folder creation**: Use `00-XX` to `05-XX` prefix (not `phase-0`, `p0`, etc.)
 - [ ] **Markdown links**: Reference as `/docs/XX-name/` (always with 2-digit prefix)
 - [ ] **Phase descriptions**: Use "Phase N" or "Phases N-M" format consistently
-- [ ] **Workflow references**: Use `.github/workflows/[workflow].workflows.md`
+- [ ] **Workflow references**: Use `.github/workflows/[workflow].workflows.yml`
 - [ ] **Log paths**: Include phase folder in log path: `/logs/XX-phase-name/agent-{name}-YYYYMMDD.md`
 - [ ] **Documentation**: Link to other phases using standard folder format
 - [ ] **Code comments**: Reference phases by number (Phase 0, Phases 1-2, etc.)
@@ -257,7 +250,7 @@ When working on requirements (Phases 1-2), reference:
 - User stories: `/docs/01-requirements/user-stories.md`
 - Personas: `/docs/01-requirements/personas.md`
 
-Link to workflow: See phase-specific workflows (`.github/workflows/01-requirements.workflows.md`, `.github/workflows/02-architecture.workflows.md`, `.github/workflows/03-testing.workflows.md`, `.github/workflows/04-planning.workflows.md`)
+Link to workflow: See phase-specific workflows (`.github/workflows/01-requirements.workflows.yml`, `.github/workflows/02-architecture.workflows.yml`, `.github/workflows/03-testing.workflows.yml`, `.github/workflows/04-planning.workflows.yml`)
 
 The gene2 framework manages requirements through a structured process that implements AI-first delivery principles.
 ```
@@ -320,7 +313,7 @@ When onboarding team members or new projects working with the gene2 framework, e
 3. **Naming Conventions**: Apply standards in all new work
    - Phase references use Phase N or Phases N-M format
    - Folders use 00-XX naming pattern
-   - Workflow references follow `.github/workflows/[name].workflows.md`
+   - Workflow references follow `.github/workflows/[name].workflows.yml`
    - Log paths include phase folder structure
 
 4. **Professional Standards**: Maintain industry-standard IT terminology

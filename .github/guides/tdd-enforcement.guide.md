@@ -1,6 +1,8 @@
 ````markdown
 # 🔴🟢🔄 TDD Enforcement Guide
 
+> **Checkbox Format (Mandatory)**: Every checkbox in an implementation plan **must** use verbose format: `- [ ] **[Language/Framework]** \`full/path/File.ext\` — Description of what to implement and why. BDD: \`feature-file.feature:LineN\``. Checkboxes without language tag, full path, and BDD reference are invalid and will be rejected by dev-lead review. See `patterns/implementation/tdd-cycles/layer-by-layer-tdd.md` for concrete examples.
+
 ## Why TDD Wasn't Followed (Issues Found)
 
 1. **Missing Implementation Plans** - agents didn't know what to build layer-by-layer

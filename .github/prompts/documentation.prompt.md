@@ -428,12 +428,12 @@ When documentation output needs improvement:
 ## Integration Points
 
 This prompt is used in:
-- [00-assessment.workflows.md](../workflows/00-assessment.workflows.md) - Phase 0 assessment (includes routing framework)
-- [01-requirements.workflows.md](../workflows/01-requirements.workflows.md) - Phases 1-2 requirements
-- [02-architecture.workflows.md](../workflows/02-architecture.workflows.md) - Phases 3-4 architecture
-- [03-testing.workflows.md](../workflows/03-testing.workflows.md) - Phase 5 testing
-- [04-planning.workflows.md](../workflows/04-planning.workflows.md) - Phases 6-7 planning
-- [05-implementation.workflows.md](../workflows/05-implementation.workflows.md) - Phase 8 implementation
+- [00-assessment.workflows.yml](../workflows/00-assessment.workflows.yml) - Phase 0 assessment (includes routing framework)
+- [01-requirements.workflows.yml](../workflows/01-requirements.workflows.yml) - Phases 1-2 requirements
+- [02-architecture.workflows.yml](../workflows/02-architecture.workflows.yml) - Phases 3-4 architecture
+- [03-testing.workflows.yml](../workflows/03-testing.workflows.yml) - Phase 5 testing
+- [04-planning.workflows.yml](../workflows/04-planning.workflows.yml) - Phases 6-7 planning
+- [05-implementation.workflows.yml](../workflows/05-implementation.workflows.yml) - Phase 8 implementation
 - All project stages requiring specification documents
 
 ---

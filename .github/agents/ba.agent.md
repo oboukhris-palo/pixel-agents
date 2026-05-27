@@ -10,14 +10,16 @@ description: Create functional specs, BDD scenarios, and validate feature maturi
 argument-hint: Specify functional requirements, create BDD tests, or validate features
 target: vscode
 model: Claude Sonnet 4.5
+skills:
+  - grill-me: #file:SKILL.md
 handoffs:
   - label: 🎨 Hand off to UX — Journey Mapping
     agent: ux
-    prompt: Personas and requirements ready. Create journey-maps.md and design-systems.md following 02-architecture.workflows.md UX phase.
+    prompt: Personas and requirements ready. Create journey-maps.md and design-systems.md following 02-architecture.workflows.yml UX phase.
     send: true
   - label: 💻 Hand off to Dev-Lead — BDD Integration
     agent: dev-lead
-    prompt: BDD scenarios ready in features/. Create implementation plan for next user story following 05-implementation.workflows.md.
+    prompt: BDD scenarios ready in features/. Create implementation plan for next user story following 05-implementation.workflows.yml.
     send: true
   - label: 📊 Back to Orchestrator
     agent: orchestrator
@@ -125,6 +127,8 @@ Enrich user stories with PO-validated acceptance criteria, Gherkin BDD scenarios
   - Design system compliance checklist
   - DOR/DOD completion status
 - Gherkin/Cucumber BDD feature files for automated testing
+
+> **frameworkConfig check**: Before generating `.feature` files, verify `frameworkConfig.bddMode === true`. If `bddMode: false`, skip `.feature` file generation and produce acceptance criteria in plain Markdown instead. If `bddMode: true`, generate full Gherkin `.feature` files in `docs/05-implementation/epics/<EPIC>/user-stories/<US>/features/`.
 - Test execution reports and validation summaries
 - Traceability matrix from requirements to BDD tests to code
 
@@ -1382,3 +1386,13 @@ This agent ensures your IT project is business-aligned, well-documented, and rig
 - After every validation gate: Review bugs found, update BDD template with missing scenarios
 - After failed validation: Identify root cause (design flaw, implementation error, or spec gap), inform next story
 - Monthly: Analyze bug distribution by layer, identify which layers need stricter TDD discipline
+
+## Context Manifest
+
+**Tier 1 (standard)**: `#file:.github/templates/context-manifest-standard.md` + `#file:.github/agents/ba.agent.md`
+
+**Tier 2 — Phase-Specific**:
+- `#file:.github/workflows/01-requirements.workflows.yml`
+- `#file:.github/workflows/03-testing.workflows.yml`
+- `#file:docs/01-requirements/user-stories.md`
+- `#file:docs/03-testing/test-strategies.md`

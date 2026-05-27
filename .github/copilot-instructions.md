@@ -19,12 +19,12 @@
 **7 Core Components** (redesigned April 2026):
 
 #### Backend Monitors (TypeScript)
-1. **AgentActivityMonitor** — Tracks active agent, current task, broadcasts real-time action
+1. **AgentActivityMonitor** — ✅ **v1.0.5 FIXED**: Tracks file changes + git commits, infers agent from path, broadcasts real-time activity (debounced 300ms)
 2. **ContextWindowAnalyzer** — Monitors token usage, warns at 90%+ threshold
 3. **CompletenessCalculator** — Calculates project metrics (stories, tests, coverage)
 4. **TaskProgressionTracker** — Maintains 3-task window (previous | current | next)
 5. **AgentInitializer** — Loads agents from `.github/agents/` with metadata
-6. **WorkflowDetector** — Detects PDLC phase from file structure
+6. **WorkflowDetector** — ✅ **v1.0.5 FIXED**: Detects phase based on artifact maturity (highest phase folder with .md files, not just presence)
 7. **PixelAgentsViewProvider** — Orchestrates message protocol to webview
 
 #### Frontend Components (React)
@@ -89,21 +89,24 @@
 5. Celebrate as completeness bar fills
 6. Unlock next task automatically
 
-**Engagement Features** (v1.0.4 Status):
-- ✅ Character animations (office layout, sprite rendering)
-- ✅ Context pressure visualization (token usage bar at 70%/90% thresholds)
-- ✅ Completeness met� Project workspace visualization complete with all 11 agents visible
+**Engagement Features** (v1.0.5 Status - Field Testing Fixes):
+- ✅ Phase detection dynamic (0 Assess, 1-2 Req, 3-4 Arch, 5 Test, 6-7 Plan, 8 Impl)
+- ✅ Agent activity real-time (file watcher + git commits, 300ms debounce)
+- ✅ Context window tooltip fixed (mouse events on outer container)
+- ✅ Completeness metrics from day 1 (PRD dissociation + implementation tracking)
+- ✅ All 856 tests passing
 
 **Win Condition**: 🏆 Reach 100% project completion with all metrics optimized
 
 ### 📋 Message Protocol
 
-All backend→frontend communication uses 5 strongly-typed messages:
+All backend→frontend communication uses 6 strongly-typed messages:
 1. **AgentActivityMessage** — Current agent + action + code snippet
 2. **ContextWindowMessage** — Token usage breakdown
 3. **CompletenessMetricsMessage** — Project metrics + milestones
 4. **TaskProgressionMessage** — Previous | Current | Next tasks
 5. **ParallelZonesMessage** — Layout for multi-agent zones
+6. **FrameworkConfigMessage** — Framework mode flags + PRU metrics (v2.0.1)
 
 ### �🟢🟣 TDD Cycle Patterns (4-Layer Architecture)
 
@@ -200,6 +203,11 @@ All backend→frontend communication uses 5 strongly-typed messages:
 9. **Logging**: Use VS Code OutputChannel (not console.error) — inject via constructor, fallback gracefully
 10. **Virtual Scrolling**: Essential for 100+ item lists - implement with ROW_HEIGHT constant and visible range calculation
 11. **Design Token Validation**: Test assertions must validate against centralized design-systems.md v2.0.0 colors, not hardcoded hex values - enables design changes without test maintenance
+12. **Agent Activity State Structure**: AgentActivityState has NO fileOperations field - use activeAgent, currentAction, codeSnippet, status fields directly; attempting to access fileOperations causes undefined errors
+13. **Flexbox Centering Requirements**: Container centering requires BOTH alignItems: 'center' AND justifyContent: 'flex-start' (or 'center'); setting only one property incomplete
+14. **Debug Logging Pattern**: Use useEffect with console.log to trace data flow from backend services through hooks to components; log at each layer (service → hook → component prop)
+15. **CSS Grid for Tooltips**: CSS Grid with 2-column layout (grid-template-columns: '1fr auto') superior to flexbox for label|value pairs - automatic alignment, no manual spacing
+16. **Message Type Exact Matching**: Backend postMessage type strings must match frontend addEventListener types exactly (case-sensitive); mismatch causes silent data loss (e.g., 'context.window.update' !== 'contextUpdated')
 
 **Proven Stack**:
 - Backend: TypeScript + VS Code APIs + EventEmitter pattern
@@ -531,9 +539,7 @@ When verifying framework completeness, follow evidence-based approach per `.gith
 - `implementation-plan-v1.md`, `v2.md` = IMMUTABLE snapshots (historical)
 - When plan modified: Create snapsh — DEPRECATED
 
-**Note**: YOLO mode was designed for traditional PDLC workflows. Not applicable to Pixel Agents extension development. Use standard git workflow instead.
-- Experimental features with isolated scope
-- Learning/training scenarios
+**Note**: Use standard git workflow for extension development. Preserve all commits for audit trail and agent accountability.
 
 ---
 
@@ -576,8 +582,9 @@ When verifying framework completeness, follow evidence-based approach per `.gith
 - Layout: `webview-ui/src/office/**` (office state, furniture catalog, character system)
 
 **Version Tracking**:
-- Current: v1.0.4 (April 28, 2026)
-- VSIX location: `pixel-agents-1.0.4.vsix` (1.0 MB, 104 files
+- Current: v1.0.5+ (May 26, 2026) - gene2-core v2.0.1 alignment
+- Features: Framework config integration, PRU tracking, accordion sidebar
+- VSIX location: `pixel-agents-*.vsix`
 
 ### Before Any Action
 1. **Check enforcement status**: System validates workflow sequences automatically
@@ -731,9 +738,35 @@ const PALO_BLUE = '#3B82F6'
 
 ---
 
-## 🔧 Extension Stability & Data Flow Patterns (April 2026)
+## 🔧 Extension Stability & Data Flow Patterns (May 2026 - v1.0.5 Field Testing)
 
-**Critical Fixes for Production Stability**:
+**Critical Fixes Applied (v1.0.5)**:
+
+### Issue #1: Phase Detection Hardcoded → FIXED
+- **Was**: Always displayed "8 Impl" regardless of actual phase
+- **Fix**: Artifact-maturity detection checks phase folders in order (05→04→03→02→01→00), returns highest with .md files
+- **Impact**: Phase pill now accurate across all PDLC phases
+- **Bonus**: Added phase tooltip with full descriptions (hover shows "PDLC Phase 1: Requirements Definition")
+
+### Issue #2: Agent Activity Bubbles Dead → FIXED
+- **Was**: Always showed "Idle" even when agents working
+- **Fix**: Added FileSystemWatcher for docs/**/*.md and src/**/*.{ts,tsx} with agent inference from file paths
+- **Agent Inference Pattern**: `implementation-plan.md` → dev-lead, `.test.ts` → dev-tdd-red, `.feature` → ba, `architecture-design.md` → architect
+- **Impact**: Real-time activity bubbles updated within 300-500ms of file change
+
+### Issue #3: Context Window Tooltip Empty → FIXED
+- **Was**: Mouse hover showed blank/NaN tooltip values
+- **Fix**: Moved onMouseEnter/onMouseLeave from narrow 30px bar to outer container div
+- **Impact**: Tooltip stable when cursor moves from bar to tooltip area
+
+### Issue #4: Completeness Metrics 0% → FIXED
+- **Was**: All counters 0 until Phase 8 implementation started
+- **Fix**: Added PRD fallback parsing (01-requirements/user-stories.md) with dual-source detection
+- **Phase Gating**: Phase <8 shows PRD story/epic counts (0 completed), Phase 8 shows implementation tracking
+- **Epic Counting**: Counts folders in 05-implementation/epics/ OR distinct epics from PRD
+- **Impact**: Progress visible from Requirements phase forward
+
+**Production Stability Patterns**:
 
 ### Performance: IDE Crash Fix (60 FPS → 12 FPS)
 - **Problem**: Continuous 60 FPS requestAnimationFrame caused CPU burn, IDE freeze on install
@@ -857,3 +890,130 @@ All backend services (ContextAnalyzer, CompletenessCalculator, TaskProgressionTr
 7. ✅ Verify message type matches frontend listener (case-sensitive)
 
 **Common miss**: Service initialized but initial state never sent → webview shows zeros until file change detected
+
+---
+
+## � gene2-core v2.0.1 Alignment (May 2026)
+
+**Framework Integration**: Added `FrameworkConfigService` for gene2-core v2.0.1 project parameters
+
+### Key Components Added
+1. **FrameworkConfigService** - Reads `framework-config.mjs`, calculates PRU from logs
+2. **useFrameworkConfig** - React hook for config/PRU consumption
+3. **CompletenessMeter enhancements** - PROJECT PARAMETERS + PRU CONSUMPTION sections
+4. **AgentSidebar accordion** - Category grouping with TDD sub-agent filtering
+
+### Critical Patterns
+
+**JSDoc Comment Safety**:
+```typescript
+// ❌ BREAKS TypeScript compiler
+/**
+ * - logs/**/<phase>/agent-*.md
+ */
+
+// ✅ SAFE - describe without angle brackets
+/**
+ * Scans agent logs recursively for PRU estimates.
+ * Looks for "PRU: ~XXXX" patterns in log entries.
+ */
+```
+
+**KPI Refresh Intervals**:
+- ❌ Real-time (300ms debounce) → causes update storms, bugs
+- ✅ 5-minute intervals (300000ms) → stable, prevents performance issues
+
+**Service Integration**:
+```typescript
+// FrameworkConfigService pattern
+private debounceTimer: NodeJS.Timeout | null = null;
+private readonly DEBOUNCE_INTERVAL = 300000; // 5 minutes
+
+startMonitoring(callback) {
+  const debouncedUpdate = async (uri) => {
+    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+    
+    this.debounceTimer = setTimeout(async () => {
+      await this.initialize();
+      callback(this.getMessage());
+      this.debounceTimer = null;
+    }, this.DEBOUNCE_INTERVAL);
+  };
+  
+  this.fileWatcher.onDidChange(debouncedUpdate);
+  this.fileWatcher.onDidCreate(debouncedUpdate);
+}
+```
+
+**Message Protocol**:
+```typescript
+// Backend → Frontend
+{
+  type: 'framework.config',
+  config: { tddMode, bddMode, dddMode, grillMeMode, cavemanMode, approvalMode },
+  pruMetrics: { currentConsumption, estimatedCompletion, totalBudget?, lastUpdated }
+}
+```
+
+### Documentation Policy
+**NEVER create documentation files unless explicitly requested by user**. Code implementation only. User will ask if they want docs.
+
+---
+
+## �🔨 AgentActivityMetadata Type Fix (May 2026)
+
+### Problem
+During v1.0.5 build: TypeScript error in `src/agentActivityMonitor.ts` line 142
+```
+Property 'role' does not exist on type 'AgentActivityMetadata'
+```
+
+Code attempted:
+```typescript
+activeAgent: { 
+  id: agentId, 
+  name: agentId, 
+  role: agentId  // ❌ 'role' not in interface
+}
+```
+
+### Root Cause
+`AgentActivityMetadata` interface (defined in `src/agentActivityTypes.ts`) only includes:
+```typescript
+interface AgentActivityMetadata {
+  id: string;           // Agent identifier
+  name: string;         // Agent display name
+  description: string;  // Agent role description
+  spriteColor: string;  // Hex color for sprite
+  icon: string;         // Role-specific emoji/symbol
+}
+```
+
+Property `role` doesn't exist. The `id` field already serves as the agent role identifier.
+
+### Solution
+**Removed redundant `role` property**, kept `id` and `name`:
+```typescript
+activeAgent: { 
+  id: agentId,    // ✅ Agent identifier (serves as role)
+  name: agentId   // Display name
+}
+```
+
+### Why This Happened
+- Developer confusion: `role` was assumed as property based on function parameter name
+- Type interface not consulted before coding
+- Type error caught at build time (0 runtime issues)
+
+### Prevention Pattern
+When creating `AgentActivityMetadata` objects:
+1. **Only use defined interface properties**: id, name, description, spriteColor, icon
+2. **Map agent ID → role**: Use `agentId` field for agent role identification
+3. **Verify against type definition**: Always check `src/agentActivityTypes.ts` before adding properties
+4. **No duplicate fields**: Don't create `role` when `id` already identifies the agent
+
+### Impact
+- Build failed with 1 TypeScript error
+- Fixed by removing invalid property
+- All 856 tests passed after fix
+- VSIX packaged successfully (v1.0.5, 1.02 MB)

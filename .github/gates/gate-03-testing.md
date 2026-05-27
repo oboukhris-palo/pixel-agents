@@ -41,10 +41,17 @@ executed_by: "qa.agent.md + ba.agent.md"
 
 ## Outcomes
 
-- **On PASS:** Proceed to Phase 6-7 (`04-planning.workflows.md`)
+- **On PASS:** Proceed to Phase 6-7 (`04-planning.workflows.yml`)
 - **On CONDITIONAL:** Return to BA/QA for BDD refinement; re-run gate within 1 day
 - **On FAIL:** BLOCK progression; conduct BDD workshop
 
 ## Post-Gate Artifact
 
 `testing-gate-report.md` (generated after review using `gate-report-tmpl.md`)
+
+## Override Procedures
+
+If gate FAILS and override is justified, follow `.github/validation/override-mechanisms.md`.
+Use `.github/templates/approval-block-tmpl.md` to document override approval.
+Use `.github/templates/approval-gate-tmpl.md` for structured approval gate records.
+Orchestrator enforces `.github/validation/workflow-compliance.yml` risk levels.

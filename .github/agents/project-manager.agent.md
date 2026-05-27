@@ -10,14 +10,16 @@ description: Manage project execution, timelines, and coordination across teams
 argument-hint: Create project plan, manage schedule, or coordinate handoffs
 target: vscode
 model: Claude Sonnet 4.5
+skills:
+  - grill-me: #file:SKILL.md
 handoffs:
   - label: � Hand off to PO — Product Definition
     agent: po
-    prompt: Project kickoff complete. Create requirements.md with epics and user stories following 01-requirements.workflows.md.
+    prompt: Project kickoff complete. Create requirements.md with epics and user stories following 01-requirements.workflows.yml.
     send: true
   - label: 💻 Hand off to Dev-Lead — Sprint Start
     agent: dev-lead
-    prompt: Sprint planning complete. Start implementation for approved user stories following 05-implementation.workflows.md.
+    prompt: Sprint planning complete. Start implementation for approved user stories following 05-implementation.workflows.yml.
     send: true
   - label: 📊 Back to Orchestrator
     agent: orchestrator
@@ -1531,3 +1533,13 @@ This PM agent now has concrete, executable prompts that eliminate ambiguity and 
 ---
 
 This agent ensures that IT projects run smoothly, on time, and within budget by managing execution, coordinating teams, removing obstacles to success, and maintaining seamless synchronization between project templates and Jira. Product definition and prioritization is handled by the Product Owner (#file:po.agent.md).
+
+## Context Manifest
+
+**Tier 1 (standard)**: `#file:.github/templates/context-manifest-standard.md` + `#file:.github/agents/project-manager.agent.md`
+
+**Tier 2 — Phase-Specific**:
+- `#file:.github/workflows/04-planning.workflows.yml`
+- `#file:docs/04-planning/iteration-planning.md`
+- `#file:docs/05-implementation/user-stories.md`
+- `#file:.github/instructions/estimation.instructions.md`

@@ -3,11 +3,13 @@
 /**
  * validate-metadata-frontmatter.mjs - Validates document metadata frontmatter compliance
  *
- * - Checks docs use template: .github/templates/metadata-frontmatter-standard.md
- * - Verifies minimal required fields (templateId, author, date_created, version)
- * - Warns on overly verbose metadata (>30 lines)
+ * Validates:
+ * 1. docs/ files — require templateId, author, date_created, version frontmatter
+ * 2. .github/instructions/ files — require applyTo, description frontmatter (E3)
+ * 3. checkpoint.yaml — require framework_version, current_phase, last_updated fields (E2)
+ * 4. framework-config.mjs — validate all boolean mode flags present with correct types (E5)
  *
- * Part of Gen-e2 Toolbox v2.0 Compliance Framework
+ * Part of gene2 Framework v2.0 Compliance Framework
  */
 
 import { execSync } from 'child_process';
@@ -76,9 +78,140 @@ for (const docFile of generatedDocs) {
 }
 
 if (violations > 0) {
-  console.error(`\n❌ Metadata validation failed (${violations} issue(s))`);
+  console.error(`\n❌ Generated docs metadata validation failed (${violations} issue(s))`);
   process.exit(1);
 }
 
-console.log('✅ Document metadata compliant');
+if (generatedDocs.length > 0) console.log('✅ Generated docs metadata compliant');
+
+// ─────────────────────────────────────────────
+// E3: Validate .github/instructions/ frontmatter
+// ─────────────────────────────────────────────
+const INSTRUCTION_REQUIRED_FIELDS = ['applyTo', 'description'];
+const instructionFiles = stagedFiles.filter(f =>
+  f.startsWith('.github/instructions/') && f.endsWith('.md')
+);
+
+let instructionViolations = 0;
+for (const instrFile of instructionFiles) {
+  if (!existsSync(instrFile)) continue;
+
+  const content = readFileSync(instrFile, 'utf-8');
+  const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
+
+  if (!frontmatterMatch) {
+    console.error(
+      `  ❌ ${instrFile}: Missing frontmatter. Instructions files require applyTo + description.`
+    );
+    instructionViolations++;
+    continue;
+  }
+
+  const frontmatter = frontmatterMatch[1];
+  const missingFields = INSTRUCTION_REQUIRED_FIELDS.filter(field => !frontmatter.includes(field));
+  if (missingFields.length > 0) {
+    console.error(
+      `  ❌ ${instrFile}: Missing required frontmatter fields: ${missingFields.join(', ')}`
+    );
+    instructionViolations++;
+  } else {
+    console.log(`  ✓ ${instrFile}: Instruction frontmatter valid`);
+  }
+}
+
+if (instructionViolations > 0) {
+  console.error(`\n❌ Instruction frontmatter validation failed (${instructionViolations} issue(s))`);
+  process.exit(1);
+}
+if (instructionFiles.length > 0) console.log('✅ Instruction file frontmatter compliant');
+
+// ─────────────────────────────────────────────
+// E2: Validate checkpoint.yaml required fields
+// ─────────────────────────────────────────────
+const CHECKPOINT_REQUIRED_FIELDS = [
+  'framework_version',
+  'project_name',
+  'current_phase',
+  'last_updated',
+  'current_epic',
+  'current_user_story',
+];
+
+const checkpointFiles = stagedFiles.filter(f => f.endsWith('checkpoint.yaml'));
+let checkpointViolations = 0;
+
+for (const checkpointFile of checkpointFiles) {
+  if (!existsSync(checkpointFile)) continue;
+
+  const content = readFileSync(checkpointFile, 'utf-8');
+  const missingFields = CHECKPOINT_REQUIRED_FIELDS.filter(field => !content.includes(field + ':'));
+  if (missingFields.length > 0) {
+    console.error(
+      `  ❌ ${checkpointFile}: Missing required fields: ${missingFields.join(', ')}`
+    );
+    checkpointViolations++;
+  } else {
+    console.log(`  ✓ ${checkpointFile}: checkpoint.yaml valid`);
+  }
+}
+
+if (checkpointViolations > 0) {
+  console.error(`\n❌ checkpoint.yaml validation failed (${checkpointViolations} issue(s))`);
+  process.exit(1);
+}
+if (checkpointFiles.length > 0) console.log('✅ checkpoint.yaml compliant');
+
+// ─────────────────────────────────────────────
+// E5: Validate framework-config.mjs mode flags
+// ─────────────────────────────────────────────
+const FRAMEWORK_CONFIG_REQUIRED_FLAGS = [
+  'tddMode',
+  'bddMode',
+  'dddMode',
+  'grillMeMode',
+  'cavemanMode',
+  'approvalMode',
+];
+
+const configFiles = stagedFiles.filter(f => f.endsWith('framework-config.mjs'));
+let configViolations = 0;
+
+for (const configFile of configFiles) {
+  if (!existsSync(configFile)) continue;
+
+  const content = readFileSync(configFile, 'utf-8');
+  const missingFlags = FRAMEWORK_CONFIG_REQUIRED_FLAGS.filter(flag => !content.includes(flag));
+  if (missingFlags.length > 0) {
+    console.error(
+      `  ❌ ${configFile}: Missing required mode flags: ${missingFlags.join(', ')}`
+    );
+    configViolations++;
+  }
+
+  // Validate boolean values only (warn on non-boolean)
+  const boolFlags = ['tddMode', 'bddMode', 'dddMode', 'grillMeMode', 'cavemanMode'];
+  for (const flag of boolFlags) {
+    const regex = new RegExp(`${flag}:\\s*([^,}\\n]+)`);
+    const match = content.match(regex);
+    if (match) {
+      const value = match[1].trim();
+      if (value !== 'true' && value !== 'false') {
+        console.warn(
+          `  ⚠️  ${configFile}: ${flag} should be a boolean (true/false), got: ${value}`
+        );
+      }
+    }
+  }
+
+  if (missingFlags.length === 0) {
+    console.log(`  ✓ ${configFile}: framework-config.mjs flags valid`);
+  }
+}
+
+if (configViolations > 0) {
+  console.error(`\n❌ framework-config.mjs validation failed (${configViolations} issue(s))`);
+  process.exit(1);
+}
+if (configFiles.length > 0) console.log('✅ framework-config.mjs compliant');
+
 process.exit(0);

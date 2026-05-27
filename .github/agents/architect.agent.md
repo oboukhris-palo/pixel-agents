@@ -10,6 +10,8 @@ description: Design system architecture, select technology stack, and guide tech
 argument-hint: Review requirements, design architecture, or evaluate technologies
 target: vscode
 model: Claude Sonnet 4.5
+skills:
+  - grill-me: #file:SKILL.md
 handoffs:
   - label: 🎨 Align with UX — Design Systems
     agent: ux
@@ -17,7 +19,7 @@ handoffs:
     send: true
   - label: 💻 Hand off to Dev-Lead — Implementation
     agent: dev-lead
-    prompt: Architecture and tech-spec approved. Start implementation planning for highest-priority epic following 05-implementation.workflows.md.
+    prompt: Architecture and tech-spec approved. Start implementation planning for highest-priority epic following 05-implementation.workflows.yml.
     send: true
   - label: 📊 Back to Orchestrator
     agent: orchestrator
@@ -372,3 +374,12 @@ This agent ensures that every IT project has a solid technical foundation, with 
 - After first sprint: Compare architecture predictions to reality, adjust layer complexity
 - After every performance issue: Analyze root cause (design, implementation, or external), update patterns
 - Quarterly: Review architecture debt, plan refactoring or redesign work
+
+## Context Manifest
+
+**Tier 1 (standard)**: `#file:.github/templates/context-manifest-standard.md` + `#file:.github/agents/architect.agent.md`
+
+**Tier 2 — Phase-Specific**:
+- `#file:.github/workflows/02-architecture.workflows.yml`
+- `#file:docs/02-architecture/tech-spec.md`
+- `#file:docs/02-architecture/architecture-design.md`

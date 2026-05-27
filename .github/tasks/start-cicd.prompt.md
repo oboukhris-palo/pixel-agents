@@ -439,6 +439,6 @@ The Orchestrator tracks CI/CD health:
 ## Related Files
 
 - **Orchestrator Agent**: [.github/agents/orchestrator.agent.md](/.github/agents/orchestrator.agent.md)
-- **CI/CD Workflow**: [.github/workflows/cicd.workflows.md](/.github/workflows/cicd.workflows.md)
+- **CI/CD Workflow**: [.github/workflows/cicd.workflows.yml](/.github/workflows/cicd.workflows.yml)
 - **Architect Agent**: [.github/agents/architect.agent.md](/.github/agents/architect.agent.md)
-- **Implementation Workflow**: [.github/workflows/05-implementation.workflows.md](/.github/workflows/05-implementation.workflows.md)
+- **Implementation Workflow**: [.github/workflows/05-implementation.workflows.yml](/.github/workflows/05-implementation.workflows.yml)

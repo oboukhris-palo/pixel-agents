@@ -105,41 +105,39 @@
 
 File: `docs/05-implementation/epics/<EPIC-REF>/user-stories/<US-REF>/implementation-plan.md`
 
+The implementation plan uses **verbose checkboxes** — each checkbox must include: language/framework tag, file path, description, and BDD scenario reference.
+
 ```markdown
 ## Layer-by-Layer Implementation Plan
 
 ### Layer 1: Database & Domain Model
-- [ ] RED-01: Write failing test for domain entity creation
-- [ ] GREEN-01: Implement domain entity with validation
-- [ ] REFACTOR-01: Extract validation logic to separate service
-- [ ] RED-02: Write failing test for repository operations
-- [ ] GREEN-02: Implement repository interface + SQL queries
-- [ ] REFACTOR-02: Optimize query performance
+- [ ] **[C#/EF Core]** `migrations/001_create_users_table.sql` — Create users table with tier column — BDD: `user-registration.feature:L12`
+- [ ] **[C#]** `src/Domain/Entities/User.cs` — Domain entity with email + tier validation — BDD: `user-registration.feature:L5`
+- [ ] **[C#/xUnit]** `tests/Domain/Entities/UserTests.cs` — Unit tests for User entity creation — BDD: `user-registration.feature:L5`
+- [ ] **[C#]** `src/Domain/Repositories/IUserRepository.cs` — Repository interface — BDD: `user-registration.feature:L8`
+- [ ] **[C#/Dapper]** `src/Infrastructure/Repositories/UserRepository.cs` — SQL query implementation — BDD: `user-registration.feature:L8`
+- [ ] **[C#/xUnit]** `tests/Infrastructure/Repositories/UserRepositoryTests.cs` — Integration tests for repository — BDD: `user-registration.feature:L8`
 
 ### Layer 2: Service/Business Logic
-- [ ] RED-01: Write failing test for service method
-- [ ] GREEN-01: Implement service orchestration
-- [ ] REFACTOR-01: Extract complex logic to helper methods
-- [ ] RED-02: Write failing test for error handling
-- [ ] GREEN-02: Implement error handling and logging
-- [ ] REFACTOR-02: Clean up error messages and validation
+- [ ] **[C#]** `src/Services/UserRegistrationService.cs` — Registration orchestration with tier assignment — BDD: `user-registration.feature:L18`
+- [ ] **[C#/xUnit]** `tests/Services/UserRegistrationServiceTests.cs` — Unit tests for registration service — BDD: `user-registration.feature:L18`
+- [ ] **[C#]** `src/Services/Validators/RegistrationValidator.cs` — Input validation rules — BDD: `user-registration.feature:L22`
+- [ ] **[C#/xUnit]** `tests/Services/Validators/RegistrationValidatorTests.cs` — Validator edge case tests — BDD: `user-registration.feature:L22`
 
 ### Layer 3: API/Controllers
-- [ ] RED-01: Write failing test for API endpoint
-- [ ] GREEN-01: Implement controller with request/response mapping
-- [ ] REFACTOR-01: Extract mapping logic to DTOs
-- [ ] RED-02: Write failing test for API validation
-- [ ] GREEN-02: Implement input validation and error responses
-- [ ] REFACTOR-02: Consolidate error handling middleware
+- [ ] **[C#/ASP.NET]** `src/Controllers/UsersController.cs` — POST /users endpoint — BDD: `user-registration.feature:L30`
+- [ ] **[C#/xUnit]** `tests/Controllers/UsersControllerTests.cs` — Controller integration tests — BDD: `user-registration.feature:L30`
+- [ ] **[C#]** `src/DTOs/RegisterUserRequest.cs` — Request DTO with validation attributes — BDD: `user-registration.feature:L30`
+- [ ] **[C#]** `src/DTOs/UserResponse.cs` — Response DTO — BDD: `user-registration.feature:L30`
 
 ### Layer 4: UI/Presentation
-- [ ] RED-01: Write failing test for UI component rendering
-- [ ] GREEN-01: Implement component with state management
-- [ ] REFACTOR-01: Extract reusable UI components
-- [ ] RED-02: Write failing test for user interaction
-- [ ] GREEN-02: Implement event handlers and API calls
-- [ ] REFACTOR-02: Optimize performance and accessibility
+- [ ] **[TypeScript/React]** `src/components/RegisterForm/RegisterForm.tsx` — Registration form component — BDD: `user-registration.feature:L40`
+- [ ] **[TypeScript/Jest]** `src/components/RegisterForm/RegisterForm.test.tsx` — Component render + interaction tests — BDD: `user-registration.feature:L40`
+- [ ] **[TypeScript/React]** `src/hooks/useRegistration.ts` — Form state and API call hook — BDD: `user-registration.feature:L45`
+- [ ] **[TypeScript/Jest]** `src/hooks/useRegistration.test.ts` — Hook unit tests — BDD: `user-registration.feature:L45`
 ```
+
+> **Orchestrator validates verbosity before approving `plan-approval.yaml`**: Each checkbox must follow the format `**[Lang/Framework]** \`path\` — description — BDD: \`feature:line\``. Terse checkboxes (`- [ ] Create User.cs`) are rejected — they provide no guidance to TDD agents.
 
 **Step 2: Dev-TDD Orchestrator Enforces Layer Sequencing**
 
@@ -384,7 +382,7 @@ Use this checklist to verify correct implementation:
 
 - [TDD Best Practices](https://martinfowler.com/bliki/TestDrivenDevelopment.html)
 - [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-- [gene2 Framework Implementation Workflow](.github/workflows/05-implementation.workflows.md)
+- [gene2 Framework Implementation Workflow](.github/workflows/05-implementation.workflows.yml)
 - [TDD Orchestrator Agent](.github/agents/dev-tdd.agent.md)
 
 ---

@@ -217,7 +217,7 @@ auto_resolution_rules:
   implementation_plan_conflicts:
     rule_name: "use_checkboxes_for_progress_tracking"
     description: "Track TDD progress via checkboxes in implementation-plan.md, not separate files"
-    authority_source: "05-implementation.workflows.md + user-story-folder-tmpl.md"
+    authority_source: "05-implementation.workflows.yml + user-story-folder-tmpl.md"
     examples:
       - conflict: "separate audit log vs checkbox tracking"
         resolution: "use checkboxes in implementation-plan.md + git commit history"

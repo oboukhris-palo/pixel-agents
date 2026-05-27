@@ -1,6 +1,8 @@
 ---
-description: PRU (Prompt Resource Units) optimization and cost management strategies
-applyTo: ".github/agents/**,.github/prompts/**"
+applyTo: "**"
+description: PRU optimization — token budget management, context hygiene, and cost management strategies for all agents
+priority: high
+enforcement: strict
 ---
 
 # PRU Optimization Instructions

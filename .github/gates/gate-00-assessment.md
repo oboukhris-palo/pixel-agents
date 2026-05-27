@@ -46,10 +46,17 @@ executed_by: "orchestrator.agent.md"
 
 ## Outcomes
 
-- **On PASS:** Proceed to Phase 1-2 (`01-requirements.workflows.md`)
+- **On PASS:** Proceed to Phase 1-2 (`01-requirements.workflows.yml`)
 - **On CONDITIONAL:** Proceed WITH noted restrictions; document decisions in decision-log
 - **On FAIL:** BLOCK progression; escalate to PM and orchestrator; document blockers
 
 ## Post-Gate Artifact
 
 `assessment-gate-report.md` (generated after review using `gate-report-tmpl.md`)
+
+## Override Procedures
+
+If gate FAILS and override is justified, follow `.github/validation/override-mechanisms.md`.
+Use `.github/templates/approval-block-tmpl.md` to document override approval.
+Use `.github/templates/approval-gate-tmpl.md` for structured approval gate records.
+Orchestrator enforces `.github/validation/workflow-compliance.yml` risk levels.

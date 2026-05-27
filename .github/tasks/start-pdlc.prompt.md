@@ -388,7 +388,7 @@ Moving to Stage 2: Analysis & Business Justification...
 
 - **Orchestrator Agent**: [.github/agents/orchestrator.agent.md](/.github/agents/orchestrator.agent.md)
 - **PDLC Workflows**: Phase-specific workflows (00-assessment through 05-implementation)
-- **Route Reference**: See routing framework in [.github/workflows/00-assessment.workflows.md](/.github/workflows/00-assessment.workflows.md) for Routes A/B/C/D decision logic
+- **Route Reference**: See routing framework in [.github/workflows/00-assessment.workflows.yml](/.github/workflows/00-assessment.workflows.yml) for Routes A/B/C/D decision logic
 - **All Agent Definitions**: [.github/agents/](/.github/agents/)
 - **Document Templates**: [.github/templates/](/.github/templates/)
 - **PRD Documents**: [docs/01-requirements/](docs/01-requirements/), [docs/02-architecture/](docs/02-architecture/), [docs/03-testing/](docs/03-testing/), [docs/04-planning/](docs/04-planning/)

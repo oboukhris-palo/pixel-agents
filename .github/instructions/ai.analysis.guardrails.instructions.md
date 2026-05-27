@@ -1,6 +1,8 @@
 ---
-description: Rules to never invent content when reading artifacts
 applyTo: "**"
+description: AI analysis guardrails — no speculation, stick strictly to source material, acknowledge gaps and continue
+priority: high
+enforcement: strict
 ---
 
 # AI Analysis and Interpretation Guardrails Instructions

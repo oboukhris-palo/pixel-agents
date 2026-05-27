@@ -63,132 +63,110 @@ Feature: Subscription Tier Upgrade
 
 ## Layer Architecture Implementation
 
+> **Checkbox Format (Mandatory)**: Every checkbox must use verbose format: `- [ ] **[Language/Framework]** \`full/path/File.ext\` — What to implement and why. BDD: \`feature-file.feature:LineN\``. Vague tasks like `- [ ] Add validation` are rejected. Each checkbox must be self-contained — a dev with zero context can read it and know exactly what to create, where, and which BDD scenario it enables.
+
 ### Layer 1: Database & Domain Model
 **Purpose**: Data persistence and core domain entities
 
+**Context**: {Describe what data this layer introduces — e.g., "Adds the `Subscription` entity with tier and billing fields. Migration depends on the existing `User` table."}
+
 #### Database Tasks
-- [ ] Create/modify database schema for {entity}
-- [ ] Add migration files: `migrations/{number}_{description}.sql`
-- [ ] Create rollback migration: `migrations/{number}_{description}_down.sql`
-- [ ] Add database indexes for performance
-- [ ] Validate foreign key constraints and relationships
+- [ ] **[{Language}/{ORM}]** `migrations/{number}_create_{entity}_table.sql` — Create {Entity} table with required columns and constraints. BDD: `{feature-file}.feature:L{N}`
+- [ ] **[{Language}/{ORM}]** `migrations/{number}_create_{entity}_table_down.sql` — Rollback migration (DROP TABLE + cleanup). BDD: `N/A — infrastructure`
+- [ ] **[{Language}/{ORM}]** `migrations/{number}_create_{entity}_table.sql` — Add indexes on `{column}` for query performance. BDD: `N/A — infrastructure`
+- [ ] **[{Language}/{ORM}]** `migrations/{number}_create_{entity}_table.sql` — Validate FK constraints to `{parent_table}`. BDD: `N/A — infrastructure`
 
-#### Domain Model Tasks  
-- [ ] Create domain model class: `src/models/{Entity}.{ext}`
-- [ ] Add validation rules and constraints
-- [ ] Implement domain logic methods
-- [ ] Add type safety and error handling
-- [ ] Test model validation rules
+#### Domain Model Tasks
+- [ ] **[{Language}/{Framework}]** `src/models/{Entity}.{ext}` — Define `{Entity}` class with fields: `{field1}: {type}`, `{field2}: {type}`. Implements `I{Entity}` interface. BDD: `{feature-file}.feature:L{N}`
+- [ ] **[{Language}/Zod|Joi|etc]** `src/models/{Entity}.{ext}` — Add validation rules: `{rule1}`, `{rule2}`. Export `{Entity}Dto` type. BDD: `{feature-file}.feature:L{N}`
+- [ ] **[{Language}]** `src/models/{Entity}.{ext}` — Implement `isValid()` and `toDTO()` methods. BDD: `{feature-file}.feature:L{N}`
+- [ ] **[{Language}/TypeScript]** `src/models/{Entity}.{ext}` — Add type annotations and schema exports. BDD: `N/A — type safety`
 
-#### Files to Create/Modify
-- [ ] `src/models/{Entity}.{ext}` - Domain model with validation
-- [ ] `migrations/{number}_{description}.sql` - Up migration
-- [ ] `migrations/{number}_{description}_down.sql` - Down migration
-- [ ] `tests/models/{Entity}.test.{ext}` - Model validation tests
+#### Test Tasks
+- [ ] **[{Language}/{TestFramework}]** `tests/models/{Entity}.test.{ext}` — Unit test: model rejects invalid data (null email, short password, etc.). BDD: `{feature-file}.feature:L{N}`
+- [ ] **[{Language}/{TestFramework}]** `tests/models/{Entity}.test.{ext}` — Unit test: model accepts valid data (happy path). BDD: `{feature-file}.feature:L{N}`
+- [ ] **[{Language}/{TestFramework}]** `tests/db/migrations.test.{ext}` — Integration test: migration runs up/down without error. BDD: `N/A — infrastructure`
 
-#### BDD Validation  
-- [ ] Domain model exists with required fields
-- [ ] Validation rules prevent invalid data
-- [ ] Database constraints enforced correctly
+#### BDD Validation
+- [ ] Scenario: "{BDD scenario name}" — domain model stores and retrieves data correctly
+- [ ] Scenario: "{BDD scenario name}" — validation rules prevent invalid data
 
 ---
 
-### Layer 2: Backend Services & API
-**Purpose**: Business logic, API endpoints, and service integrations
+### Layer 2: Backend Services & Business Logic
+**Purpose**: Business logic, service orchestration, and cross-cutting concerns
+
+**Context**: {Describe the business rules this layer encodes — e.g., "Implements tier upgrade logic: validates eligibility, calculates new expiry, emits upgrade event."}
 
 #### Service Layer Tasks
-- [ ] Create service class: `src/services/{Entity}Service.{ext}`
-- [ ] Implement business logic methods
-- [ ] Add error handling and validation
-- [ ] Integrate with external services (if applicable)
-- [ ] Add logging and monitoring points
+- [ ] Create service class with constructor injection → `src/services/{Entity}Service.{ext}`
+- [ ] Implement core business logic method(s): `{methodName}()` → `src/services/{Entity}Service.{ext}`
+- [ ] Add structured error handling (typed errors, not generic throws) → `src/services/{Entity}Service.{ext}`
+- [ ] Integrate with repository/data-access layer → `src/repositories/{Entity}Repository.{ext}`
+- [ ] Add logging at entry/exit points of critical methods → `src/services/{Entity}Service.{ext}`
 
-#### API Layer Tasks
-- [ ] Create API controller: `src/controllers/{Entity}Controller.{ext}`
-- [ ] Define API endpoints with proper HTTP methods
-- [ ] Add request/response validation
-- [ ] Implement authentication/authorization
-- [ ] Add API documentation (OpenAPI/Swagger)
-
-#### Files to Create/Modify
-- [ ] `src/services/{Entity}Service.{ext}` - Business logic service
-- [ ] `src/controllers/{Entity}Controller.{ext}` - API controller
-- [ ] `src/routes/{entity}.{ext}` - Route definitions
-- [ ] `api/openapi.yaml` - API specification update
-- [ ] `tests/services/{Entity}Service.test.{ext}` - Service tests
-- [ ] `tests/controllers/{Entity}Controller.test.{ext}` - API tests
+#### Test Tasks
+- [ ] Write unit test: happy path for `{methodName}()` → `tests/services/{Entity}Service.test.{ext}`
+- [ ] Write unit test: error path (invalid input) → `tests/services/{Entity}Service.test.{ext}`
+- [ ] Write unit test: boundary/edge case (`{specific condition}`) → `tests/services/{Entity}Service.test.{ext}`
+- [ ] Write integration test: service + repository round-trip → `tests/integration/{Entity}Service.integration.test.{ext}`
 
 #### BDD Validation
-- [ ] API endpoints return expected responses
-- [ ] Business logic produces correct results
-- [ ] Error cases handled gracefully
-- [ ] External integrations work correctly
+- [ ] Scenario: "{BDD scenario name}" — business rule executes correctly
+- [ ] Scenario: "{BDD scenario name}" — error case handled and surfaced correctly
 
 ---
 
-### Layer 3: Configuration & Integration  
-**Purpose**: Environment configuration, middleware, and system integration
+### Layer 3: API Layer
+**Purpose**: HTTP interface — controllers, routing, request/response contracts
 
-#### Configuration Tasks
-- [ ] Add environment variables to `.env.example`
-- [ ] Update configuration files: `config/{environment}.json`
-- [ ] Add validation for required configuration
-- [ ] Document configuration options
-- [ ] Set up environment-specific settings
+**Context**: {Describe what endpoints are added — e.g., "Exposes `POST /api/v1/subscriptions/upgrade` with JWT auth. Validated by Zod schema. Returns 200 with updated subscription or 422 with error details."}
 
-#### Integration Tasks  
-- [ ] Configure middleware for new endpoints
-- [ ] Update authentication/authorization rules
-- [ ] Add monitoring and health checks
-- [ ] Configure logging for new components
-- [ ] Update deployment configuration
+#### API Tasks
+- [ ] Create controller with route handler(s) → `src/controllers/{Entity}Controller.{ext}`
+- [ ] Define route and bind to controller → `src/routes/{entity}.routes.{ext}`
+- [ ] Add request validation schema (Zod / Joi / class-validator) → `src/validators/{entity}.schema.{ext}`
+- [ ] Add authentication/authorization guard → `src/middleware/auth.{ext}`
+- [ ] Update OpenAPI spec with new endpoint → `api/openapi.yaml`
 
-#### Files to Create/Modify
-- [ ] `config/{environment}.{ext}` - Environment configuration
-- [ ] `src/middleware/{feature}Middleware.{ext}` - Custom middleware
-- [ ] `src/utils/{feature}Utils.{ext}` - Helper utilities
-- [ ] `docker/Dockerfile` - Container configuration (if applicable)
-- [ ] `docker-compose.yml` - Service orchestration (if applicable)
+#### Test Tasks
+- [ ] Write unit test: controller returns 200 for valid request → `tests/controllers/{Entity}Controller.test.{ext}`
+- [ ] Write unit test: controller returns 422 for invalid payload → `tests/controllers/{Entity}Controller.test.{ext}`
+- [ ] Write unit test: controller returns 401 for unauthenticated request → `tests/controllers/{Entity}Controller.test.{ext}`
+- [ ] Write integration test: full request → DB round-trip → `tests/integration/{entity}.api.test.{ext}`
 
 #### BDD Validation
-- [ ] Configuration loads correctly in all environments
-- [ ] Middleware processes requests properly
-- [ ] Integration points communicate successfully
-- [ ] Monitoring and logging capture events
+- [ ] Scenario: "{BDD scenario name}" — API returns correct response for happy path
+- [ ] Scenario: "{BDD scenario name}" — API rejects invalid or unauthorized requests
 
 ---
 
-### Layer 4: Frontend & Components
-**Purpose**: User interface, components, and client-side functionality
+### Layer 4: Frontend & UI Components
+**Purpose**: User interface, client state, and API integration
+
+**Context**: {Describe the UI this layer adds — e.g., "Adds `SubscriptionUpgradeModal` component. Uses `useSubscription` hook for API calls. Shows loading state during upgrade and error banner on failure."}
 
 #### UI Component Tasks
-- [ ] Create UI components: `src/components/{Feature}Component.{ext}`
-- [ ] Implement user interaction handlers
-- [ ] Add form validation and error display
-- [ ] Integrate with backend API endpoints
-- [ ] Add loading states and error boundaries
+- [ ] Create primary component with props interface → `src/components/{Feature}/{Component}.{ext}`
+- [ ] Implement user interaction handlers (click, submit, etc.) → `src/components/{Feature}/{Component}.{ext}`
+- [ ] Add form validation and inline error display → `src/components/{Feature}/{Component}.{ext}`
+- [ ] Add loading state and error boundary → `src/components/{Feature}/{Component}.{ext}`
+- [ ] Connect to API via custom hook → `src/hooks/use{Feature}.{ext}`
 
-#### State Management Tasks
-- [ ] Define state models and actions
-- [ ] Create state management logic (Redux/Zustand/etc.)
-- [ ] Add API integration and caching
-- [ ] Implement optimistic updates
-- [ ] Add state persistence (if required)
+#### State & API Integration Tasks
+- [ ] Create API client method → `src/services/api/{entity}Api.{ext}`
+- [ ] Create/update custom hook for data fetching and mutation → `src/hooks/use{Feature}.{ext}`
+- [ ] Add TypeScript types for props and API responses → `src/types/{feature}Types.{ext}`
 
-#### Files to Create/Modify
-- [ ] `src/components/{Feature}/{Component}.{ext}` - UI components
-- [ ] `src/hooks/use{Feature}.{ext}` - Custom hooks
-- [ ] `src/services/api/{entity}Api.{ext}` - API client
-- [ ] `src/types/{feature}Types.{ext}` - TypeScript types
-- [ ] `src/pages/{FeaturePage}.{ext}` - Page components
-- [ ] `tests/components/{Component}.test.{ext}` - Component tests
+#### Test Tasks
+- [ ] Write component test: renders correctly (snapshot or DOM assertions) → `tests/components/{Component}.test.{ext}`
+- [ ] Write component test: user interaction triggers correct handler → `tests/components/{Component}.test.{ext}`
+- [ ] Write component test: shows loading state during API call → `tests/components/{Component}.test.{ext}`
+- [ ] Write component test: shows error state on API failure → `tests/components/{Component}.test.{ext}`
 
 #### BDD Validation
-- [ ] User interfaces render correctly
-- [ ] User interactions work as expected
-- [ ] API calls succeed and handle errors
-- [ ] Loading states provide good user experience
-- [ ] Form validation prevents invalid submissions
+- [ ] Scenario: "{BDD scenario name}" — UI renders and responds correctly for happy path
+- [ ] Scenario: "{BDD scenario name}" — UI handles error and loading states gracefully
 
 ---
 

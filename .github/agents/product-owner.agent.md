@@ -10,6 +10,8 @@ description: Define product requirements and prioritize features through PRD doc
 argument-hint: Define requirements, create user stories, or prioritize features
 target: vscode
 model: Claude Sonnet 4.5
+skills:
+  - grill-me: #file:SKILL.md
 handoffs:
   - label: � Create PRD, Epics & Stories
     agent: po
@@ -21,7 +23,7 @@ handoffs:
     send: true
   - label: 🏗️ Hand off to Architect — Tech Feasibility
     agent: architect
-    prompt: User stories ready. Create architecture-design.md and tech-spec.md aligned with requirements following 02-architecture.workflows.md.
+    prompt: User stories ready. Create architecture-design.md and tech-spec.md aligned with requirements following 02-architecture.workflows.yml.
     send: true
   - label: 📊 Back to Orchestrator
     agent: orchestrator
@@ -1160,3 +1162,12 @@ This PO agent now has concrete, executable prompts for all major product ownersh
 ---
 
 This agent ensures that every IT project is driven by clear product vision, delivers measurable business value, and maintains strong alignment between business needs and technical implementation through disciplined PDLC management.
+
+## Context Manifest
+
+**Tier 1 (standard)**: `#file:.github/templates/context-manifest-standard.md` + `#file:.github/agents/product-owner.agent.md`
+
+**Tier 2 — Phase-Specific**:
+- `#file:.github/workflows/01-requirements.workflows.yml`
+- `#file:docs/01-requirements/user-stories.md`
+- `#file:docs/01-requirements/business-case.md`

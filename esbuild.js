@@ -9,7 +9,7 @@ const watch = process.argv.includes('--watch');
  * Copy assets folder to dist/assets
  */
 function copyAssets() {
-	const srcDir = path.join(__dirname, 'webview-ui', 'public', 'assets');
+	const srcDir = path.join(__dirname, 'src', 'frontend', 'public', 'assets');
 	const dstDir = path.join(__dirname, 'dist', 'assets');
 
 	if (fs.existsSync(srcDir)) {
@@ -49,7 +49,7 @@ const esbuildProblemMatcherPlugin = {
 async function main() {
 	const ctx = await esbuild.context({
 		entryPoints: [
-			'src/extension.ts'
+			'src/backend/extension.ts'
 		],
 		bundle: true,
 		format: 'cjs',

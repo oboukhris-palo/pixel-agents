@@ -1,3 +1,10 @@
+---
+applyTo: "**"
+description: Coding standards — SOLID, Clean Code, TDD cycle, security, performance, and 13-point review checklist
+priority: high
+enforcement: strict
+---
+
 # Coding Standards & Best Practices Instructions
 
 ## Overview

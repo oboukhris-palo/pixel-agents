@@ -1,3 +1,10 @@
+---
+applyTo: "**"
+description: Naming conventions — kebab-case files/dirs, meeting minutes format, template suffixes, and identifier standards
+priority: high
+enforcement: strict
+---
+
 # Naming Conventions Instructions
 
 ## Overview

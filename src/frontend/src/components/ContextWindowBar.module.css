@@ -1,0 +1,200 @@
+/**
+ * ContextWindowBar Styles (Design System v2.0.0)
+ * US-004-003: Palo IT Branding Alignment
+ * 
+ * Exact dimensions: 30×180px bar with segmented progress
+ * Uses design tokens from tokens.css
+ */
+
+/* Container - exact dimensions (AC2) */
+.contextWindowBar, .context-window-bar {
+  width: 30px; /* Exact width from design spec */
+  height: fit-content; /* Auto-height to accommodate legend */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* Center content vertically */
+  gap: var(--space-1); /* 4px */
+  padding: var(--space-2); /* 8px */
+  background: rgba(30, 30, 30, 0.92);
+  border: 1px solid color-mix(in srgb, var(--vscode-border) 50%, transparent);
+  border-radius: var(--radius-sm); /* 4px */
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  pointer-events: auto;
+  position: relative; /* Added: Establishes positioning context for absolute tooltip */
+  overflow: visible; /* Added: Allow tooltip to overflow container */
+}
+
+/* CTX label (AC1) */
+.ctxLabel {
+  font-size: var(--text-micro); /* 9px */
+  color: var(--color-warning); /* #F59E0B */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-1); /* 4px */
+}
+
+/* Progress track container (AC2) */
+.progressTrack, .progress-track {
+  width: 100%;
+  height: 180px; /* Exact height from design spec */
+  border-radius: var(--radius-sm); /* 4px */
+  background: color-mix(in srgb, var(--vscode-border) 20%, transparent);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column-reverse; /* Stack from bottom */
+}
+
+.progressTrack:focus, .progress-track:focus {
+  outline: 2px solid var(--vscode-focus-border);
+  outline-offset: 2px;
+}
+
+/* Segmented progress fills (AC3) */
+.segmentGithub, .segment-github {
+  background: color-mix(in srgb, var(--context-github, #3B82F6) 70%, transparent);
+  transition: height 0.3s ease;
+  width: 100%;
+}
+
+.segmentProject, .segment-project {
+  background: color-mix(in srgb, var(--context-project, #10B981) 60%, transparent);
+  transition: height 0.3s ease;
+  width: 100%;
+}
+
+.segmentChat, .segment-chat {
+  background: color-mix(in srgb, var(--context-chat, #F59E0B) 70%, transparent);
+  transition: height 0.3s ease;
+  width: 100%;
+}
+
+/* Percentage label (AC4) */
+.percentageLabel {
+  font-size: 12px; /* 12px per Penpot design - updated from var(--text-caption) 10px */
+  font-weight: 700;
+  font-family: var(--font-mono);
+  margin-top: var(--space-1); /* 4px */
+}
+
+.percentageSafe {
+  color: var(--context-safe); /* Green */
+}
+
+.percentageWarning {
+  color: var(--context-warning); /* Amber */
+}
+
+.percentageCritical {
+  color: var(--context-critical); /* Red */
+}
+
+/* Threshold icon */
+.thresholdIcon {
+  font-size: 12px;
+  margin-top: var(--space-1); /* 4px */
+}
+
+/* Legend display (AC5) */
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1); /* 4px */
+  margin-top: var(--space-2); /* 8px */
+  width: 100%;
+  font-size: 10px; /* Readable font size - fits within container */
+  color: var(--vscode-foreground-muted);
+  line-height: 1.3;
+  overflow: hidden; /* Prevent text from extending beyond container */
+}
+
+.legendItem, .legend-item {
+  display: flex;
+  align-items: center;
+  gap: 3px; /* Balance between readability and space */
+  white-space: nowrap;
+  overflow: hidden; /* Prevent individual items from overflowing */
+  text-overflow: ellipsis; /* Show ellipsis if text too long */
+}
+
+.legendDotGithub, .legend-dot-github {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--context-github, #3B82F6);
+}
+
+.legendDotProject, .legend-dot-project {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--context-project, #10B981);
+}
+
+.legendDotChat, .legend-dot-chat {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--context-chat, #F59E0B);
+}
+
+/* Tooltip (AC6) - v1.0.6 FIXED: pointer-events enabled + proper z-index stacking */
+.tooltip {
+  position: absolute; /* Relative to parent container (which has position: relative) */
+  left: calc(100% + 8px); /* Position to the right of the bar with 8px gap */
+  top: 50%; /* Vertically center relative to bar */
+  transform: translateY(-50%); /* Offset by half height for perfect centering */
+  background: rgba(30, 30, 30, 0.98); /* High opacity for readability */
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-md); /* 8px */
+  padding: var(--space-4); /* 16px for better spacing */
+  min-width: 240px;
+  max-width: 320px;
+  z-index: 1000; /* High z-index to stay above other elements */
+  font-size: 13px; /* Larger font for readability */
+  color: #ffffff; /* White text for contrast */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  pointer-events: auto; /* FIXED v1.0.6: Enable mouse events so tooltip can receive hover */
+  line-height: 1.5;
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: visible; /* Allow content to display properly */
+}
+
+.tooltipTitle, .tooltip-title {
+  font-weight: 700;
+  margin-bottom: var(--space-3); /* 12px */
+  font-size: 14px;
+  color: #FFD600; /* Palo IT yellow for emphasis */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: var(--space-2); /* 8px */
+}
+
+.tooltipRow, .tooltip-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-4); /* 16px horizontal gap */
+  margin: var(--space-2) 0; /* 8px vertical */
+  align-items: center;
+}
+
+.tooltipRow span:first-child, .tooltip-row span:first-child {
+  color: rgba(255, 255, 255, 0.8); /* Slightly dimmed label */
+}
+
+.tooltipRow strong, .tooltip-row strong {
+  color: #ffffff; /* Full white for values */
+  font-weight: 600;
+  text-align: right;
+}
+
+.tooltipDivider, .tooltip-divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  margin: var(--space-3) 0; /* 12px */
+}

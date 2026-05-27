@@ -43,10 +43,17 @@ executed_by: "pm.agent.md + dev-lead.agent.md"
 
 ## Outcomes
 
-- **On PASS:** Proceed to Phase 8 (`.github/workflows/05-implementation.workflows.md`; TDD begins)
+- **On PASS:** Proceed to Phase 8 (`.github/workflows/05-implementation.workflows.yml`; TDD begins)
 - **On CONDITIONAL:** Resolve scheduling conflicts; re-run gate within 1 day
 - **On FAIL:** BLOCK progression; conduct sprint planning workshop
 
 ## Post-Gate Artifact
 
 `planning-gate-report.md` (generated after review using `gate-report-tmpl.md`)
+
+## Override Procedures
+
+If gate FAILS and override is justified, follow `.github/validation/override-mechanisms.md`.
+Use `.github/templates/approval-block-tmpl.md` to document override approval.
+Use `.github/templates/approval-gate-tmpl.md` for structured approval gate records.
+Orchestrator enforces `.github/validation/workflow-compliance.yml` risk levels.

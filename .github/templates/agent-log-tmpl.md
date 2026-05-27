@@ -41,6 +41,11 @@ metadata:
 | **Files Changed** | {file1.ext, file2.ext, ...} |
 | **Summary** | {One-line action summary} |
 
+**Context Manifest Loaded**:
+- Always: `.github/agents/{agent_name}.agent.md`, `.github/checkpoint.yaml`
+- Phase-specific: {e.g., `docs/01-requirements/user-stories.md`, `docs/02-architecture/tech-spec.md`}
+- Story context: {e.g., `docs/05-implementation/epics/{EPIC}/user-stories/{US}/implementation-plan.md`}
+
 ---
 
 <!-- ============================================================

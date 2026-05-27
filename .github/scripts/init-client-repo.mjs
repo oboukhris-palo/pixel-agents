@@ -151,6 +151,145 @@ async function prompt(question, defaultValue = null) {
 }
 
 /**
+ * Numbered-choice prompt — shows a menu, returns the selected key.
+ * @param {string} question
+ * @param {Array<{key: string, label: string, description?: string}>} choices
+ */
+async function promptChoice(question, choices) {
+  return new Promise(resolve => {
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+    let display = `\n${question}\n`;
+    choices.forEach((c, i) => {
+      display += `  ${i + 1}) ${c.label}`;
+      if (c.description) display += ` — ${c.description}`;
+      display += '\n';
+    });
+    display += `  Choice [1-${choices.length}]: `;
+    rl.question(display, answer => {
+      rl.close();
+      const idx = parseInt(answer.trim(), 10) - 1;
+      resolve(choices[idx >= 0 && idx < choices.length ? idx : 0].key);
+    });
+  });
+}
+
+/**
+ * Yes/no prompt — returns boolean.
+ */
+async function promptYesNo(question, defaultYes = true) {
+  return new Promise(resolve => {
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+    const hint = defaultYes ? '[Y/n]' : '[y/N]';
+    rl.question(`  ${question} ${hint}: `, answer => {
+      rl.close();
+      const a = answer.trim().toLowerCase();
+      resolve(a === '' ? defaultYes : a === 'y' || a === 'yes');
+    });
+  });
+}
+
+/**
+ * Project type wizard — guides the user through project configuration.
+ * Auto-sets modes for experimental/local-dev; asks interactively otherwise.
+ *
+ * Returns: { projectType, scope, estimatedStories, grillMeMode, cavemanMode,
+ *            tddMode, bddMode, dddMode }
+ */
+async function projectTypeWizard(args) {
+  // If all flags already passed via CLI, skip wizard
+  const hasCliModes = ['tdd-mode', 'bdd-mode', 'ddd-mode'].some(f => f in args);
+  if (hasCliModes) {
+    return {
+      projectType: args['project-type'] || 'greenfield',
+      scope: args['scope'] || 'mid-market',
+      estimatedStories: parseInt(args['stories'] || '0', 10),
+      grillMeMode: args['grill-me'] === 'true' || args['grill-me'] === true || false,
+      cavemanMode: args['caveman'] === 'true' || args['caveman'] === true || false,
+      tddMode: args['tdd-mode'] === 'true' || args['tdd-mode'] === true || false,
+      bddMode: args['bdd-mode'] === 'true' || args['bdd-mode'] === true || false,
+      dddMode: args['ddd-mode'] === 'true' || args['ddd-mode'] === true || false,
+    };
+  }
+
+  console.log('\n' + colors.cyan('─────────────────────────────────────────────────'));
+  console.log(colors.cyan('  🎯  gene2 Project Configuration Wizard'));
+  console.log(colors.cyan('  Copilot will guide you to the right dev modes.'));
+  console.log(colors.cyan('─────────────────────────────────────────────────'));
+
+  // ── Step 1: Project type ──────────────────────────────────────────────────
+  const projectType = await promptChoice('What kind of project is this?', [
+    { key: 'greenfield',   label: 'Greenfield',   description: 'new project from scratch' },
+    { key: 'brownfield',   label: 'Brownfield',   description: 'legacy replatforming / migration' },
+    { key: 'client-repo',  label: 'Client repo',  description: 'production, regulated, enterprise' },
+    { key: 'microservice', label: 'Microservice', description: 'multi-service coordination' },
+    { key: 'experimental', label: 'Experimental', description: 'POC / spike / research — all modes OFF' },
+    { key: 'local-dev',    label: 'Local dev',    description: 'single developer, local only — all modes OFF' },
+  ]);
+
+  // ── Auto-set for no-ceremony types ───────────────────────────────────────
+  if (projectType === 'experimental' || projectType === 'local-dev') {
+    console.log(colors.yellow(`\n  ℹ  ${projectType} detected → all development modes set to OFF (minimal PRU cost).`));
+    const scope = await promptChoice('Project scope?', [
+      { key: 'poc',        label: 'POC / prototype' },
+      { key: 'startup',    label: 'Startup' },
+      { key: 'mid-market', label: 'Mid-market' },
+      { key: 'enterprise', label: 'Enterprise' },
+    ]);
+    return {
+      projectType, scope, estimatedStories: 0,
+      grillMeMode: false, cavemanMode: true,   // caveman ON saves PRU in light projects
+      tddMode: false, bddMode: false, dddMode: false,
+    };
+  }
+
+  // ── Step 2: Scope ─────────────────────────────────────────────────────────
+  const scope = await promptChoice('Project scope / scale?', [
+    { key: 'startup',    label: 'Startup',    description: '< 10 stories' },
+    { key: 'mid-market', label: 'Mid-market', description: '10-50 stories' },
+    { key: 'enterprise', label: 'Enterprise', description: '50+ stories, regulated' },
+    { key: 'poc',        label: 'POC',        description: 'exploratory, no production' },
+  ]);
+
+  // ── Step 3: Estimated stories ─────────────────────────────────────────────
+  const storiesInput = await prompt('  Estimated number of user stories (helps PRU budgeting)', '20');
+  const estimatedStories = parseInt(storiesInput, 10) || 20;
+
+  // ── Step 4: PRU cost advisory ─────────────────────────────────────────────
+  console.log(colors.cyan('\n  💡 Development mode advisor:'));
+  const pruTable = {
+    'tdd':         { label: 'TDD (Red→Green→Refactor)', pru: '~10K/story',   rec: projectType !== 'experimental' },
+    'bdd':         { label: 'BDD (.feature file specs)', pru: '~+3K/story',  rec: scope === 'enterprise' || projectType === 'client-repo' },
+    'ddd':         { label: 'DDD (aggregates/events)',   pru: '~+2K/story',  rec: scope === 'enterprise' || projectType === 'microservice' },
+    'grill-me':    { label: 'YOLO/grill-me (Q&A gates)', pru: '~-20% PRU',  rec: false },
+    'caveman':     { label: 'Caveman mode (compressed)', pru: '~-75% PRU',  rec: false },
+  };
+  for (const [, v] of Object.entries(pruTable)) {
+    const rec = v.rec ? colors.green('  ← recommended for your config') : '';
+    console.log(`     ${v.label.padEnd(32)} PRU impact: ${v.pru}${rec}`);
+  }
+  console.log('');
+
+  // ── Step 5: Mode selection ────────────────────────────────────────────────
+  const tddMode    = await promptYesNo('Enable TDD (Red→Green→Refactor per layer)?', pruTable.tdd.rec);
+  const bddMode    = await promptYesNo('Enable BDD (BA generates .feature files)?',   pruTable.bdd.rec);
+  const dddMode    = await promptYesNo('Enable DDD (aggregate / domain-event patterns)?', pruTable.ddd.rec);
+  const grillMeMode = await promptYesNo('Enable YOLO/grill-me (Q&A gates, no doc reviews)?', false);
+  const cavemanMode = await promptYesNo('Enable caveman mode (75% token reduction on TDD agents)?', false);
+
+  // ── Summary ───────────────────────────────────────────────────────────────
+  const approvalMode = !tddMode && !bddMode && !dddMode;
+  const pruPerStory = 3500 + (tddMode ? 6500 : 0) + (bddMode ? 3000 : 0) + (dddMode ? 2000 : 0);
+  const totalPru = pruPerStory * estimatedStories;
+  console.log(colors.cyan('\n  📊 Configuration summary:'));
+  console.log(`     Project: ${projectType} / ${scope}`);
+  console.log(`     TDD: ${tddMode ? '✅' : '❌'}  BDD: ${bddMode ? '✅' : '❌'}  DDD: ${dddMode ? '✅' : '❌'}  approvalMode: ${approvalMode ? '✅' : '❌'}`);
+  console.log(`     Estimated PRU: ~${pruPerStory.toLocaleString()}/story × ${estimatedStories} stories = ${totalPru.toLocaleString()} total`);
+  console.log('');
+
+  return { projectType, scope, estimatedStories, grillMeMode, cavemanMode, tddMode, bddMode, dddMode };
+}
+
+/**
  * Resolve the gene2-core framework path from (priority order):
  *  1. --gene2-path CLI argument
  *  2. GENE2_LOCALPATH environment variable
@@ -266,7 +405,7 @@ async function initClientRepo(args) {
     }
 
     // === PHASE 1: Core Framework Setup ===
-    await phase1_frameworkSetup(clientRepoPath, frameworkPath, clientName, dryRun, doBackup);
+    await phase1_frameworkSetup(clientRepoPath, frameworkPath, clientName, dryRun, doBackup, args);
     phaseSummary.phases.push({ name: 'Phase 1', status: 'success' });
 
     // === PHASE 2: Project Structure Creation ===
@@ -345,7 +484,7 @@ async function initClientRepo(args) {
   }
 }
 
-async function phase1_frameworkSetup(clientPath, frameworkPath, clientName, dryRun, doBackup) {
+async function phase1_frameworkSetup(clientPath, frameworkPath, clientName, dryRun, doBackup, args = {}) {
   logger.section('📦 Phase 1: Framework Symlink & Cleanup');
 
   const githubPath = path.join(clientPath, '.github');
@@ -430,12 +569,58 @@ async function phase1_frameworkSetup(clientPath, frameworkPath, clientName, dryR
     logger.success('Smart loader created');
   }
 
+  // Run project type wizard (interactive unless CLI flags override)
+  logger.status('Running project configuration wizard');
+  const projectConfig = await projectTypeWizard(args);
+
   // Create framework config
   logger.status('Creating framework configuration');
   const configPath = path.join(githubPath, 'framework-config.mjs');
   if (!dryRun) {
-    fs.writeFileSync(configPath, generateFrameworkConfig(clientName, frameworkPath, relativePath));
+    fs.writeFileSync(configPath, generateFrameworkConfig(clientName, frameworkPath, relativePath, projectConfig));
     logger.success('Framework config created');
+  }
+
+  // Generate starter checkpoint.yaml (E2 — sole PDLC position tracker)
+  logger.status('Creating starter checkpoint.yaml');
+  const checkpointPath = path.join(githubPath, 'checkpoint.yaml');
+  if (!dryRun) {
+    const today = new Date().toISOString().split('T')[0];
+    const starterCheckpoint = `# checkpoint.yaml — PDLC Position Tracker (sole source of truth)
+# Updated by orchestrator at every phase transition and TDD cycle.
+# Schema: .github/schemas/checkpoint.schema.json
+
+project_state:
+  current_phase: "00-assessment"
+  phase_status: "in_progress"
+  last_gate_passed: null
+  last_gate_date: null
+  last_gate_score: null
+  next_expected_gate: "gate-00-assessment"
+  routing_strategy: null
+  artifacts_location: "docs/00-assessment/"
+
+sub_phase: null
+active_epic: null
+active_story: null
+current_layer: null
+current_cycle: null
+active_tdd_cycle: null
+
+last_updated: "${today}"
+last_agent: "init-client-repo"
+ai_model_in_use: null
+
+generated_files: []
+blockers: []
+decision_gates_pending:
+  - "gate-00-assessment"
+notes: "Initialized by init-client-repo.mjs on ${today}"
+
+orchestrator_decisions: []
+`;
+    fs.writeFileSync(checkpointPath, starterCheckpoint);
+    logger.success('Starter checkpoint.yaml created');
   }
 
   logger.newline();
@@ -761,17 +946,44 @@ Add client-specific instruction files to \`.github/instructions/\`.
 `;
 }
 
-function generateFrameworkConfig(clientName, frameworkPath, relativePath) {
+function generateFrameworkConfig(clientName, frameworkPath, relativePath, projectConfig = {}) {
+  // Support both old args-based and new wizard-based calling conventions
+  const grillMeMode   = projectConfig.grillMeMode   ?? projectConfig['grill-me'] === 'true' ?? false;
+  const cavemanMode   = projectConfig.cavemanMode    ?? projectConfig['caveman'] === 'true'  ?? false;
+  const tddMode       = projectConfig.tddMode        ?? projectConfig['tdd-mode'] === 'true' ?? false;
+  const bddMode       = projectConfig.bddMode        ?? projectConfig['bdd-mode'] === 'true' ?? false;
+  const dddMode       = projectConfig.dddMode        ?? projectConfig['ddd-mode'] === 'true' ?? false;
+  const approvalMode  = !tddMode && !bddMode && !dddMode;
+
+  const projectType       = projectConfig.projectType       || projectConfig['project-type'] || 'greenfield';
+  const scope             = projectConfig.scope             || projectConfig['scope']         || 'mid-market';
+  const estimatedStories  = projectConfig.estimatedStories  || 0;
+  const today             = new Date().toISOString().split('T')[0];
+
   return `/**
  * framework-config.mjs
  * Framework configuration for ${clientName}
- * 
- * This file tracks the framework setup for this client repository.
- * Do NOT edit manually unless you understand the implications.
+ *
+ * ─── BACKWARD COMPATIBILITY ────────────────────────────────────────────────
+ * If any flag is absent or this file is missing from a repo, all development
+ * modes default to TRUE (safest for production quality).
+ * Agents apply this rule: "if missing → true".
+ *
+ * ─── WORKFLOW BEHAVIOUR ────────────────────────────────────────────────────
+ * Workflow paths (*.workflows.yml) branch on development_modes flags.
+ * PRU impact: ~${(3500 + (tddMode ? 6500 : 0) + (bddMode ? 3000 : 0) + (dddMode ? 2000 : 0)).toLocaleString()} PRU/story estimated for this config.
  */
 
 export const frameworkConfig = {
   client_name: '${clientName}',
+
+  project_metadata: {
+    project_type: '${projectType}',
+    scope: '${scope}',
+    estimated_stories: ${estimatedStories},
+    initialized_at: '${today}',
+  },
+
   framework: {
     version: '2.0.0',
     source_location: '.gene2-core',
@@ -782,9 +994,18 @@ export const frameworkConfig = {
     git_ignored: true,
     never_commit: true,
   },
-  created_at: new Date().toISOString(),
-  last_verified: new Date().toISOString(),
-  status: 'initialized',
+
+  conversation_modes: {
+    grillMeMode: ${grillMeMode},
+    cavemanMode: ${cavemanMode},
+  },
+
+  development_modes: {
+    tddMode: ${tddMode},
+    bddMode: ${bddMode},
+    dddMode: ${dddMode},
+    approvalMode: ${approvalMode},
+  },
 };
 
 export default frameworkConfig;
@@ -804,6 +1025,14 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     logger.error('\nOptional:');
     logger.error('  --gene2-path <path>   Path to gene2-core clone  (or set GENE2_LOCALPATH)');
     logger.error('  --gene2-url  <url>    Git URL to auto-clone gene2-core (or set GENE2_REPO_URL)');
+    logger.error('  --project-type <t>    greenfield|brownfield|client-repo|microservice|experimental|local-dev');
+    logger.error('  --scope <s>           enterprise|mid-market|startup|poc');
+    logger.error('  --stories <n>         Estimated user story count (PRU budgeting)');
+    logger.error('  --grill-me            Enable grill-me conversation mode (default: false)');
+    logger.error('  --caveman             Enable caveman conversation mode (default: false)');
+    logger.error('  --tdd-mode            Enable TDD development mode (skips wizard if set)');
+    logger.error('  --bdd-mode            Enable BDD development mode (skips wizard if set)');
+    logger.error('  --ddd-mode            Enable DDD development mode (skips wizard if set)');
     logger.error('  --dry-run             Preview changes without applying');
     process.exit(1);
   });

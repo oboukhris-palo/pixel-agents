@@ -17,7 +17,7 @@ handoffs:
     send: true
   - label: 💻 Hand to Dev-Lead — AI Feature
     agent: dev-lead
-    prompt: AI engineering design complete. Create implementation plan for AI feature integration following 05-implementation.workflows.md.
+    prompt: AI engineering design complete. Create implementation plan for AI feature integration following 05-implementation.workflows.yml.
     send: true
   - label: 🏗️ Hand to Architect — AI Architecture
     agent: architect
@@ -392,3 +392,11 @@ When presented with an AI engineering challenge, expect me to ask:
 ---
 
 **Status**: Ready to advise | **Availability**: On-demand handoffs | **Last Updated**: January 2026
+
+## Context Manifest
+
+**Tier 1 (standard)**: `#file:.github/templates/context-manifest-standard.md` + `#file:.github/agents/ai-engineering.agent.md`
+
+**Tier 2 — Phase-Specific**:
+- `#file:.github/instructions/pru-optimization.instructions.md`
+- `#file:.github/workflows/05-implementation.workflows.yml`

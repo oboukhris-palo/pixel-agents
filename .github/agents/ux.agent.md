@@ -1558,3 +1558,12 @@ This UX agent now has concrete, executable prompts for all major design activiti
 - After component implementation: Review if dev matched design, adjust design specs for clarity
 - After every user feedback: Incorporate into next design system iteration
 - Quarterly: Audit design system adoption rate, add high-impact missing components
+
+## Context Manifest
+
+**Tier 1 (standard)**: `#file:.github/templates/context-manifest-standard.md` + `#file:.github/agents/ux.agent.md`
+
+**Tier 2 — Phase-Specific**:
+- `#file:.github/workflows/02-architecture.workflows.yml`
+- `#file:docs/02-architecture/design-systems.md`
+- `#file:docs/01-requirements/personas.md`

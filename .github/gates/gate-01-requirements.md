@@ -44,10 +44,17 @@ executed_by: "po.agent.md"
 
 ## Outcomes
 
-- **On PASS:** Proceed to Phase 3-4 (`02-architecture.workflows.md`)
+- **On PASS:** Proceed to Phase 3-4 (`02-architecture.workflows.yml`)
 - **On CONDITIONAL:** Return to BA for refinement; re-run gate within 2 days
 - **On FAIL:** BLOCK progression; conduct requirements clarification workshop
 
 ## Post-Gate Artifact
 
 `requirements-gate-report.md` (generated after review using `gate-report-tmpl.md`)
+
+## Override Procedures
+
+If gate FAILS and override is justified, follow `.github/validation/override-mechanisms.md`.
+Use `.github/templates/approval-block-tmpl.md` to document override approval.
+Use `.github/templates/approval-gate-tmpl.md` for structured approval gate records.
+Orchestrator enforces `.github/validation/workflow-compliance.yml` risk levels.

@@ -40,13 +40,13 @@ Provide agent-specific guidance for:
 | API design | tech-spec.md (project level) | @Solution Architect | Architecture phase |
 
 **Phases 1-7: Documentation**
-- Workflows: 01-requirements.workflows.md, 02-architecture.workflows.md, 03-testing.workflows.md, 04-planning.workflows.md
-- Route Reference: See `00-assessment.workflows.md` for routing framework (Routes A/B/C/D based on maturity tier)
+- Workflows: 01-requirements.workflows.yml, 02-architecture.workflows.yml, 03-testing.workflows.yml, 04-planning.workflows.yml
+- Route Reference: See `00-assessment.workflows.yml` for routing framework (Routes A/B/C/D based on maturity tier)
 - Templates: user-story-tmpl.yml, prd-tmpl.yml
 - Agents: @Product Owner, @Solution Architect, @UX/UI Designer
 
 **Phase 8: Implementation**
-- Workflow: 05-implementation.workflows.md
+- Workflow: 05-implementation.workflows.yml
 - Templates: implementation-plan-tmpl.md, plan-approval-tmpl.yaml, user-story-folder-tmpl.md
 - Agents: @TDD Orchestrator, @TDD RED/GREEN/REFACTOR Phase Agents
 - Progress tracking: Checkboxes in implementation-plan.md + git commits
@@ -271,7 +271,7 @@ Provide agent-specific guidance for:
 
 **Focused on implementation?**
 
-1. Load: `#file:.github/workflows/05-implementation.workflows.md`
+1. Load: `#file:.github/workflows/05-implementation.workflows.yml`
 2. Read: `#file:.github/guides/tdd-enforcement.guide.md`
 3. Use: Copy-paste from `#file:.github/tasks/`
 

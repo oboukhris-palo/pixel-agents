@@ -1,0 +1,185 @@
+/**
+ * AgentSidebar - Penpot Design Exact Match
+ * Left sidebar showing active agents with status indicators
+ * 
+ * Exact specifications from Penpot:
+ * - Width: 180px fixed
+ * - Height: 246px (content area)
+ * - Background: #252526
+ * - Header: 10px font, #808080 color, 6px top padding
+ * - Agent row: 28px height, 10px font
+ * - Status dot: 8×8px, positioned at X=72 (12px from left)
+ * - Active highlight: 3px wide orange bar (#ff5500) on left edge
+ * - Right border: 1px #3e3e42
+ */
+
+.container {
+  width: 180px;
+  min-width: 180px;
+  max-width: 180px;
+  height: 100%;
+  background: #252526; /* Exact from Penpot */
+  border-right: 1px solid #3e3e42; /* Exact from Penpot */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.header {
+  padding: 6px 12px; /* 6px top matches Penpot Y=152 (146+6) */
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #808080; /* Exact from Penpot */
+}
+
+.agentList {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.agentRow {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Gap between dot and name */
+  padding: 0 12px 0 12px; /* Match Penpot positioning */
+  height: 28px; /* Exact from Penpot - rows at Y: 166, 194, 222, 250, 278, 306, 334 (28px spacing) */
+  cursor: pointer;
+  transition: background-color 150ms;
+  user-select: none;
+  position: relative;
+  color: #808080; /* Default inactive color from Penpot */
+  font-size: 12px;
+}
+
+.agentRow:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.agentRow:focus {
+  outline: 2px solid var(--vscode-focusBorder);
+  outline-offset: -2px;
+}
+
+/* Active agent - white text + orange highlight bar */
+.agentRowCurrent {
+  color: #ffffff; /* Exact from Penpot for active agent */
+}
+
+.agentRowCurrent::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #ff5500; /* Orange highlight bar from Penpot */
+}
+
+.agentRowCurrent:hover {
+  background: rgba(255, 85, 0, 0.1);
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  min-height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  /* Colors set inline based on status:
+     - Active: #2ecc71 (green)
+     - Inactive: #6b7280 (gray)
+     - Warning/Error: #f39c12 (orange)
+  */
+}
+
+.agentName {
+  font-size: 13px; /* Increased from 10px per plan - minimum readability */
+  font-family: var(--vscode-font-family);
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Color inherited from .agentRow or .agentRowCurrent */
+}
+
+.emptyState {
+  padding: 16px;
+  font-size: 10px;
+  color: #808080;
+  text-align: center;
+}
+
+/* v1.0.5: Disabled agent state (TDD sub-agents: dev-tdd-red/green/refactor) */
+.agentRowDisabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.agentRowDisabled .agentName {
+  color: #6b7280;
+}
+
+.disabledIcon {
+  font-size: 10px;
+  width: 8px;
+  height: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Accordion category grouping - gene2-core v2.0.1 */
+.category {
+  margin-bottom: 4px;
+}
+
+.categoryHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: transparent;
+  border: none;
+  color: #808080;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background-color 150ms;
+}
+
+.categoryHeader:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.categoryIcon {
+  font-size: 8px;
+  width: 10px;
+  display: inline-block;
+}
+
+.categoryName {
+  flex: 1;
+  text-align: left;
+}
+
+.categoryIndicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.categoryAgents {
+  padding-left: 8px;
+}
+

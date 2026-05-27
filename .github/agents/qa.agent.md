@@ -563,3 +563,14 @@ collaboration:
 ---
 
 **Status**: Ready to execute comprehensive testing | **Availability**: On-demand handoffs | **Last Updated**: January 2026
+
+## Context Manifest
+
+**Tier 1 (standard)**: `#file:.github/templates/context-manifest-standard.md` + `#file:.github/agents/qa.agent.md`
+
+**Tier 2 — Phase-Specific**:
+- `#file:.github/workflows/03-testing.workflows.yml`
+- `#file:.github/instructions/test-strategy.instructions.md`
+
+**Tier 3 — Story Context**:
+- `#file:docs/05-implementation/epics/{EPIC-REF}/user-stories/{US-REF}/features/`

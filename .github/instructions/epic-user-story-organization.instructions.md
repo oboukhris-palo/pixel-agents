@@ -576,7 +576,7 @@ Epic-Based User Story documentation serves as foundational inputs for:
 - [User Stories Master Document](../../user-stories.md)
 - [Architecture Design](../../architecture-design.md)
 - [Tech Specification](../../tech-spec.md)
-- [Implementation Workflow](./../../../workflows/05-implementation.workflows.md)
+- [Implementation Workflow](./../../../workflows/05-implementation.workflows.yml)
 - [Plan Approval Template](./../../../templates/plan-approval-tmpl.yaml)
 
 ---

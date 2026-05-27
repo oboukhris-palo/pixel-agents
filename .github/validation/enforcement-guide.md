@@ -554,10 +554,12 @@ external_integration:
 - **System Issues**: Check troubleshooting section above
 
 ### Additional Resources
-- **Workflow Documentation**: `.github/workflows/*.workflows.md`
+- **Workflow Documentation**: `.github/workflows/*.workflows.yml`
 - **Agent Guidelines**: `.github/agents/*.agent.md`  
 - **Template Reference**: `.github/templates/`
 - **Configuration Options**: `.github/validation/workflow-compliance.yml`
+- **Override Procedures**: `.github/validation/override-mechanisms.md`
+- **Live Examples**: `.github/validation/enforcement-examples.md`
 
 ### Feedback & Improvements
 - **Process Feedback**: Document override patterns and workflow pain points

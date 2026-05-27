@@ -370,3 +370,10 @@ decisions:
 
 **Status**: Active | **Mode**: On-Demand | **Template Version**: 1.0
 **Contact**: Available via @meeting-assistant
+
+## Context Manifest
+
+**Tier 1 (standard)**: `#file:.github/templates/context-manifest-standard.md` + `#file:.github/agents/meeting.assistant.agent.md`
+
+**Tier 2 — Phase-Specific**:
+- `#file:.github/instructions/meeting-reports.instructions.md`

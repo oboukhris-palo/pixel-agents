@@ -14,7 +14,7 @@
  *     --to-phase "01-requirements" \
  *     --trigger "gate-00-assessment PASSED" \
  *     --rationale "All prerequisites met" \
- *     --workflow "00-assessment.workflows.md"
+ *     --workflow "00-assessment.workflows.yml"
  *
  *   node .github/scripts/update-decision-trail.mjs \
  *     --type gate_outcome \
@@ -73,7 +73,7 @@ function buildEntry(args) {
     entry_type: type,
     phase: args.phase,
     recorded_by: 'orchestrator',
-    workflow_ref: args.workflow || `${args.phase}.workflows.md`,
+    workflow_ref: args.workflow || `${args.phase}.workflows.yml`,
     git_commit: args.git_commit || null,
   };
 

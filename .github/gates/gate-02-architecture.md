@@ -49,10 +49,17 @@ executed_by: "architect.agent.md + ux.agent.md"
 
 ## Outcomes
 
-- **On PASS:** Proceed to Phase 5 (`03-testing.workflows.md`)
+- **On PASS:** Proceed to Phase 5 (`03-testing.workflows.yml`)
 - **On CONDITIONAL:** Iterate design with stakeholders; re-run gate within 3 days
 - **On FAIL:** BLOCK progression; conduct architecture review workshop
 
 ## Post-Gate Artifact
 
 `architecture-gate-report.md` (generated after review using `gate-report-tmpl.md`)
+
+## Override Procedures
+
+If gate FAILS and override is justified, follow `.github/validation/override-mechanisms.md`.
+Use `.github/templates/approval-block-tmpl.md` to document override approval.
+Use `.github/templates/approval-gate-tmpl.md` for structured approval gate records.
+Orchestrator enforces `.github/validation/workflow-compliance.yml` risk levels.

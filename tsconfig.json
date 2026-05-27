@@ -8,7 +8,7 @@
 		],
 		"jsx": "react-jsx",
 		"sourceMap": true,
-		"rootDir": "src",
+		"rootDir": "src/backend",
 		"strict": true,
 		"esModuleInterop": true,
 		"skipLibCheck": true,
@@ -16,9 +16,10 @@
 	},
 	"exclude": [
 		"node_modules",
-		"webview-ui",
+		"src/frontend",
 		"dist",
 		"out",
-		"scripts"
+		"scripts",
+		"builds"
 	]
 }
